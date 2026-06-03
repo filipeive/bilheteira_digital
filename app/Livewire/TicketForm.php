@@ -29,7 +29,7 @@ class TicketForm extends Component
             'buyer_name' => 'required|string|min:3|max:100',
             'buyer_phone' => ['required', 'string', 'min:9', 'max:20'],
             'buyer_email' => 'nullable|email|max:100',
-            'ticket_type' => 'required|in:promotional,second_lot,gate,vip',
+            'ticket_type' => 'required|in:promotional,second_lot,gate,vip,vip_promotional,vip_second_lot',
             'quantity' => 'required|integer|min:1|max:10',
             'payment_ref' => 'required|string|min:3|max:50',
             'payment_method' => 'required|in:mpesa,emola,cash',
@@ -52,6 +52,11 @@ class TicketForm extends Component
     public function updatedTicketType(): void
     {
         $this->resetValidation('ticket_type');
+    }
+
+    public function selectTicket(string $type): void
+    {
+        $this->ticket_type = $type;
     }
 
     public function getPrice(): int
@@ -89,13 +94,16 @@ class TicketForm extends Component
 
         $tickets = $ticketService->createBulkTickets($data, $this->quantity);
 
-        $this->createdTickets = collect($tickets)->map(fn(Ticket $t) => [
-            'id' => $t->id,
-            'code' => $t->ticket_code,
-            'qr_payload' => $t->qr_payload,
-            'type' => $t->getTicketTypeLabel(),
-            'name' => $t->buyer_name,
-        ])->toArray();
+        $this->createdTickets = collect($tickets)->map(function(Ticket $t) {
+            \App\Jobs\SendPendingTicketJob::dispatch($t);
+            return [
+                'id' => $t->id,
+                'code' => $t->ticket_code,
+                'qr_payload' => $t->qr_payload,
+                'type' => $t->getTicketTypeLabel(),
+                'name' => $t->buyer_name,
+            ];
+        })->toArray();
 
         $this->showSuccess = true;
         $this->isSubmitting = false;

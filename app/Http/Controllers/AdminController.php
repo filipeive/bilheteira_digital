@@ -59,8 +59,10 @@ class AdminController extends Controller
         }
 
         if ($request->hasFile('hero_image')) {
-            $path = $request->file('hero_image')->store('site', 'public');
-            SiteSetting::putValue('hero_image', Storage::url($path));
+            $file = $request->file('hero_image');
+            $filename = uniqid('hero_') . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/site'), $filename);
+            SiteSetting::putValue('hero_image', 'uploads/site/' . $filename);
         }
 
         $event = Event::where('is_active', true)->first();
@@ -100,20 +102,31 @@ class AdminController extends Controller
         $tempPdf = tempnam(sys_get_temp_dir(), 'ticket_') . '.pdf';
         file_put_contents($tempPdf, $pdf->output());
 
-        $tempPngPrefix = sys_get_temp_dir() . '/ticket_png_' . uniqid();
-        
-        exec("pdftoppm -png -singlefile -r 250 " . escapeshellarg($tempPdf) . " " . escapeshellarg($tempPngPrefix));
-
-        $pngFile = $tempPngPrefix . '.png';
-
-        if (!file_exists($pngFile)) {
-            abort(500, 'Não foi possível gerar a imagem PNG do bilhete.');
+        try {
+            if (class_exists('\Imagick')) {
+                $imagick = new \Imagick();
+                $imagick->setResolution(300, 300);
+                $imagick->readImage($tempPdf . '[0]');
+                $imagick->setImageFormat('png');
+                $imageContent = $imagick->getImageBlob();
+                $imagick->clear();
+                $imagick->destroy();
+            } else {
+                throw new \Exception('Imagick is not installed.');
+            }
+        } catch (\Exception $e) {
+            $tempPngPrefix = sys_get_temp_dir() . '/ticket_png_' . uniqid();
+            exec("pdftoppm -png -singlefile -r 250 " . escapeshellarg($tempPdf) . " " . escapeshellarg($tempPngPrefix));
+            $pngFile = $tempPngPrefix . '.png';
+            if (!file_exists($pngFile)) {
+                @unlink($tempPdf);
+                abort(500, 'Não foi possível gerar a imagem PNG do bilhete. Por favor, tente baixar o PDF.');
+            }
+            $imageContent = file_get_contents($pngFile);
+            @unlink($pngFile);
         }
 
-        $imageContent = file_get_contents($pngFile);
-
-        unlink($tempPdf);
-        unlink($pngFile);
+        @unlink($tempPdf);
 
         return response($imageContent)
             ->header('Content-Type', 'image/png')
@@ -124,7 +137,7 @@ class AdminController extends Controller
     {
         $event = Event::where('is_active', true)->first();
 
-        $tickets = Ticket::where('event_id', $event->id)
+        $tickets = Ticket::with('scanner')->where('event_id', $event->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -141,7 +154,7 @@ class AdminController extends Controller
             fputcsv($file, [
                 'Código', 'Nome', 'Telefone', 'Email', 'Tipo', 'Preço (MT)',
                 'Método Pagamento', 'Referência', 'Status', 'Usado em',
-                'Data Compra',
+                'Validado Por', 'Data Compra',
             ], ';');
 
             foreach ($tickets as $ticket) {
@@ -156,6 +169,7 @@ class AdminController extends Controller
                     $ticket->payment_ref ?? '-',
                     $ticket->getStatusLabel(),
                     $ticket->used_at ? $ticket->used_at->format('d/m/Y H:i') : '-',
+                    $ticket->scanner ? $ticket->scanner->name : '-',
                     $ticket->created_at->format('d/m/Y H:i'),
                 ], ';');
             }

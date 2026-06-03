@@ -28,6 +28,16 @@ class PublicTicketController extends Controller
         ]);
     }
 
+    public function about(): View
+    {
+        $event = Event::where('is_active', true)->first();
+
+        return view('public.about', [
+            'event' => $event,
+            'siteSettings' => $this->siteSettings(),
+        ]);
+    }
+
     public function lookupPage(): View
     {
         $event = Event::where('is_active', true)->first();
@@ -109,20 +119,32 @@ class PublicTicketController extends Controller
         $tempPdf = tempnam(sys_get_temp_dir(), 'ticket_') . '.pdf';
         file_put_contents($tempPdf, $pdf->output());
 
-        $tempPngPrefix = sys_get_temp_dir() . '/ticket_png_' . uniqid();
-        
-        exec("pdftoppm -png -singlefile -r 250 " . escapeshellarg($tempPdf) . " " . escapeshellarg($tempPngPrefix));
-
-        $pngFile = $tempPngPrefix . '.png';
-
-        if (!file_exists($pngFile)) {
-            abort(500, 'Não foi possível gerar a imagem PNG do bilhete.');
+        try {
+            if (class_exists('\Imagick')) {
+                $imagick = new \Imagick();
+                $imagick->setResolution(300, 300);
+                $imagick->readImage($tempPdf . '[0]');
+                $imagick->setImageFormat('png');
+                $imageContent = $imagick->getImageBlob();
+                $imagick->clear();
+                $imagick->destroy();
+            } else {
+                throw new \Exception('Imagick is not installed.');
+            }
+        } catch (\Exception $e) {
+            // Fallback to pdftoppm if Imagick fails
+            $tempPngPrefix = sys_get_temp_dir() . '/ticket_png_' . uniqid();
+            exec("pdftoppm -png -singlefile -r 250 " . escapeshellarg($tempPdf) . " " . escapeshellarg($tempPngPrefix));
+            $pngFile = $tempPngPrefix . '.png';
+            if (!file_exists($pngFile)) {
+                @unlink($tempPdf);
+                abort(500, 'Não foi possível gerar a imagem PNG do bilhete. Por favor, tente baixar o PDF.');
+            }
+            $imageContent = file_get_contents($pngFile);
+            @unlink($pngFile);
         }
 
-        $imageContent = file_get_contents($pngFile);
-
-        unlink($tempPdf);
-        unlink($pngFile);
+        @unlink($tempPdf);
 
         return response($imageContent)
             ->header('Content-Type', 'image/png')

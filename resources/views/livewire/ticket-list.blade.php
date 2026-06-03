@@ -31,7 +31,9 @@
                     <option value="promotional">Promocional</option>
                     <option value="second_lot">2º Lote</option>
                     <option value="gate">No Portão</option>
-                    <option value="vip">VIP</option>
+                    <option value="vip_promotional">VIP 1º Lote</option>
+                    <option value="vip_second_lot">VIP 2º Lote</option>
+                    <option value="vip">VIP No Portão</option>
                     <option value="free">Gratuito</option>
                 </select>
             </div>
@@ -92,7 +94,13 @@
                             <td>
                                 <span class="badge badge-{{ $ticket->getStatusColor() }}">{{ $ticket->getStatusLabel() }}</span>
                                 @if ($ticket->used_at)
-                                    <br><span style="font-size: 0.7rem; color: var(--text-muted);">{{ $ticket->used_at->format('d/m H:i') }}</span>
+                                    <br>
+                                    <span style="font-size: 0.7rem; color: var(--text-muted);">
+                                        {{ $ticket->used_at->format('d/m H:i') }}
+                                        @if($ticket->scanner)
+                                            <br>por {{ $ticket->scanner->name }}
+                                        @endif
+                                    </span>
                                 @endif
                             </td>
                             <td style="font-size: 0.8rem;">{{ $ticket->created_at->format('d/m/Y H:i') }}</td>
@@ -110,6 +118,11 @@
                                     @if ($ticket->isPending())
                                         <button wire:click="confirmTicket('{{ $ticket->id }}')" wire:confirm="Confirmar bilhete {{ $ticket->ticket_code }}?" class="btn-sm btn-confirm" title="Confirmar">
                                             <i data-lucide="check" class="w-4 h-4"></i>
+                                        </button>
+                                    @endif
+                                    @if ($ticket->isConfirmed())
+                                        <button wire:click="validateTicket('{{ $ticket->id }}')" wire:confirm="Validar entrada do bilhete {{ $ticket->ticket_code }}?" class="btn-sm" title="Validar Entrada" style="display: inline-flex; align-items: center; justify-content: center; background: rgba(16,185,129,0.14); color: #10B981; border: 1px solid rgba(16,185,129,0.3);">
+                                            <i data-lucide="scan-line" class="w-4 h-4"></i>
                                         </button>
                                     @endif
                                     @if ($ticket->isConfirmed() || $ticket->isUsed())
@@ -143,7 +156,7 @@
     </div>
 
     <style>
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             div[style*="grid-template-columns: 2fr 1fr 1fr"] {
                 grid-template-columns: 1fr !important;
             }

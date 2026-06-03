@@ -6,6 +6,9 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Bilhetes') }}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('alpha-logo-gold.png') }}">
+
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,25 +77,13 @@
             .auth-card-body { padding: 28px 30px 30px; }
             .auth-card a { color: var(--gold-light); }
             .auth-card label { color: var(--text-secondary); font-weight: 700; }
-            .auth-card input[type="email"],
-            .auth-card input[type="password"],
-            .auth-card input[type="text"] {
-                background: rgba(13, 11, 7, 0.72);
-                border-color: rgba(212,175,55,0.2);
-                color: var(--text-primary);
-                border-radius: 10px;
-            }
-            .auth-card input:focus {
-                border-color: var(--gold);
-                box-shadow: 0 0 0 3px rgba(212,175,55,0.16);
-            }
         </style>
     </head>
     <body>
         <main class="auth-shell">
             <section class="auth-card">
                 <div class="auth-card-header">
-                    <a href="/">
+                    <a href="{{ route('home') }}">
                         <img src="{{ asset('alpha-logo-gold.png') }}" alt="Alpha Produções">
                     </a>
                     <h1>{{ $heading ?? 'Acesso ao Sistema' }}</h1>

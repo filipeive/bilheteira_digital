@@ -57,7 +57,9 @@
                             <option value="promotional">Promocional — 500 MT</option>
                             <option value="second_lot">2º Lote — 750 MT</option>
                             <option value="gate">No Portão — 1.000 MT</option>
-                            <option value="vip">VIP — 2.000 MT</option>
+                            <option value="vip_promotional">VIP 1º Lote — 1.000 MT</option>
+                            <option value="vip_second_lot">VIP 2º Lote — 1.500 MT</option>
+                            <option value="vip">VIP No Portão — 2.000 MT</option>
                             <option value="free">Gratuito / Cortesia</option>
                         </select>
                     </div>

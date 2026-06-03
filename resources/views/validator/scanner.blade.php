@@ -7,7 +7,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0D0B07">
     <title>Scanner — Concerto Renúncia</title>
-    <link rel="manifest" href="/manifest.json">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('alpha-logo-gold.png') }}">
+
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode/html5-qrcode.min.js" type="text/javascript"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
@@ -265,7 +268,10 @@
         <div id="scannerScreen" style="display:none; flex:1; flex-direction:column;">
             <div class="scanner-header">
                 <h1 style="font-size: 1.3rem; color: var(--gold); display: inline-flex; align-items: center; gap: 8px;"><i data-lucide="scan-qr-code" class="w-5 h-5"></i> SCANNER</h1>
-                <div class="counter">
+                <div class="counter" style="display: flex; align-items: center;">
+                    <button onclick="toggleFullScreen()" style="background:none; border:none; color:var(--gold); cursor:pointer; margin-right:8px;" aria-label="Ecrã inteiro">
+                        <i data-lucide="maximize" class="w-4 h-4"></i>
+                    </button>
                     <span style="font-size: 0.75rem; color: var(--text-muted);">ENTRADAS</span>
                     <span class="counter-number" id="entryCount">0</span>
                 </div>
@@ -361,7 +367,7 @@
             const errorEl = document.getElementById('loginError');
 
             try {
-                const loginRes = await fetch('/login', {
+                const loginRes = await fetch('{{ route('login') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -380,6 +386,15 @@
                     document.getElementById('ticketInput').focus();
                     loadEntryCount();
                     lucide.createIcons();
+                    
+                    // Request fullscreen for PWA experience
+                    try {
+                        if (document.documentElement.requestFullscreen) {
+                            document.documentElement.requestFullscreen();
+                        } else if (document.documentElement.webkitRequestFullscreen) {
+                            document.documentElement.webkitRequestFullscreen();
+                        }
+                    } catch (e) {}
                 } else {
                     const data = await loginRes.json();
                     errorEl.textContent = data.message || 'Credenciais inválidas.';
@@ -403,7 +418,7 @@
             lucide.createIcons();
 
             try {
-                const res = await fetch('/validar/bilhete', {
+                const res = await fetch('{{ route('validator.validate') }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -623,7 +638,7 @@
         async function loadEntryCount() {
             try {
                 // Count from confirmed list endpoint
-                const res = await fetch('/validar/confirmados', {
+                const res = await fetch('{{ route('validator.confirmed') }}', {
                     credentials: 'same-origin',
                     headers: { 'Accept': 'application/json' },
                 });
@@ -643,6 +658,22 @@
             }
             status.style.display = 'block';
             status.textContent = message;
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            }
         }
 
         lucide.createIcons();

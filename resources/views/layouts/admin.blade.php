@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Admin' }} — Bilhetes Renúncia</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('alpha-logo-gold.png') }}">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -62,6 +64,7 @@
 
         h1, h2, h3, h4 { font-family: 'Bebas Neue', cursive; letter-spacing: 0.05em; }
         .mono { font-family: 'JetBrains Mono', monospace; }
+        .hidden { display: none !important; }
 
         /* Sidebar */
         .sidebar {
@@ -77,11 +80,13 @@
             z-index: 50;
             transition: transform 0.3s ease;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
         .sidebar-logo {
             padding: 0 24px 24px;
             border-bottom: 1px solid rgba(212,175,55,0.14);
-            margin-bottom: 16px;
+            margin-bottom: 8px;
         }
         .sidebar-logo img {
             width: 150px;
@@ -89,15 +94,24 @@
             object-fit: contain;
             margin-bottom: 10px;
         }
+        .sidebar-section-label {
+            padding: 16px 24px 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+        }
+        .sidebar-nav { flex: 1; }
         .sidebar-nav a {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px 24px;
+            padding: 10px 24px;
             color: var(--text-secondary);
             text-decoration: none;
             font-weight: 500;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             transition: all 0.2s ease;
             border-left: 3px solid transparent;
         }
@@ -107,15 +121,16 @@
             border-left-color: var(--gold);
         }
         .sidebar-nav a .nav-icon { font-size: 1.1rem; }
+        .sidebar-divider {
+            height: 1px;
+            background: var(--dark-border);
+            margin: 8px 24px;
+            opacity: 0.5;
+        }
 
         .sidebar-user {
             padding: 16px 24px;
             border-top: 1px solid var(--dark-border);
-            margin-top: auto;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
             background: var(--dark-surface);
         }
 
@@ -267,6 +282,9 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
         }
         .btn-confirm { background: rgba(16,185,129,0.15); color: #34D399; border: 1px solid rgba(16,185,129,0.3); }
         .btn-confirm:hover { background: rgba(16,185,129,0.3); }
@@ -286,11 +304,20 @@
         ::-webkit-scrollbar-track { background: var(--dark-bg); }
         ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
             .mobile-toggle { display: block; }
             .main-content { margin-left: 0; padding: 70px 16px 16px; }
+        }
+
+        @media (min-width: 768px) {
+            .md\:block { display: block !important; }
+            .md\:hidden { display: none !important; }
+        }
+        @media (max-width: 767px) {
+            .md\:block { display: none !important; }
+            .md\:hidden { display: block !important; }
         }
     </style>
     <script>
@@ -312,49 +339,70 @@
         </div>
 
         <nav class="sidebar-nav">
+            <div class="sidebar-section-label">Principal</div>
             <a href="{{ url('/admin') }}" class="{{ request()->is('admin') && !request()->is('admin/*') ? 'active' : '' }}">
                 <span class="nav-icon"><i data-lucide="layout-dashboard" class="w-4 h-4"></i></span> Dashboard
             </a>
             <a href="{{ url('/admin/tickets') }}" class="{{ request()->is('admin/tickets') ? 'active' : '' }}">
                 <span class="nav-icon"><i data-lucide="ticket" class="w-4 h-4"></i></span> Bilhetes
             </a>
+            <a href="{{ url('/admin/batches') }}" class="{{ request()->is('admin/batches') ? 'active' : '' }}">
+                <span class="nav-icon"><i data-lucide="layers" class="w-4 h-4"></i></span> Lotes
+            </a>
+            <a href="{{ url('/admin/quick-sale') }}" class="{{ request()->is('admin/quick-sale') ? 'active' : '' }}">
+                <span class="nav-icon"><i data-lucide="shopping-cart" class="w-4 h-4"></i></span> Venda Rápida
+            </a>
             <a href="{{ url('/admin/manual') }}" class="{{ request()->is('admin/manual') ? 'active' : '' }}">
                 <span class="nav-icon"><i data-lucide="pen-line" class="w-4 h-4"></i></span> Venda Manual
             </a>
-            <a href="{{ route('admin.site') }}" class="{{ request()->is('admin/site') ? 'active' : '' }}">
-                <span class="nav-icon"><i data-lucide="settings" class="w-4 h-4"></i></span> Site
+
+            @if(auth()->user()->canAccessAdmin())
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-section-label">Administração</div>
+            <a href="{{ url('/admin/users') }}" class="{{ request()->is('admin/users*') ? 'active' : '' }}">
+                <span class="nav-icon"><i data-lucide="users" class="w-4 h-4"></i></span> Utilizadores
+            </a>
+            <a href="{{ url('/admin/settings') }}" class="{{ request()->is('admin/settings') ? 'active' : '' }}">
+                <span class="nav-icon"><i data-lucide="globe" class="w-4 h-4"></i></span> Conteúdo do Site
+            </a>
+            <a href="{{ url('/admin/audit') }}" class="{{ request()->is('admin/audit') ? 'active' : '' }}">
+                <span class="nav-icon"><i data-lucide="shield" class="w-4 h-4"></i></span> Auditoria
+            </a>
+            @endif
+
+            <div class="sidebar-divider"></div>
+            <div class="sidebar-section-label">Ferramentas</div>
+            <a href="{{ url('/validar') }}" target="_blank">
+                <span class="nav-icon"><i data-lucide="scan" class="w-4 h-4"></i></span> Scanner
             </a>
             <a href="{{ url('/admin/tickets/export') }}">
                 <span class="nav-icon"><i data-lucide="download" class="w-4 h-4"></i></span> Exportar CSV
             </a>
-            <a href="{{ url('/') }}" target="_blank">
-                <span class="nav-icon"><i data-lucide="globe" class="w-4 h-4"></i></span> Ver Site
-            </a>
-            <a href="{{ route('tickets.lookup.form') }}" target="_blank">
-                <span class="nav-icon"><i data-lucide="search" class="w-4 h-4"></i></span> Consultar
-            </a>
-            <a href="{{ url('/validar') }}" target="_blank">
-                <span class="nav-icon"><i data-lucide="camera" class="w-4 h-4"></i></span> Scanner
+            <a href="{{ route('home') }}" target="_blank">
+                <span class="nav-icon"><i data-lucide="external-link" class="w-4 h-4"></i></span> Ver Site
             </a>
         </nav>
 
         <div class="sidebar-user">
             <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: rgba(212,175,55,0.2); display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 700;">
-                    {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
-                </div>
+                <img src="{{ auth()->user()->avatar_url }}" alt="" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(212,175,55,0.3);">
                 <div>
                     <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">{{ auth()->user()->name ?? 'Admin' }}</p>
-                    <p style="font-size: 0.7rem; color: var(--text-muted);">{{ ucfirst(auth()->user()->role ?? 'admin') }}</p>
+                    <p style="font-size: 0.7rem; color: var(--text-muted);">{{ \App\Models\User::ROLES[auth()->user()->role] ?? ucfirst(auth()->user()->role) }}</p>
                 </div>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" style="background: none; border: none; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; padding: 4px 0; transition: color 0.2s; display: flex; align-items: center; gap: 4px;">
-                        <i data-lucide="log-out" class="w-3 h-3"></i> Sair
-                    </button>
-                </form>
+                <div style="display: flex; gap: 8px;">
+                    <a href="{{ url('/admin/profile') }}" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; gap: 4px; transition: color 0.2s;" title="O meu perfil">
+                        <i data-lucide="user-circle" class="w-3 h-3"></i> Perfil
+                    </a>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" style="background: none; border: none; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; padding: 0; transition: color 0.2s; display: flex; align-items: center; gap: 4px;">
+                            <i data-lucide="log-out" class="w-3 h-3"></i> Sair
+                        </button>
+                    </form>
+                </div>
                 <button onclick="toggleTheme()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; align-items: center;" aria-label="Alternar tema">
                     <i data-lucide="sun-moon" class="w-4 h-4"></i>
                 </button>
@@ -397,7 +445,7 @@
                 sidebar.classList.remove('open');
             }
         });
-        
+
         lucide.createIcons();
         document.addEventListener('livewire:init', () => {
             if (window.Livewire?.hook) {

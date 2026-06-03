@@ -8,11 +8,19 @@ use App\Http\Middleware\CheckRole;
 use App\Livewire\AdminDashboard;
 use App\Livewire\ManualTicketForm;
 use App\Livewire\TicketList;
+use App\Livewire\Admin\UserList;
+use App\Livewire\Admin\UserForm;
+use App\Livewire\Admin\Profile as AdminProfile;
+use App\Livewire\Admin\SiteSettings;
+use App\Livewire\Admin\BatchManager;
+use App\Livewire\Admin\QuickSale;
+use App\Livewire\Admin\AuditLogs;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public Routes ───────────────────────────────────────────
 Route::get('/', [PublicTicketController::class, 'index'])->name('home');
 Route::get('/bilhetes', [PublicTicketController::class, 'index'])->name('bilhetes');
+Route::get('/sobre-o-evento', [PublicTicketController::class, 'about'])->name('about');
 Route::get('/consultar', [PublicTicketController::class, 'lookupPage'])->name('tickets.lookup.form');
 Route::post('/consultar', [PublicTicketController::class, 'lookup'])->name('tickets.lookup');
 Route::get('/bilhetes/{ticket}/download', [PublicTicketController::class, 'download'])
@@ -23,7 +31,8 @@ Route::get('/bilhetes/{ticket}/download/png', [PublicTicketController::class, 'd
     ->name('tickets.download.png');
 
 // ─── Admin Routes (auth required) ───────────────────────────
-Route::middleware(['auth', CheckRole::class . ':admin,organizer'])->prefix('admin')->group(function () {
+Route::middleware(['auth', CheckRole::class . ':admin,organizer,super_admin'])->prefix('admin')->group(function () {
+    // Existing routes (preserved)
     Route::get('/', AdminDashboard::class)->name('admin.dashboard');
     Route::get('/tickets', TicketList::class)->name('admin.tickets');
     Route::get('/tickets/{ticket}/download', [AdminController::class, 'downloadTicket'])->name('admin.tickets.download');
@@ -32,6 +41,16 @@ Route::middleware(['auth', CheckRole::class . ':admin,organizer'])->prefix('admi
     Route::get('/site', [AdminController::class, 'siteContent'])->name('admin.site');
     Route::post('/site', [AdminController::class, 'updateSiteContent'])->name('admin.site.update');
     Route::get('/tickets/export', [AdminController::class, 'exportCsv'])->name('admin.export');
+
+    // Phase 2 — New routes
+    Route::get('/users', UserList::class)->name('admin.users.index');
+    Route::get('/users/create', UserForm::class)->name('admin.users.create');
+    Route::get('/users/{user}/edit', UserForm::class)->name('admin.users.edit');
+    Route::get('/profile', AdminProfile::class)->name('admin.profile');
+    Route::get('/settings', SiteSettings::class)->name('admin.settings');
+    Route::get('/batches', BatchManager::class)->name('admin.batches');
+    Route::get('/quick-sale', QuickSale::class)->name('admin.quick-sale');
+    Route::get('/audit', AuditLogs::class)->name('admin.audit');
 });
 
 // ─── Validator Route ─────────────────────────────────────────
@@ -43,7 +62,7 @@ Route::middleware('auth')->group(function () {
 
 // ─── Auth Dashboard Redirect ─────────────────────────────────
 Route::get('/dashboard', function () {
-    return redirect('/admin');
+    return redirect()->route('admin.dashboard');
 })->middleware(['auth'])->name('dashboard');
 
 // ─── Profile Routes (from Breeze) ────────────────────────────

@@ -29,7 +29,7 @@ class ManualTicketForm extends Component
             'buyer_name' => 'required|string|min:3|max:100',
             'buyer_phone' => ['required', 'string', 'min:9', 'max:20'],
             'buyer_email' => 'nullable|email',
-            'ticket_type' => 'required|in:promotional,second_lot,gate,vip,free',
+            'ticket_type' => 'required|in:promotional,second_lot,gate,vip,free,vip_promotional,vip_second_lot',
             'payment_method' => 'required|in:mpesa,emola,cash,free',
             'quantity' => 'required|integer|min:1|max:20',
         ];

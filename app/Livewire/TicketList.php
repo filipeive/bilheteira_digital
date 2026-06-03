@@ -65,6 +65,18 @@ class TicketList extends Component
         $this->dispatch('notify', type: 'warning', message: "Bilhete {$ticket->ticket_code} cancelado.");
     }
 
+    public function validateTicket(string $ticketId): void
+    {
+        $ticket = Ticket::findOrFail($ticketId);
+        $result = app(TicketService::class)->validateTicket($ticket->ticket_code, auth()->user());
+        
+        if ($result['status'] === 'valid') {
+            $this->dispatch('notify', type: 'success', message: "Bilhete {$ticket->ticket_code} validado com sucesso.");
+        } else {
+            $this->dispatch('notify', type: 'error', message: $result['message']);
+        }
+    }
+
     public function resendTicket(string $ticketId): void
     {
         $ticket = Ticket::findOrFail($ticketId);
@@ -87,7 +99,7 @@ class TicketList extends Component
             return Ticket::query()->paginate(20);
         }
 
-        $query = Ticket::where('event_id', $event->id);
+        $query = Ticket::with('scanner')->where('event_id', $event->id);
 
         if ($this->search) {
             $query->where(function ($q) {

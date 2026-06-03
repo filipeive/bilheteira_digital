@@ -5,7 +5,7 @@
         <!-- Background Effects -->
         <div style="position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.08) 0%, transparent 60%), radial-gradient(ellipse at top right, rgba(212, 175, 55, 0.05) 0%, transparent 50%), var(--dark-bg);"></div>
         @if (!empty($siteSettings['hero_image']))
-            <img src="{{ $siteSettings['hero_image'] }}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.22; filter: saturate(0.9) contrast(1.08);">
+            <img src="{{ asset($siteSettings['hero_image']) }}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.22; filter: saturate(0.9) contrast(1.08);">
             <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,11,7,0.34), rgba(13,11,7,0.72) 62%, var(--dark-bg));"></div>
         @endif
         <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 30% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 40%); animation: float 15s ease-in-out infinite;"></div>
@@ -228,22 +228,22 @@
                     @if ($key !== 'free')
                     <div x-data @click="$dispatch('open-ticket-modal', { type: '{{ $key }}' })" class="glass-card" style="cursor: pointer; text-align: center; position: relative; overflow: hidden; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                         <!-- Glow effect -->
-                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: {{ $type['color'] }};"></div>
+                        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: {{ $type['color'] ?? 'var(--gold)' }};"></div>
 
-                        <div style="width: 58px; height: 58px; border-radius: 16px; margin: 0 auto 14px; display: grid; place-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: {{ $type['color'] }};">
-                            <i data-lucide="{{ $key === 'vip' ? 'star' : ($key === 'gate' ? 'door-open' : 'ticket') }}" class="w-8 h-8"></i>
+                        <div style="width: 58px; height: 58px; border-radius: 16px; margin: 0 auto 14px; display: grid; place-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: {{ $type['color'] ?? 'var(--gold)' }};">
+                            <i data-lucide="{{ str_starts_with($key, 'vip') ? 'star' : ($key === 'gate' ? 'door-open' : 'ticket') }}" class="w-8 h-8"></i>
                         </div>
-                        <h3 style="font-size: 1.6rem; color: var(--text-primary); margin-bottom: 4px;">{{ $type['name'] }}</h3>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">{{ $type['description'] }}</p>
+                        <h3 style="font-size: 1.6rem; color: var(--text-primary); margin-bottom: 4px;">{{ $type['name'] ?? '' }}</h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">{{ $type['description'] ?? '' }}</p>
 
                         <div style="margin-bottom: 12px;">
-                            <span class="mono" style="font-size: 2.2rem; font-weight: 700; color: {{ $type['color'] }};">
-                                {{ number_format($type['price'], 0, ',', '.') }}
+                            <span class="mono" style="font-size: 2.2rem; font-weight: 700; color: {{ $type['color'] ?? 'var(--gold)' }};">
+                                {{ number_format($type['price'] ?? 0, 0, ',', '.') }}
                             </span>
                             <span style="color: var(--text-muted); font-size: 0.9rem;"> MT</span>
                         </div>
 
-                        @if ($type['lot_size'] > 0)
+                        @if (isset($type['lot_size']) && $type['lot_size'] > 0)
                             <span class="badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--dark-border);">
                                 Lote: {{ $type['lot_size'] }} bilhetes
                             </span>
@@ -259,7 +259,7 @@
     </section>
 
     <!-- Info Section -->
-    <section id="sobre-evento" style="padding: 60px 0; background: var(--dark-bg);">
+    <section id="informacoes" style="padding: 60px 0; background: var(--dark-bg);">
         <div class="container">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px;">
                 <!-- M-Pesa Instructions -->

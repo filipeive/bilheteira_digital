@@ -8,6 +8,9 @@
     <meta name="author" content="Alpha Produções">
 
     <title>{{ $title ?? 'Concerto Renúncia — Bilhetes' }}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('alpha-logo-gold.png') }}">
+
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -377,6 +380,7 @@
             .site-nav-inner { height: 66px; }
             .site-nav-logo img { width: 134px; }
             .site-nav-links .site-nav-link { display: none; }
+            .site-nav-links .site-nav-cta { display: none; }
             .site-nav-login span { display: none; }
             .site-nav-cta { padding: 9px 13px; }
             .site-nav-login { padding: 9px 11px; }
@@ -391,20 +395,20 @@
                 <img src="{{ asset('alpha-logo-gold.png') }}" alt="Alpha Produções">
             </a>
             <nav class="site-nav-links" aria-label="Navegação principal">
-                <a href="#bilhetes" class="site-nav-link"><i data-lucide="ticket" class="w-4 h-4"></i> Bilhetes</a>
+                <a href="{{ route('home') }}#bilhetes" class="site-nav-link"><i data-lucide="ticket" class="w-4 h-4"></i> Bilhetes</a>
                 <a href="{{ route('tickets.lookup.form') }}" class="site-nav-link"><i data-lucide="search" class="w-4 h-4"></i> Consultar</a>
-                <a href="#sobre-evento" class="site-nav-link"><i data-lucide="info" class="w-4 h-4"></i> Sobre</a>
+                <a href="{{ route('about') }}" class="site-nav-link"><i data-lucide="info" class="w-4 h-4"></i> Sobre</a>
                 <a href="tel:+258875411644" class="site-nav-link"><i data-lucide="phone" class="w-4 h-4"></i> 87 541 1644</a>
                 @auth
                     <a href="{{ route('admin.dashboard') }}" class="site-nav-login"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span>Gerir</span></a>
                 @else
                     <a href="{{ route('login') }}" class="site-nav-login"><i data-lucide="log-in" class="w-4 h-4"></i> <span>Login</span></a>
                 @endauth
-                <a href="#bilhetes" class="site-nav-cta"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Comprar</a>
+                <a href="{{ route('home') }}#bilhetes" class="site-nav-cta"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Comprar</a>
             </nav>
         </div>
     </header>
-    <a href="#bilhetes" class="site-nav-cta mobile-buy-cta"><i data-lucide="ticket" class="w-4 h-4"></i> Comprar</a>
+    <a href="{{ route('home') }}#bilhetes" class="site-nav-cta mobile-buy-cta"><i data-lucide="ticket" class="w-4 h-4"></i> Comprar</a>
 
     {{ $slot }}
 
@@ -424,8 +428,8 @@
             </div>
             <div class="footer-links-col" style="display: flex; flex-direction: column; gap: 8px;">
                 <h4 style="color: var(--text-primary); margin-bottom: 8px;">Evento</h4>
-                <a href="#bilhetes" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Comprar Bilhetes</a>
-                <a href="#sobre-evento" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Sobre o Evento</a>
+                <a href="{{ route('home') }}#bilhetes" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Comprar Bilhetes</a>
+                <a href="{{ route('about') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Sobre o Evento</a>
             </div>
             <div class="footer-links-col" style="display: flex; flex-direction: column; gap: 8px;">
                 <h4 style="color: var(--text-primary); margin-bottom: 8px;">Suporte</h4>

@@ -1,14 +1,20 @@
-<div x-data="{ open: false }" @open-ticket-modal.window="open = true; document.body.style.overflow = 'hidden'; $wire.ticket_type = $event.detail.type">
-    <!-- Modal Overlay -->
-    <div x-show="open" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; backdrop-filter: blur(8px); overflow-y: auto; padding: 40px 16px;" x-transition.opacity>
-        
-        <!-- Modal Content -->
-        <div style="max-width: 640px; margin: 0 auto; position: relative; padding-top: 10px;" @click.away="open = false; document.body.style.overflow = ''">
-            
-            <!-- Close Button -->
-            <button type="button" @click="open = false; document.body.style.overflow = ''" style="position: absolute; right: 16px; top: 26px; z-index: 10; background: rgba(0,0,0,0.6); border: 1px solid var(--dark-border); border-radius: 50%; width: 36px; height: 36px; display: grid; place-items: center; color: #fff; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(212,175,55,0.2)'" onmouseout="this.style.background='rgba(0,0,0,0.6)'">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
+<div id="ticket-form-container" x-data="{ 
+    showForm: false,
+    ticketType: $wire.entangle('ticket_type'),
+    quantity: $wire.entangle('quantity'),
+    prices: {
+        @foreach ($event->getTicketTypePrices() as $key => $type)
+            '{{ $key }}': {{ $type['price'] ?? 0 }},
+        @endforeach
+    },
+    get total() {
+        const price = this.prices[this.ticketType] || 0;
+        const qty = parseInt(this.quantity) || 1;
+        return new Intl.NumberFormat('pt-MZ').format(price * qty);
+    }
+}" @open-ticket-modal.window="showForm = true; ticketType = $event.detail.type; setTimeout(() => $el.scrollIntoView({behavior: 'smooth', block: 'start'}), 50)" style="margin-top: 40px;">
+    
+        <div x-show="showForm" x-transition style="max-width: 640px; margin: 0 auto; position: relative;">
 
             @if ($showSuccess && $createdTickets)
                 <!-- Success Modal -->
@@ -18,7 +24,7 @@
                     </div>
                     <h3 style="font-size: 2rem; color: var(--gold); margin-bottom: 8px;">BILHETE REGISTADO!</h3>
                     <p style="color: var(--text-secondary); margin-bottom: 24px;">
-                        O seu bilhete foi registado com sucesso. Após confirmação do pagamento, receberá o QR Code.
+                        O seu pedido foi registado com sucesso! Receberá agora uma mensagem (email/WhatsApp) a confirmar a sua reserva. Após o pagamento ser validado, o bilhete com QR Code será enviado pelos mesmos meios.
                     </p>
 
                     @foreach ($createdTickets as $ticket)
@@ -67,14 +73,14 @@
 
                     <!-- Telefone -->
                     <div class="form-group">
-                        <label class="form-label" for="buyer_phone">Telemóvel *</label>
-                        <input type="tel" id="buyer_phone" wire:model="buyer_phone" class="form-input" placeholder="841234567">
+                        <label class="form-label" for="buyer_phone">Telemóvel (WhatsApp recomendado) *</label>
+                        <input type="tel" id="buyer_phone" wire:model="buyer_phone" class="form-input" placeholder="Ex: 841234567">
                         @error('buyer_phone') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Email -->
                     <div class="form-group">
-                        <label class="form-label" for="buyer_email">Email (opcional)</label>
+                        <label class="form-label" for="buyer_email">Email (Onde receberá o bilhete)</label>
                         <input type="email" id="buyer_email" wire:model="buyer_email" class="form-input" placeholder="email@exemplo.com">
                         @error('buyer_email') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
@@ -82,10 +88,10 @@
                     <!-- Tipo de Bilhete -->
                     <div class="form-group">
                         <label class="form-label" for="ticket_type">Tipo de Bilhete *</label>
-                        <select id="ticket_type" wire:model.live="ticket_type" class="form-select">
+                        <select id="ticket_type" x-model="ticketType" class="form-select">
                             @foreach ($event->getTicketTypePrices() as $key => $type)
                                 @if ($key !== 'free')
-                                    <option value="{{ $key }}">{{ $type['name'] }} — {{ number_format($type['price'], 0, ',', '.') }} MT</option>
+                                    <option value="{{ $key }}">{{ $type['name'] ?? '' }} — {{ number_format($type['price'] ?? 0, 0, ',', '.') }} MT</option>
                                 @endif
                             @endforeach
                         </select>
@@ -95,7 +101,7 @@
                     <!-- Quantidade -->
                     <div class="form-group">
                         <label class="form-label" for="quantity">Quantidade</label>
-                        <select id="quantity" wire:model.live="quantity" class="form-select">
+                        <select id="quantity" x-model="quantity" class="form-select">
                             @for ($i = 1; $i <= 10; $i++)
                                 <option value="{{ $i }}">{{ $i }}</option>
                             @endfor
@@ -124,7 +130,7 @@
                 <div style="background: var(--dark-bg); border: 1px solid var(--dark-border); border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center;">
                     <p style="color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; margin-bottom: 4px;">Total a Pagar</p>
                     <p class="mono" style="font-size: 2.2rem; color: var(--gold); font-weight: 700;">
-                        {{ number_format($this->getPrice() * $quantity, 0, ',', '.') }} MT
+                        <span x-text="total">0</span> MT
                     </p>
                 </div>
 
@@ -146,7 +152,7 @@
         </div>
     @endif
         </div>
-    </div>
+
 
     <style>
         @keyframes spin {

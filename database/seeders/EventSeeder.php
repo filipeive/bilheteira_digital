@@ -9,8 +9,9 @@ class EventSeeder extends Seeder
 {
     public function run(): void
     {
-        Event::create([
-            'name' => 'Concerto Renúncia',
+        Event::updateOrCreate(
+            ['name' => 'Concerto Renúncia'],
+            [
             'date' => '2026-07-11 18:00:00',
             'venue' => 'Pavilhão do Benfica',
             'city' => 'Quelimane',
@@ -41,13 +42,29 @@ class EventSeeder extends Seeder
                     'icon' => 'door-open',
                     'color' => '#F59E0B',
                 ],
-                'vip' => [
-                    'name' => 'VIP',
-                    'price' => 2000,
-                    'lot_size' => 50,
-                    'description' => 'Acesso VIP com benefícios exclusivos',
+                'vip_promotional' => [
+                    'name' => 'VIP 1º Lote',
+                    'price' => 1000,
+                    'lot_size' => 100,
+                    'description' => 'Acesso VIP — Preço promocional',
                     'icon' => 'star',
                     'color' => '#D4AF37',
+                ],
+                'vip_second_lot' => [
+                    'name' => 'VIP 2º Lote',
+                    'price' => 1500,
+                    'lot_size' => 100,
+                    'description' => 'Acesso VIP — 2º Lote',
+                    'icon' => 'star',
+                    'color' => '#FBBF24',
+                ],
+                'vip' => [
+                    'name' => 'VIP No Portão',
+                    'price' => 2000,
+                    'lot_size' => 50,
+                    'description' => 'Acesso VIP — Compra na porta',
+                    'icon' => 'star',
+                    'color' => '#B45309',
                 ],
                 'free' => [
                     'name' => 'Gratuito',

@@ -9,25 +9,31 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name' => 'Administrador',
-            'email' => 'admin@alphaproducoes.mz',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@alphaproducoes.mz'],
+            [
+                'name' => 'Administrador',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+            ]
+        );
 
-        User::create([
-            'name' => 'Porteiro',
-            'email' => 'porteiro@alphaproducoes.mz',
-            'password' => bcrypt('password'),
-            'role' => 'operator',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'porteiro@alphaproducoes.mz'],
+            [
+                'name' => 'Porteiro',
+                'password' => bcrypt('password'),
+                'role' => 'operator',
+            ]
+        );
 
-        User::create([
-            'name' => 'Organizador',
-            'email' => 'organizador@alphaproducoes.mz',
-            'password' => bcrypt('password'),
-            'role' => 'organizer',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'organizador@alphaproducoes.mz'],
+            [
+                'name' => 'Organizador',
+                'password' => bcrypt('password'),
+                'role' => 'organizer',
+            ]
+        );
     }
 }

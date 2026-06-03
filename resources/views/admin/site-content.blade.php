@@ -91,7 +91,7 @@
             <aside style="background: rgba(13,11,7,0.58); border: 1px solid var(--dark-border); border-radius: 14px; padding: 18px;">
                 <label class="form-label" for="hero_image">Imagem de fundo</label>
                 @if (!empty($settings['hero_image']))
-                    <img src="{{ $settings['hero_image'] }}" alt="" style="width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; margin-bottom: 12px; border: 1px solid rgba(212,175,55,0.2);">
+                    <img src="{{ asset($settings['hero_image']) }}" alt="" style="width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; margin-bottom: 12px; border: 1px solid rgba(212,175,55,0.2);">
                 @else
                     <div style="width: 100%; aspect-ratio: 16 / 10; border-radius: 12px; margin-bottom: 12px; border: 1px dashed rgba(212,175,55,0.28); display: grid; place-items: center; color: var(--text-muted);">
                         <i data-lucide="image" class="w-8 h-8"></i>

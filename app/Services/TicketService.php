@@ -163,6 +163,8 @@ class TicketService
                 'promotional' => (clone $tickets)->where('ticket_type', 'promotional')->whereIn('status', ['confirmed', 'used'])->count(),
                 'second_lot' => (clone $tickets)->where('ticket_type', 'second_lot')->whereIn('status', ['confirmed', 'used'])->count(),
                 'gate' => (clone $tickets)->where('ticket_type', 'gate')->whereIn('status', ['confirmed', 'used'])->count(),
+                'vip_promotional' => (clone $tickets)->where('ticket_type', 'vip_promotional')->whereIn('status', ['confirmed', 'used'])->count(),
+                'vip_second_lot' => (clone $tickets)->where('ticket_type', 'vip_second_lot')->whereIn('status', ['confirmed', 'used'])->count(),
                 'vip' => (clone $tickets)->where('ticket_type', 'vip')->whereIn('status', ['confirmed', 'used'])->count(),
                 'free' => (clone $tickets)->where('ticket_type', 'free')->whereIn('status', ['confirmed', 'used'])->count(),
             ],

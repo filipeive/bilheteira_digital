@@ -2,63 +2,49 @@
 
 namespace App\Jobs;
 
-use App\Mail\TicketMail;
 use App\Models\Ticket;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\EmailService;
+use App\Services\WhatsAppService;
+use App\Services\AuditService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
-use App\Services\QrCodeService;
+use Illuminate\Support\Facades\Log;
 
 class SendTicketJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    public int $tries   = 3;
+    public int $timeout = 120;
+    public int $backoff = 60;
+
     public function __construct(
-        public Ticket $ticket
+        public Ticket $ticket,
+        public string $channel = 'all' // 'email' | 'whatsapp' | 'all'
     ) {}
 
-    public function handle(QrCodeService $qrService): void
+    public function handle(EmailService $email, WhatsAppService $whatsapp): void
     {
-        // 1. Generate PDF
-        $qrCode = $qrService->generateQrPng($this->ticket, 400);
+        $results = [];
 
-        $pdf = Pdf::loadView('pdf.ticket', [
-            'ticket' => $this->ticket,
-            'qrCode' => $qrCode,
-        ]);
-
-        $pdfPath = 'tickets/' . $this->ticket->ticket_code . '.pdf';
-        Storage::disk('local')->put($pdfPath, $pdf->output());
-        $fullPath = Storage::disk('local')->path($pdfPath);
-
-        // 2. Send Email (if provided)
-        if ($this->ticket->buyer_email) {
-            Mail::to($this->ticket->buyer_email)->send(new TicketMail($this->ticket, $fullPath));
+        if (in_array($this->channel, ['email', 'all']) && $this->ticket->buyer_email) {
+            $results['email'] = $email->sendTicketConfirmation($this->ticket);
         }
 
-        // 3. Send WhatsApp (placeholder logic)
-        if ($this->ticket->buyer_phone) {
-            $this->sendWhatsApp($this->ticket, $fullPath);
+        if (in_array($this->channel, ['whatsapp', 'all']) && $this->ticket->buyer_phone) {
+            $results['whatsapp'] = $whatsapp->sendTicketConfirmation($this->ticket);
         }
+
+        AuditService::log('sent_ticket_notification', $this->ticket, [], $results);
+        Log::info("SendTicketJob: {$this->ticket->ticket_code}", $results);
     }
 
-    protected function sendWhatsApp(Ticket $ticket, string $pdfPath): void
+    public function failed(\Throwable $e): void
     {
-        $token = config('services.whatsapp.token');
-        $phoneId = config('services.whatsapp.phone_id');
-
-        if (!$token || !$phoneId) {
-            return;
-        }
-
-        // Placeholder for WhatsApp API integration
-        // Here you would upload the media to WhatsApp, get the media ID,
-        // and send a message template with the attached PDF document.
-        \Illuminate\Support\Facades\Log::info("WhatsApp ticket sending placeholder for: {$ticket->buyer_phone}");
+        Log::error("SendTicketJob falhou [{$this->ticket->ticket_code}]: " . $e->getMessage());
+        AuditService::log('send_ticket_failed', $this->ticket, [], ['error' => $e->getMessage()]);
     }
 }

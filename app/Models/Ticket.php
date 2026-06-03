@@ -30,15 +30,27 @@ class Ticket extends Model
         'used_at',
         'scanned_by',
         'notes',
+        // Phase 2 additions
+        'email_sent_at',
+        'whatsapp_sent_at',
+        'reminder_sent_at',
+        'ticket_mode',
+        'batch_id',
+        'scanned_device',
     ];
 
     protected function casts(): array
     {
         return [
-            'price' => 'integer',
-            'used_at' => 'datetime',
+            'price'            => 'integer',
+            'used_at'          => 'datetime',
+            'email_sent_at'    => 'datetime',
+            'whatsapp_sent_at' => 'datetime',
+            'reminder_sent_at' => 'datetime',
         ];
     }
+
+    // ── Relations ────────────────────────────────────────────
 
     public function event(): BelongsTo
     {
@@ -49,6 +61,13 @@ class Ticket extends Model
     {
         return $this->belongsTo(User::class, 'scanned_by');
     }
+
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(TicketBatch::class, 'batch_id');
+    }
+
+    // ── Status checks ────────────────────────────────────────
 
     public function isUsed(): bool
     {
@@ -69,6 +88,25 @@ class Ticket extends Model
     {
         return $this->status === 'cancelled';
     }
+
+    // ── Notification helpers ─────────────────────────────────
+
+    public function wasEmailSent(): bool
+    {
+        return !is_null($this->email_sent_at);
+    }
+
+    public function wasWhatsAppSent(): bool
+    {
+        return !is_null($this->whatsapp_sent_at);
+    }
+
+    public function isQuickSale(): bool
+    {
+        return $this->ticket_mode === 'quick_sale';
+    }
+
+    // ── Actions ──────────────────────────────────────────────
 
     public function markAsUsed(User $user): bool
     {
@@ -94,13 +132,17 @@ class Ticket extends Model
         return $code;
     }
 
+    // ── Label helpers ────────────────────────────────────────
+
     public function getTicketTypeLabel(): string
     {
         return match ($this->ticket_type) {
             'promotional' => 'Promocional',
             'second_lot' => '2º Lote',
             'gate' => 'No Portão',
-            'vip' => 'VIP',
+            'vip_promotional' => 'VIP 1º Lote',
+            'vip_second_lot' => 'VIP 2º Lote',
+            'vip' => 'VIP No Portão',
             'free' => 'Gratuito',
             default => $this->ticket_type,
         };

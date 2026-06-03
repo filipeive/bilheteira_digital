@@ -52,7 +52,7 @@
             <h3 style="font-size: 1.4rem; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px;"><i data-lucide="chart-pie" class="w-5 h-5" style="color: var(--gold);"></i> POR TIPO</h3>
             <canvas id="typeChart" height="200"></canvas>
             <div style="margin-top: 12px;">
-                @foreach (['promotional' => ['Promocional', '#10B981'], 'second_lot' => ['2º Lote', '#3B82F6'], 'gate' => ['No Portão', '#F59E0B'], 'vip' => ['VIP', '#D4AF37'], 'free' => ['Gratuito', '#8B5CF6']] as $key => [$label, $color])
+                @foreach (['promotional' => ['Promocional', '#10B981'], 'second_lot' => ['2º Lote', '#3B82F6'], 'gate' => ['No Portão', '#F59E0B'], 'vip_promotional' => ['VIP 1º Lote', '#D4AF37'], 'vip_second_lot' => ['VIP 2º Lote', '#FBBF24'], 'vip' => ['VIP No Portão', '#B45309'], 'free' => ['Gratuito', '#8B5CF6']] as $key => [$label, $color])
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                         <div style="width: 10px; height: 10px; border-radius: 50%; background: {{ $color }};"></div>
                         <span style="font-size: 0.8rem; color: var(--text-secondary);">{{ $label }}: {{ $this->stats['by_type'][$key] ?? 0 }}</span>
@@ -144,10 +144,10 @@
                 new Chart(document.getElementById('typeChart'), {
                     type: 'doughnut',
                     data: {
-                        labels: ['Promocional', '2º Lote', 'No Portão', 'VIP', 'Gratuito'],
+                        labels: ['Promocional', '2º Lote', 'No Portão', 'VIP 1º Lote', 'VIP 2º Lote', 'VIP No Portão', 'Gratuito'],
                         datasets: [{
-                            data: [typeData.promotional, typeData.second_lot, typeData.gate, typeData.vip, typeData.free],
-                            backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#D4AF37', '#8B5CF6'],
+                            data: [typeData.promotional, typeData.second_lot, typeData.gate, typeData.vip_promotional, typeData.vip_second_lot, typeData.vip, typeData.free],
+                            backgroundColor: ['#10B981', '#3B82F6', '#F59E0B', '#D4AF37', '#FBBF24', '#B45309', '#8B5CF6'],
                             borderWidth: 0,
                         }]
                     },
@@ -162,7 +162,7 @@
     </script>
 
     <style>
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             div[style*="grid-template-columns: 2fr 1fr"] {
                 grid-template-columns: 1fr !important;
             }
