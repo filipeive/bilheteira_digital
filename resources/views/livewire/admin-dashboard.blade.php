@@ -1,5 +1,5 @@
 <div>
-    <div style="margin-bottom: 32px; padding: 24px; border: 1px solid rgba(212,175,55,0.16); border-radius: 18px; background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(16,185,129,0.04)); display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap;">
+    <div class="dashboard-header" style="margin-bottom: 32px; padding: 24px; border: 1px solid rgba(212,175,55,0.16); border-radius: 18px; background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(16,185,129,0.04)); display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap;">
         <div>
             <span class="badge badge-gold"><i data-lucide="layout-dashboard" class="w-4 h-4" style="margin-right: 6px;"></i> Operação</span>
             <h1 style="font-size: 2.8rem; color: var(--gold); margin-top: 8px;">DASHBOARD</h1>
@@ -165,6 +165,18 @@
         @media (max-width: 1024px) {
             div[style*="grid-template-columns: 2fr 1fr"] {
                 grid-template-columns: 1fr !important;
+            }
+        }
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+            }
+            .dashboard-header h1 {
+                font-size: 2rem !important;
+            }
+            .stat-card {
+                padding: 16px;
             }
         }
     </style>

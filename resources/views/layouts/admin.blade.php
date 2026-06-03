@@ -362,8 +362,11 @@
             <a href="{{ url('/admin/users') }}" class="{{ request()->is('admin/users*') ? 'active' : '' }}">
                 <span class="nav-icon"><i data-lucide="users" class="w-4 h-4"></i></span> Utilizadores
             </a>
+            <a href="{{ url('/admin/site') }}" class="{{ request()->is('admin/site') ? 'active' : '' }}">
+                <span class="nav-icon"><i data-lucide="layout" class="w-4 h-4"></i></span> Gestão do Site
+            </a>
             <a href="{{ url('/admin/settings') }}" class="{{ request()->is('admin/settings') ? 'active' : '' }}">
-                <span class="nav-icon"><i data-lucide="globe" class="w-4 h-4"></i></span> Conteúdo do Site
+                <span class="nav-icon"><i data-lucide="settings" class="w-4 h-4"></i></span> Configurações do Site
             </a>
             <a href="{{ url('/admin/audit') }}" class="{{ request()->is('admin/audit') ? 'active' : '' }}">
                 <span class="nav-icon"><i data-lucide="shield" class="w-4 h-4"></i></span> Auditoria
