@@ -10,17 +10,23 @@
             <h3 style="font-size: 1.8rem; color: #34D399; margin-bottom: 8px;">BILHETE CRIADO!</h3>
             <p class="mono" style="font-size: 1.4rem; color: var(--gold); margin-bottom: 16px;">{{ $lastTicketCode }}</p>
             <p style="color: var(--text-secondary); margin-bottom: 24px;">{{ $quantity }} bilhete(s) confirmado(s) com sucesso.</p>
-            <div style="display: flex; gap: 16px; justify-content: center;">
-                <div style="display: flex; gap: 8px;">
-                    <a href="https://wa.me/?text={{ urlencode('Aqui está o bilhete para o Concerto Renúncia: ' . URL::signedRoute('tickets.download', $lastTicketId)) }}" target="_blank" class="btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #25D366; border-color: rgba(37, 211, 102, 0.3);">
-                        <i data-lucide="message-circle" class="w-4 h-4"></i> WHATSAPP
-                    </a>
-                    <a href="{{ route('admin.tickets.download.png', $lastTicketId) }}" target="_blank" class="btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                        <i data-lucide="image" class="w-4 h-4"></i> PNG
-                    </a>
-                    <a href="{{ route('admin.tickets.download', $lastTicketId) }}" target="_blank" class="btn-gold" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                        <i data-lucide="download" class="w-4 h-4"></i> PDF
-                    </a>
+            <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+                    @if(count($lastTicketIds) === 1)
+                        <a href="https://wa.me/?text={{ urlencode('Aqui está o bilhete para o Concerto Renúncia: ' . URL::signedRoute('tickets.download', $lastTicketIds[0])) }}" target="_blank" class="btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #25D366; border-color: rgba(37, 211, 102, 0.3);">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i> WHATSAPP
+                        </a>
+                        <a href="{{ route('admin.tickets.download.png', $lastTicketIds[0]) }}" target="_blank" class="btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                            <i data-lucide="image" class="w-4 h-4"></i> PNG
+                        </a>
+                        <a href="{{ route('admin.tickets.download', $lastTicketIds[0]) }}" target="_blank" class="btn-gold" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                            <i data-lucide="download" class="w-4 h-4"></i> PDF
+                        </a>
+                    @else
+                        <a href="{{ route('admin.tickets.bulk_download', ['ids' => implode(',', $lastTicketIds)]) }}" target="_blank" class="btn-gold" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                            <i data-lucide="download" class="w-4 h-4"></i> BAIXAR TODOS (PDF)
+                        </a>
+                    @endif
                 </div>
                 <button wire:click="resendTicket" class="btn-outline" style="display: inline-flex; align-items: center; gap: 8px;">
                     <i data-lucide="send" class="w-4 h-4"></i> REENVIAR

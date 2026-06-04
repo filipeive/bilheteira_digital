@@ -40,9 +40,10 @@
         </div>
     </div>
 
-    <!-- Table -->
+    <!-- Table and Mobile Cards -->
     <div style="background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 12px; overflow: hidden;">
-        <div style="overflow-x: auto;">
+        <!-- Desktop Table -->
+        <div class="hidden md:block" style="overflow-x: auto;">
             <table class="data-table">
                 <thead>
                     <tr>
@@ -147,6 +148,69 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="md:hidden" style="padding: 16px; display: flex; flex-direction: column; gap: 16px;">
+            @forelse ($this->tickets as $ticket)
+                <div style="border: 1px solid var(--dark-border); border-radius: 10px; padding: 16px; background: rgba(13,11,7,0.4);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div>
+                            <span class="mono" style="color: var(--gold); font-weight: 600; font-size: 0.95rem;">{{ $ticket->ticket_code }}</span>
+                            <div style="color: var(--text-primary); font-weight: 500; font-size: 1.05rem; margin-top: 4px;">{{ $ticket->buyer_name }}</div>
+                            <div class="mono" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">{{ $ticket->buyer_phone }}</div>
+                        </div>
+                        <span class="badge badge-{{ $ticket->getStatusColor() }}">{{ $ticket->getStatusLabel() }}</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; font-size: 0.85rem; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 8px;">
+                        <div>
+                            <span style="color: var(--text-muted); display: block; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 2px;">Tipo</span>
+                            <span style="color: var(--gold); font-weight: 500;">{{ $ticket->getTicketTypeLabel() }}</span>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); display: block; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 2px;">Preço</span>
+                            <span class="mono">{{ number_format($ticket->price, 0, ',', '.') }} MT</span>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); display: block; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 2px;">Pagamento</span>
+                            <span>{{ strtoupper($ticket->payment_method) }}</span>
+                        </div>
+                        <div>
+                            <span style="color: var(--text-muted); display: block; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 2px;">Data</span>
+                            <span>{{ $ticket->created_at->format('d/m/Y H:i') }}</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a href="https://wa.me/{{ str_replace('+', '', $ticket->buyer_phone) }}?text={{ urlencode('Aqui está o seu bilhete para o Concerto Renúncia: ' . URL::signedRoute('tickets.download', $ticket)) }}" target="_blank" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(37,211,102,0.1); color: #25D366; border: 1px solid rgba(37,211,102,0.3); text-decoration: none;">
+                            <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
+                        </a>
+                        <a href="{{ route('admin.tickets.download', $ticket) }}" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(212,175,55,0.14); color: var(--gold); border: 1px solid rgba(212,175,55,0.3); text-decoration: none;">
+                            <i data-lucide="download" class="w-4 h-4"></i> Baixar PDF
+                        </a>
+                        @if ($ticket->isPending())
+                            <button wire:click="confirmTicket('{{ $ticket->id }}')" wire:confirm="Confirmar bilhete {{ $ticket->ticket_code }}?" class="btn-sm btn-confirm" style="flex: 1; justify-content: center;">
+                                <i data-lucide="check" class="w-4 h-4"></i> Confirmar
+                            </button>
+                        @endif
+                        @if ($ticket->isConfirmed())
+                            <button wire:click="validateTicket('{{ $ticket->id }}')" wire:confirm="Validar entrada do bilhete {{ $ticket->ticket_code }}?" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(16,185,129,0.14); color: #10B981; border: 1px solid rgba(16,185,129,0.3);">
+                                <i data-lucide="scan-line" class="w-4 h-4"></i> Validar
+                            </button>
+                        @endif
+                        @if (!$ticket->isUsed() && !$ticket->isCancelled())
+                            <button wire:click="cancelTicket('{{ $ticket->id }}')" wire:confirm="Cancelar bilhete {{ $ticket->ticket_code }}?" class="btn-sm btn-cancel" style="flex: 1; justify-content: center; margin-top: 4px;">
+                                <i data-lucide="x" class="w-4 h-4"></i> Cancelar
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    Nenhum bilhete encontrado.
+                </div>
+            @endforelse
         </div>
 
         <!-- Pagination -->

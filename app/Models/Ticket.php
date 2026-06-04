@@ -144,6 +144,7 @@ class Ticket extends Model
             'vip_second_lot' => 'VIP 2º Lote',
             'vip' => 'VIP No Portão',
             'free' => 'Gratuito',
+            'child' => 'Criança',
             default => $this->ticket_type,
         };
     }

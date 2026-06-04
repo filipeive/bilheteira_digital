@@ -142,20 +142,21 @@ class TicketForm extends Component
             return;
         }
 
-        $ticket = Ticket::find($this->createdTickets[0]['id']);
+        $ids = collect($this->createdTickets)->pluck('id')->toArray();
+        $tickets = Ticket::whereIn('id', $ids)->get();
 
-        if (!$ticket) {
-            $this->dispatch('notify', type: 'error', message: 'Bilhete não encontrado.');
+        if ($tickets->isEmpty()) {
+            $this->dispatch('notify', type: 'error', message: 'Bilhetes não encontrados.');
             return;
         }
 
-        if (!$ticket->buyer_email && !$ticket->buyer_phone) {
-            $this->dispatch('notify', type: 'error', message: 'Bilhete não tem email nem telefone para envio.');
-            return;
+        foreach ($tickets as $ticket) {
+            if ($ticket->buyer_email || $ticket->buyer_phone) {
+                \App\Jobs\SendPendingTicketJob::dispatch($ticket);
+            }
         }
 
-        \App\Jobs\SendTicketJob::dispatch($ticket);
-        $this->dispatch('notify', type: 'success', message: "Bilhete {$ticket->ticket_code} está a ser reenviado...");
+        $this->dispatch('notify', type: 'success', message: "Os {$tickets->count()} bilhetes estão a ser reenviados...");
     }
 
     public function render()

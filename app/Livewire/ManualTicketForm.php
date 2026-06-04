@@ -21,7 +21,7 @@ class ManualTicketForm extends Component
     public bool $isSubmitting = false;
     public bool $showSuccess = false;
     public string $lastTicketCode = '';
-    public string $lastTicketId = '';
+    public array $lastTicketIds = [];
 
     protected function rules(): array
     {
@@ -62,8 +62,8 @@ class ManualTicketForm extends Component
 
         $tickets = $ticketService->createBulkTickets($data, $this->quantity);
 
-        $this->lastTicketCode = $tickets[0]->ticket_code;
-        $this->lastTicketId = $tickets[0]->id;
+        $this->lastTicketCode = $tickets[0]->ticket_code . ($this->quantity > 1 ? ' (e mais ' . ($this->quantity - 1) . ')' : '');
+        $this->lastTicketIds = collect($tickets)->pluck('id')->toArray();
         $this->showSuccess = true;
         $this->isSubmitting = false;
 
@@ -96,20 +96,20 @@ class ManualTicketForm extends Component
 
     public function resendTicket(): void
     {
-        $ticket = Ticket::find($this->lastTicketId);
+        $tickets = Ticket::whereIn('id', $this->lastTicketIds)->get();
 
-        if (!$ticket) {
-            $this->dispatch('notify', type: 'error', message: 'Bilhete não encontrado.');
+        if ($tickets->isEmpty()) {
+            $this->dispatch('notify', type: 'error', message: 'Bilhetes não encontrados.');
             return;
         }
 
-        if (!$ticket->buyer_email && !$ticket->buyer_phone) {
-            $this->dispatch('notify', type: 'error', message: 'Bilhete não tem email nem telefone para envio.');
-            return;
+        foreach ($tickets as $ticket) {
+            if ($ticket->buyer_email || $ticket->buyer_phone) {
+                \App\Jobs\SendTicketJob::dispatch($ticket);
+            }
         }
 
-        \App\Jobs\SendTicketJob::dispatch($ticket);
-        $this->dispatch('notify', type: 'success', message: "Bilhete {$ticket->ticket_code} está a ser reenviado...");
+        $this->dispatch('notify', type: 'success', message: "Os {$tickets->count()} bilhetes estão a ser enviados...");
     }
 
     public function render()

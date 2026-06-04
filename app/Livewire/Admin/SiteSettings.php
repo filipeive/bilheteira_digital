@@ -81,7 +81,7 @@ class SiteSettings extends Component
         SiteSetting::set('banner_subtitle', $this->banner_subtitle);
         if ($this->banner_image) {
             $path = $this->banner_image->store('banners', 'public');
-            SiteSetting::set('banner_image', $path);
+            SiteSetting::set('banner_image', 'storage/' . $path);
         }
         AuditService::log('updated_site_settings', null, [], ['group' => 'banner']);
         $this->dispatch('notify', type: 'success', message: 'Banner guardado.');

@@ -82,6 +82,23 @@
                 </div>
             </div>
 
+            </div>
+
+            <!-- Gallery Section -->
+            @php $gallery = json_decode($siteSettings['gallery_images'] ?? '[]', true); @endphp
+            @if(is_array($gallery) && count($gallery) > 0)
+            <div style="margin-bottom: 80px;">
+                <h3 style="font-size: 2rem; color: var(--gold); margin-bottom: 24px; border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 12px; text-align: center;">
+                    Galeria do Evento
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+                    @foreach($gallery as $img)
+                        <img src="{{ asset($img) }}" alt="Galeria" style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; border: 2px solid rgba(212, 175, 55, 0.2); transition: transform 0.3s ease;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
             <div style="text-align: center;">
                 <a href="{{ route('home') }}#bilhetes" class="btn-gold" style="font-size: 1.3rem; padding: 16px 40px;">
                     <i data-lucide="ticket" class="w-6 h-6"></i> Comprar o Seu Bilhete

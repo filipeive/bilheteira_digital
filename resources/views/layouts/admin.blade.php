@@ -141,6 +141,9 @@
             min-height: 100vh;
             padding: 32px;
             position: relative;
+            min-width: 0;
+            overflow-x: hidden;
+            max-width: 100%;
         }
 
         /* Mobile hamburger */
@@ -308,7 +311,7 @@
             .sidebar { transform: translateX(-100%); }
             .sidebar.open { transform: translateX(0); }
             .mobile-toggle { display: block; }
-            .main-content { margin-left: 0; padding: 70px 16px 16px; }
+            .main-content { margin-left: 0; padding: 70px 16px 16px; max-width: 100vw; }
         }
 
         @media (min-width: 768px) {
@@ -386,35 +389,51 @@
             </a>
         </nav>
 
-        <div class="sidebar-user">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-                <img src="{{ auth()->user()->avatar_url }}" alt="" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(212,175,55,0.3);">
-                <div>
-                    <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">{{ auth()->user()->name ?? 'Admin' }}</p>
-                    <p style="font-size: 0.7rem; color: var(--text-muted);">{{ \App\Models\User::ROLES[auth()->user()->role] ?? ucfirst(auth()->user()->role) }}</p>
-                </div>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; gap: 8px;">
-                    <a href="{{ url('/admin/profile') }}" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; gap: 4px; transition: color 0.2s;" title="O meu perfil">
-                        <i data-lucide="user-circle" class="w-3 h-3"></i> Perfil
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" style="background: none; border: none; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; padding: 0; transition: color 0.2s; display: flex; align-items: center; gap: 4px;">
-                            <i data-lucide="log-out" class="w-3 h-3"></i> Sair
-                        </button>
-                    </form>
-                </div>
-                <button onclick="toggleTheme()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; display: flex; align-items: center;" aria-label="Alternar tema">
-                    <i data-lucide="sun-moon" class="w-4 h-4"></i>
-                </button>
-            </div>
-        </div>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content">
+        <header style="display: flex; justify-content: flex-end; align-items: center; padding: 0 0 24px; margin-bottom: 24px; border-bottom: 1px solid var(--dark-border);">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button onclick="toggleTheme()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; transition: background 0.2s;" class="theme-btn" aria-label="Alternar tema">
+                    <i data-lucide="sun-moon" class="w-5 h-5"></i>
+                </button>
+
+                <div style="display: flex; align-items: center; gap: 12px; border-left: 1px solid var(--dark-border); padding-left: 16px;">
+                    <div class="hidden md:block" style="text-align: right;">
+                        <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">{{ auth()->user()->name ?? 'Admin' }}</p>
+                        <p style="font-size: 0.7rem; color: var(--text-muted);">{{ \App\Models\User::ROLES[auth()->user()->role] ?? ucfirst(auth()->user()->role) }}</p>
+                    </div>
+                    
+                    <div style="position: relative;" x-data="{ open: false }">
+                        <button @click="open = !open" @click.outside="open = false" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <img src="{{ auth()->user()->avatar_url }}" alt="" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(212,175,55,0.3);">
+                            <i data-lucide="chevron-down" class="w-4 h-4" style="color: var(--text-muted);"></i>
+                        </button>
+                        
+                        <div x-show="open" style="display: none; position: absolute; top: 100%; right: 0; margin-top: 8px; background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 10px; width: 200px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 50; overflow: hidden;"
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95">
+                            <a href="{{ url('/admin/profile') }}" style="display: flex; align-items: center; gap: 8px; padding: 12px 16px; color: var(--text-primary); text-decoration: none; font-size: 0.85rem; transition: background 0.2s;" class="dropdown-item">
+                                <i data-lucide="user-circle" class="w-4 h-4" style="color: var(--text-muted);"></i> O meu perfil
+                            </a>
+                            <div style="height: 1px; background: var(--dark-border);"></div>
+                            <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
+                                @csrf
+                                <button type="submit" style="width: 100%; display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: none; border: none; color: var(--accent-red); font-size: 0.85rem; cursor: pointer; text-align: left; transition: background 0.2s;" class="dropdown-item">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i> Terminar Sessão
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
         {{ $slot }}
     </main>
 

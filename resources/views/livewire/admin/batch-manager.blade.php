@@ -11,7 +11,8 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                     <div>
                         <label class="form-label">Tipo</label>
-                        <select wire:model="ticket_type" class="form-select">
+                        <input type="text" wire:model="ticket_type" list="ticket-types" class="form-input" placeholder="Selecione ou digite...">
+                        <datalist id="ticket-types">
                             <option value="promotional">Promocional</option>
                             <option value="second_lot">2º Lote</option>
                             <option value="gate">No Portão</option>
@@ -19,7 +20,8 @@
                             <option value="vip_promotional">VIP Promocional</option>
                             <option value="vip_second_lot">VIP 2º Lote</option>
                             <option value="free">Gratuito</option>
-                        </select>
+                            <option value="child">Criança</option>
+                        </datalist>
                     </div>
                     <div><label class="form-label">Preço (MZN)</label><input type="number" wire:model="price" class="form-input" min="0"></div>
                 </div>

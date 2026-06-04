@@ -86,6 +86,31 @@
                     <input id="event_city" name="event_city" class="form-input" value="{{ old('event_city', $event->city ?? '') }}">
                     @error('event_city') <p class="form-error">{{ $message }}</p> @enderror
                 </div>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid rgba(212,175,55,0.12); margin: 24px 0;">
+
+                <h3 style="color: var(--gold); margin-bottom: 16px; font-size: 1.4rem;">Galeria de Imagens</h3>
+                <div class="form-group">
+                    <label class="form-label" for="gallery_images">Adicionar novas imagens</label>
+                    <input id="gallery_images" name="gallery_images[]" type="file" multiple class="form-input" accept="image/*">
+                    <p style="color: var(--text-muted); font-size: 0.78rem; margin-top: 6px;">Pode seleccionar várias imagens de uma vez.</p>
+                </div>
+                
+                @php $gallery = json_decode($settings['gallery_images'] ?? '[]', true); @endphp
+                @if(is_array($gallery) && count($gallery) > 0)
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
+                    @foreach($gallery as $index => $img)
+                    <div style="position: relative; width: 100px; height: 100px;" x-data="{ removed: false }" x-show="!removed">
+                        <img src="{{ asset($img) }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                        <label @click="removed = true" style="position: absolute; top: -6px; right: -6px; background: var(--accent-red); color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; font-family: sans-serif;">
+                            <input type="checkbox" name="remove_gallery[]" value="{{ $index }}" style="display: none;"> X
+                        </label>
+                    </div>
+                    @endforeach
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.78rem; margin-top: 8px;">Clique no X vermelho para marcar a imagem para apagar. Só terá efeito ao guardar.</p>
+                @endif
             </div>
 
             <aside style="background: rgba(13,11,7,0.58); border: 1px solid var(--dark-border); border-radius: 14px; padding: 18px;">

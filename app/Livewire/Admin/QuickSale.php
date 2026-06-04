@@ -69,9 +69,7 @@ class QuickSale extends Component
                 'buyer_email'    => $this->buyer_email ?: null,
                 'ticket_mode'    => $this->isQuickMode ? 'quick_sale' : 'personalized',
                 'status'         => 'confirmed',
-                'qr_payload'     => $qrService->generateSignedPayload(
-                    (object) ['ticket_code' => $ticketCode, 'buyer_name' => $this->buyer_name ?: "Venda Rápida #" . ($i + 1), 'ticket_type' => $batch->ticket_type]
-                ),
+                'qr_payload'     => 'temp',
                 'notes'          => $this->notes ?: null,
             ]);
 

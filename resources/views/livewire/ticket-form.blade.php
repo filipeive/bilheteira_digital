@@ -38,7 +38,11 @@
                     @endforeach
 
                     <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px;">
-                        <a href="https://wa.me/?text=O%20meu%20bilhete%20para%20o%20Concerto%20Ren%C3%BAncia%3A%20{{ $createdTickets[0]['code'] }}" target="_blank" class="btn-outline" style="color: #25D366; border-color: rgba(37, 211, 102, 0.3);">
+                        @php
+                            $codes = collect($createdTickets)->pluck('code')->implode(', ');
+                            $msg = count($createdTickets) > 1 ? "Os meus bilhetes para o Concerto Renúncia: $codes" : "O meu bilhete para o Concerto Renúncia: $codes";
+                        @endphp
+                        <a href="https://wa.me/?text={{ urlencode($msg) }}" target="_blank" class="btn-outline" style="color: #25D366; border-color: rgba(37, 211, 102, 0.3);">
                             <i data-lucide="message-circle" class="w-4 h-4"></i> Partilhar no WhatsApp
                         </a>
                         <button type="button" wire:click="resendTicket" class="btn-outline" style="display: inline-flex; align-items: center; gap: 8px;">

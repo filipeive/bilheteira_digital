@@ -59,11 +59,24 @@ class AdminController extends Controller
         }
 
         if ($request->hasFile('hero_image')) {
-            $file = $request->file('hero_image');
-            $filename = uniqid('hero_') . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/site'), $filename);
-            SiteSetting::putValue('hero_image', 'uploads/site/' . $filename);
+            $path = $request->file('hero_image')->store('site', 'public');
+            SiteSetting::putValue('hero_image', 'storage/' . $path);
         }
+
+        $gallery = json_decode(SiteSetting::get('gallery_images', '[]'), true) ?? [];
+        if ($request->has('remove_gallery')) {
+            foreach ($request->remove_gallery as $index) {
+                unset($gallery[$index]);
+            }
+            $gallery = array_values($gallery);
+        }
+        if ($request->hasFile('gallery_images')) {
+            foreach ($request->file('gallery_images') as $file) {
+                $path = $file->store('gallery', 'public');
+                $gallery[] = 'storage/' . $path;
+            }
+        }
+        SiteSetting::putValue('gallery_images', json_encode($gallery));
 
         $event = Event::where('is_active', true)->first();
         if ($event) {
@@ -88,6 +101,35 @@ class AdminController extends Controller
         ])->setPaper([0, 0, 1300, 500], 'portrait');
 
         return $pdf->download('bilhete-' . $ticket->ticket_code . '.pdf');
+    }
+
+    public function bulkDownloadTickets(Request $request, QrCodeService $qrCodeService): Response
+    {
+        $ids = explode(',', $request->query('ids', ''));
+        $tickets = Ticket::with('event')->whereIn('id', $ids)->get();
+
+        if ($tickets->isEmpty()) {
+            abort(404, 'Nenhum bilhete encontrado.');
+        }
+
+        $zipFile = tempnam(sys_get_temp_dir(), 'tickets_') . '.zip';
+        $zip = new \ZipArchive();
+        
+        if ($zip->open($zipFile, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) === true) {
+            foreach ($tickets as $ticket) {
+                $pdf = Pdf::loadView('pdf.ticket-v2', [
+                    'ticket' => $ticket,
+                    'qrCode' => $qrCodeService->generateQrPng($ticket, 300),
+                ])->setPaper([0, 0, 1300, 500], 'portrait');
+                
+                $zip->addFromString('bilhete-' . $ticket->ticket_code . '.pdf', $pdf->output());
+            }
+            $zip->close();
+            
+            return response()->download($zipFile, 'bilhetes-' . now()->format('dmY_Hi') . '.zip')->deleteFileAfterSend(true);
+        }
+
+        abort(500, 'Não foi possível gerar o ficheiro ZIP.');
     }
 
     public function downloadTicketPng(Ticket $ticket, QrCodeService $qrCodeService): Response

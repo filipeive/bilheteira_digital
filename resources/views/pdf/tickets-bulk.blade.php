@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Bilhete Único - Concerto Renúncia</title>
+    <title>Bilhetes - Concerto Renúncia</title>
     <style>
         @page {
             margin: 0px;
@@ -19,10 +19,13 @@
         .page-container {
             width: 1300px;
             height: 500px;
-            position: absolute;
-            top: 0;
-            left: 0;
+            position: relative;
             overflow: hidden;
+            page-break-after: always;
+        }
+
+        .page-container:last-child {
+            page-break-after: auto;
         }
 
         .bg-layer {
@@ -163,6 +166,7 @@
 </head>
 <body>
 
+    @foreach($tickets as $ticket)
     <div class="page-container">
         <!-- Background image layer -->
         <img src="{{ public_path('images/abel-1-small.png') }}" class="bg-layer">
@@ -217,7 +221,7 @@
 
                 <!-- RIGHT: QR & VALIDATION -->
                 <td class="col-qr">
-                    <img src="data:image/png;base64,{!! base64_encode($qrCode) !!}" class="qr-image">
+                    <img src="data:image/png;base64,{!! base64_encode($qrCodeService->generateQrPng($ticket, 300)) !!}" class="qr-image">
                     
                     <div class="ticket-code">{{ $ticket->ticket_code }}</div>
                     
@@ -233,6 +237,7 @@
             </tr>
         </table>
     </div>
+    @endforeach
 
 </body>
 </html>
