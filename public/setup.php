@@ -54,7 +54,7 @@ if ($action === 'migrate') {
     $results[] = run('php artisan storage:link --force', $base);
     $results[] = run('php artisan optimize:clear', $base);
     $results[] = run('php artisan config:cache', $base);
-    $results[] = run('php artisan route:cache', $base);
+    $results[] = run('php artisan route:clear', $base);
     $results[] = run('php artisan view:cache', $base);
 }
 
@@ -78,7 +78,7 @@ if ($action === 'clear') {
 // ── 4. RECONSTRUIR CACHE ────────────────────────────────────
 if ($action === 'cache') {
     $results[] = run('php artisan config:cache', $base);
-    $results[] = run('php artisan route:cache', $base);
+    $results[] = run('php artisan route:clear', $base);
     $results[] = run('php artisan view:cache', $base);
 }
 
@@ -275,7 +275,7 @@ if ($action === 'fix_assets') {
     // Limpar e recriar cache
     $results[] = run('php artisan optimize:clear', $base);
     $results[] = run('php artisan config:cache', $base);
-    $results[] = run('php artisan route:cache', $base);
+    $results[] = run('php artisan route:clear', $base);
 }
 
 // ── 9. GIT STATUS ───────────────────────────────────────────
@@ -313,7 +313,7 @@ if ($action === 'git_pull') {
     $results[] = run('php artisan storage:link --force', $base);
     $results[] = run('php artisan optimize:clear', $base);
     $results[] = run('php artisan config:cache', $base);
-    $results[] = run('php artisan route:cache', $base);
+    $results[] = run('php artisan route:clear', $base);
     $results[] = run('php artisan view:cache', $base);
 
     // Re-sincronizar assets após pull

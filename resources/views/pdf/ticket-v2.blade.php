@@ -6,7 +6,7 @@
     <style>
         @page {
             margin: 0px;
-            size: 1300px 500px;
+            size: 1400px 550px;
         }
 
         body {
@@ -17,8 +17,8 @@
         }
 
         .page-container {
-            width: 1300px;
-            height: 500px;
+            width: 1400px;
+            height: 550px;
             position: absolute;
             top: 0;
             left: 0;
@@ -29,8 +29,8 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 1300px;
-            height: 500px;
+            width: 1400px;
+            height: 550px;
             z-index: -2;
             object-fit: cover;
         }
@@ -39,8 +39,8 @@
             position: absolute;
             top: 0;
             left: 360px;
-            width: 940px;
-            height: 500px;
+            width: 1040px;
+            height: 550px;
             background: rgba(0, 0, 0, 0.85);
             z-index: -1;
         }
@@ -50,14 +50,14 @@
             top: 0;
             left: 0;
             width: 360px;
-            height: 500px;
+            height: 550px;
             background: rgba(0, 0, 0, 0.3);
             z-index: -1;
         }
 
         table.layout {
-            width: 1300px;
-            height: 500px;
+            width: 1400px;
+            height: 550px;
             border-collapse: collapse;
             table-layout: fixed;
             margin: 0;
@@ -77,13 +77,13 @@
         }
 
         .col-info {
-            width: 600px;
+            width: 660px;
             color: #ffffff;
             padding-left: 40px;
         }
 
         .col-qr {
-            width: 340px;
+            width: 380px;
             background: rgba(17, 17, 17, 0.95);
             color: #ffffff;
             text-align: center;
@@ -151,6 +151,13 @@
             margin-bottom: 5px;
         }
         
+        .terms {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.65);
+            margin-top: 12px;
+            line-height: 1.4;
+        }
+        
         .header-section {
             border-bottom: 1px solid rgba(212,175,55,0.3);
             padding-bottom: 15px;
@@ -168,7 +175,7 @@
             background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(0,0,0,0) 100%);
             border: 1px solid rgba(212,175,55,0.2);
             border-radius: 12px;
-            padding: 15px;
+            padding: 18px 20px;
             margin-bottom: 20px;
         }
     </style>
