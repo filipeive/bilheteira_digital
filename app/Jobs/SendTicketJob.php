@@ -4,7 +4,7 @@ namespace App\Jobs;
 
 use App\Models\Ticket;
 use App\Services\EmailService;
-use App\Services\WhatsAppService;
+use App\Services\SmsService;
 use App\Services\AuditService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,19 +23,27 @@ class SendTicketJob implements ShouldQueue
 
     public function __construct(
         public Ticket $ticket,
-        public string $channel = 'all' // 'email' | 'whatsapp' | 'all'
+        public string $channel = 'all' // 'email' | 'sms' | 'all'
     ) {}
 
-    public function handle(EmailService $email, WhatsAppService $whatsapp): void
+    public function handle(EmailService $email, SmsService $sms): void
     {
         $results = [];
 
         if (in_array($this->channel, ['email', 'all']) && $this->ticket->buyer_email) {
-            $results['email'] = $email->sendTicketConfirmation($this->ticket);
+            if ($this->ticket->status === 'confirmed') {
+                $results['email'] = $email->sendTicketConfirmation($this->ticket);
+            } elseif ($this->ticket->status === 'pending') {
+                $results['email'] = $email->sendPaymentPending($this->ticket);
+            }
         }
 
-        if (in_array($this->channel, ['whatsapp', 'all']) && $this->ticket->buyer_phone) {
-            $results['whatsapp'] = $whatsapp->sendTicketConfirmation($this->ticket);
+        if (in_array($this->channel, ['sms', 'whatsapp', 'all']) && $this->ticket->buyer_phone) {
+            if ($this->ticket->status === 'confirmed') {
+                $results['sms'] = $sms->sendConfirmation($this->ticket);
+            } elseif ($this->ticket->status === 'pending') {
+                $results['sms'] = $sms->sendPaymentPending($this->ticket);
+            }
         }
 
         AuditService::log('sent_ticket_notification', $this->ticket, [], $results);

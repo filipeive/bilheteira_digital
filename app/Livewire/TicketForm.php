@@ -94,8 +94,11 @@ class TicketForm extends Component
 
         $tickets = $ticketService->createBulkTickets($data, $this->quantity);
 
+        if (!empty($tickets)) {
+            \App\Jobs\SendBulkTicketsJob::dispatch($tickets, 'all')->delay(now()->addSeconds(5));
+        }
+
         $this->createdTickets = collect($tickets)->map(function(Ticket $t) {
-            \App\Jobs\SendPendingTicketJob::dispatch($t);
             return [
                 'id' => $t->id,
                 'code' => $t->ticket_code,
@@ -150,10 +153,8 @@ class TicketForm extends Component
             return;
         }
 
-        foreach ($tickets as $ticket) {
-            if ($ticket->buyer_email || $ticket->buyer_phone) {
-                \App\Jobs\SendPendingTicketJob::dispatch($ticket);
-            }
+        if ($tickets->isNotEmpty()) {
+            \App\Jobs\SendBulkTicketsJob::dispatch($tickets->all(), 'all');
         }
 
         $this->dispatch('notify', type: 'success', message: "Os {$tickets->count()} bilhetes estão a ser reenviados...");

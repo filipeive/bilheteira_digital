@@ -25,6 +25,9 @@ class TicketList extends Component
 
     public string $sortBy = 'created_at';
     public string $sortDirection = 'desc';
+    public string $viewMode = 'table';
+    public array $selectedIds = [];
+    public bool $selectAll = false;
 
     public function updatedSearch(): void
     {
@@ -38,6 +41,8 @@ class TicketList extends Component
 
     public function updatedFilterType(): void
     {
+        $this->selectedIds = [];
+        $this->selectAll = false;
         $this->resetPage();
     }
 
@@ -49,6 +54,47 @@ class TicketList extends Component
             $this->sortBy = $column;
             $this->sortDirection = 'asc';
         }
+    }
+
+    public function toggleSelectAll(): void
+    {
+        if ($this->selectAll) {
+            $this->selectedIds = $this->tickets->pluck('id')->toArray();
+        } else {
+            $this->selectedIds = [];
+        }
+    }
+
+    public function bulkConfirm(): void
+    {
+        $tickets = Ticket::whereIn('id', $this->selectedIds)->where('status', 'pending')->get();
+        $ticketService = app(TicketService::class);
+        $count = 0;
+        foreach ($tickets as $ticket) {
+            if ($ticketService->confirmTicket($ticket)) $count++;
+        }
+        $this->selectedIds = [];
+        $this->selectAll = false;
+        $this->dispatch('notify', type: 'success', message: "{$count} bilhete(s) confirmado(s).");
+    }
+
+    public function bulkCancel(): void
+    {
+        $tickets = Ticket::whereIn('id', $this->selectedIds)->whereNotIn('status', ['used', 'cancelled'])->get();
+        $ticketService = app(TicketService::class);
+        $count = 0;
+        foreach ($tickets as $ticket) {
+            if ($ticketService->cancelTicket($ticket)) $count++;
+        }
+        $this->selectedIds = [];
+        $this->selectAll = false;
+        $this->dispatch('notify', type: 'warning', message: "{$count} bilhete(s) cancelado(s).");
+    }
+
+    public function getBulkDownloadUrlProperty(): string
+    {
+        if (empty($this->selectedIds)) return '#';
+        return route('admin.tickets.bulk_download', ['ids' => implode(',', $this->selectedIds)]);
     }
 
     public function confirmTicket(string $ticketId): void

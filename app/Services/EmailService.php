@@ -66,4 +66,60 @@ class EmailService
             return false;
         }
     }
+
+    /**
+     * Send bulk ticket confirmation email with PDFs attached.
+     */
+    public function sendBulkTicketConfirmation(array $tickets): bool
+    {
+        if (empty($tickets) || !$tickets[0]->buyer_email) {
+            return false;
+        }
+
+        try {
+            $qrService = app(QrCodeService::class);
+            $pdfPaths = [];
+
+            foreach ($tickets as $ticket) {
+                $qrCode = $qrService->generateQrPng($ticket, 400);
+                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket-v2', [
+                    'ticket' => $ticket,
+                    'qrCode' => $qrCode,
+                ])->setPaper([0, 0, 1300, 500], 'portrait');
+
+                $pdfPath = 'tickets/' . $ticket->ticket_code . '.pdf';
+                \Illuminate\Support\Facades\Storage::disk('local')->put($pdfPath, $pdf->output());
+                $pdfPaths[] = \Illuminate\Support\Facades\Storage::disk('local')->path($pdfPath);
+                
+                $ticket->update(['email_sent_at' => now()]);
+            }
+
+            Mail::to($tickets[0]->buyer_email)->send(new TicketMail($tickets, $pdfPaths));
+
+            Log::info("Bulk email sent to {$tickets[0]->buyer_email} for " . count($tickets) . " tickets");
+            return true;
+        } catch (\Exception $e) {
+            Log::error("EmailService::sendBulkTicketConfirmation failed: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send bulk payment pending notification email.
+     */
+    public function sendBulkPaymentPending(array $tickets): bool
+    {
+        if (empty($tickets) || !$tickets[0]->buyer_email) {
+            return false;
+        }
+
+        try {
+            Mail::to($tickets[0]->buyer_email)->send(new TicketPendingMail($tickets));
+            Log::info("Bulk payment pending email sent to {$tickets[0]->buyer_email} for " . count($tickets) . " tickets");
+            return true;
+        } catch (\Exception $e) {
+            Log::error("EmailService::sendBulkPaymentPending failed: " . $e->getMessage());
+            return false;
+        }
+    }
 }

@@ -1,0 +1,7 @@
+Settings - API Key
+Please record and keep this API key safe. You will not see it from this dashboard on subsequent visits.
+atsk_af35e815d368e20e2ac5befe42ea625f345a990b809b848346b7aaa2cacd6226501b3168
+
+App Name: Sandbox
+Username: sandbox
+API Key: atsk_af35e815d368e20e2ac5befe42ea625f345a990b809b848346b7aaa2cacd6226501b3168

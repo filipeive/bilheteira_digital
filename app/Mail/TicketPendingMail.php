@@ -14,13 +14,13 @@ class TicketPendingMail extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public Ticket $ticket
+        public array $tickets
     ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'A aguardar confirmação: Concerto Renúncia',
+            subject: count($this->tickets) > 1 ? 'A aguardar confirmação dos bilhetes: Concerto Renúncia' : 'A aguardar confirmação: Concerto Renúncia',
         );
     }
 

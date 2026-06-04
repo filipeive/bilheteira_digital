@@ -16,7 +16,10 @@
                 </div>
                 @endforeach
             </div>
-            <button wire:click="newSale" class="btn-gold" style="width: 100%;"><i data-lucide="plus" class="w-4 h-4"></i> Nova Venda</button>
+            <div style="display: flex; gap: 8px; flex-direction: column; align-items: center;">
+                <a href="{{ route('admin.tickets.bulk_download', ['ids' => collect($createdTickets)->pluck('id')->join(',')]) }}" class="btn-outline" style="width: 100%; display: flex; justify-content: center; gap: 8px;"><i data-lucide="download" class="w-4 h-4"></i> Baixar Todos (ZIP)</a>
+                <button wire:click="newSale" class="btn-gold" style="width: 100%;"><i data-lucide="plus" class="w-4 h-4"></i> Nova Venda</button>
+            </div>
         </div>
     @else
         {{-- Sale form --}}

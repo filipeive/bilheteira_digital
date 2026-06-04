@@ -53,6 +53,7 @@ class QuickSale extends Component
 
         $qrService = app(QrCodeService::class);
         $tickets = [];
+        $ticketModels = [];
 
         for ($i = 0; $i < $this->quantity; $i++) {
             $ticketCode = Ticket::generateCode();
@@ -76,11 +77,12 @@ class QuickSale extends Component
             // Update QR payload with real ticket object
             $ticket->update(['qr_payload' => $qrService->generateSignedPayload($ticket)]);
 
-            $tickets[] = ['code' => $ticket->ticket_code, 'type' => $ticket->getTicketTypeLabel()];
+            $tickets[] = ['id' => $ticket->id, 'code' => $ticket->ticket_code, 'type' => $ticket->getTicketTypeLabel()];
+            $ticketModels[] = $ticket;
+        }
 
-            if ($ticket->buyer_phone || $ticket->buyer_email) {
-                SendTicketJob::dispatch($ticket, 'all')->delay(now()->addSeconds(5));
-            }
+        if (!empty($ticketModels) && ($ticketModels[0]->buyer_phone || $ticketModels[0]->buyer_email)) {
+            \App\Jobs\SendBulkTicketsJob::dispatch($ticketModels, 'all')->delay(now()->addSeconds(5));
         }
 
         $batch->increment('sold', $this->quantity);

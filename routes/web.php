@@ -15,6 +15,7 @@ use App\Livewire\Admin\SiteSettings;
 use App\Livewire\Admin\BatchManager;
 use App\Livewire\Admin\QuickSale;
 use App\Livewire\Admin\AuditLogs;
+use App\Livewire\Admin\Reports;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public Routes ───────────────────────────────────────────
@@ -51,6 +52,7 @@ Route::middleware(['auth', CheckRole::class . ':admin,organizer,super_admin'])->
     Route::get('/settings', SiteSettings::class)->name('admin.settings');
     Route::get('/batches', BatchManager::class)->name('admin.batches');
     Route::get('/quick-sale', QuickSale::class)->name('admin.quick-sale');
+    Route::get('/reports', Reports::class)->name('admin.reports');
     Route::get('/audit', AuditLogs::class)->name('admin.audit');
 });
 

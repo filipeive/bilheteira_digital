@@ -11,28 +11,28 @@
         </div>
 
         <div style="padding: 30px;">
-            <p style="font-size: 16px; margin-bottom: 20px;">Olá <strong>{{ $ticket->buyer_name }}</strong>,</p>
+            <p style="font-size: 16px; margin-bottom: 20px;">Olá <strong>{{ $tickets[0]->buyer_name }}</strong>,</p>
 
-            <p style="font-size: 16px; margin-bottom: 20px; line-height: 1.5;">Obrigado por confirmar a sua presença no Concerto Renúncia. O seu bilhete está anexado a este email em formato PDF.</p>
+            <p style="font-size: 16px; margin-bottom: 20px; line-height: 1.5;">Obrigado por confirmar a sua presença no Concerto Renúncia. O(s) seu(s) bilhete(s) {{ count($tickets) > 1 ? 'estão anexados' : 'está anexado' }} a este email em formato PDF.</p>
 
             <div style="background-color: #f3f4f6; border-radius: 6px; padding: 20px; margin-bottom: 20px;">
-                <h3 style="margin-top: 0; margin-bottom: 15px; color: #374151;">Detalhes do Bilhete</h3>
+                <h3 style="margin-top: 0; margin-bottom: 15px; color: #374151;">Detalhes d{{ count($tickets) > 1 ? 'os Bilhetes' : 'o Bilhete' }}</h3>
                 <table style="width: 100%; border-collapse: collapse;">
                     <tr>
-                        <td style="padding: 8px 0; color: #6b7280; width: 40%;">Código:</td>
-                        <td style="padding: 8px 0; font-weight: bold; font-family: monospace; font-size: 16px;">{{ $ticket->ticket_code }}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px 0; color: #6b7280;">Tipo:</td>
-                        <td style="padding: 8px 0; font-weight: bold;">{{ $ticket->getTicketTypeLabel() }}</td>
+                        <td style="padding: 8px 0; color: #6b7280; width: 40%;">Códigos:</td>
+                        <td style="padding: 8px 0; font-weight: bold; font-family: monospace; font-size: 16px;">
+                            @foreach($tickets as $t)
+                                {{ $t->ticket_code }} ({{ $t->getTicketTypeLabel() }})<br>
+                            @endforeach
+                        </td>
                     </tr>
                     <tr>
                         <td style="padding: 8px 0; color: #6b7280;">Data:</td>
-                        <td style="padding: 8px 0; font-weight: bold;">{{ $ticket->event->date->format('d/m/Y H:i') }}</td>
+                        <td style="padding: 8px 0; font-weight: bold;">{{ $tickets[0]->event->date->format('d/m/Y H:i') }}</td>
                     </tr>
                     <tr>
                         <td style="padding: 8px 0; color: #6b7280;">Local:</td>
-                        <td style="padding: 8px 0; font-weight: bold;">{{ $ticket->event->venue }}, {{ $ticket->event->city }}</td>
+                        <td style="padding: 8px 0; font-weight: bold;">{{ $tickets[0]->event->venue }}, {{ $tickets[0]->event->city }}</td>
                     </tr>
                 </table>
             </div>

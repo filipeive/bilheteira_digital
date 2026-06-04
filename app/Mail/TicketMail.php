@@ -15,14 +15,14 @@ class TicketMail extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public Ticket $ticket,
-        public string $pdfPath
+        public array $tickets,
+        public array $pdfPaths
     ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'O seu bilhete: Concerto Renúncia',
+            subject: count($this->tickets) > 1 ? 'Os seus bilhetes: Concerto Renúncia' : 'O seu bilhete: Concerto Renúncia',
         );
     }
 
@@ -35,10 +35,12 @@ class TicketMail extends Mailable
 
     public function attachments(): array
     {
-        return [
-            Attachment::fromPath($this->pdfPath)
-                ->as('bilhete_' . $this->ticket->ticket_code . '.pdf')
-                ->withMime('application/pdf'),
-        ];
+        $attachments = [];
+        foreach ($this->pdfPaths as $path) {
+            $attachments[] = Attachment::fromPath($path)
+                ->as(basename($path))
+                ->withMime('application/pdf');
+        }
+        return $attachments;
     }
 }

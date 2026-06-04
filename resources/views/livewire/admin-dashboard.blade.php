@@ -203,6 +203,25 @@
     </script>
 
     <style>
+        .stat-card {
+            background: var(--dark-card);
+            border: 1px solid var(--dark-border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 4px;
+        }
         @media (max-width: 1024px) {
             .charts-row {
                 grid-template-columns: 1fr !important;

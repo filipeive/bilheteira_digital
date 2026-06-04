@@ -103,10 +103,8 @@ class ManualTicketForm extends Component
             return;
         }
 
-        foreach ($tickets as $ticket) {
-            if ($ticket->buyer_email || $ticket->buyer_phone) {
-                \App\Jobs\SendTicketJob::dispatch($ticket);
-            }
+        if ($tickets->isNotEmpty()) {
+            \App\Jobs\SendBulkTicketsJob::dispatch($tickets->all(), 'all');
         }
 
         $this->dispatch('notify', type: 'success', message: "Os {$tickets->count()} bilhetes estão a ser enviados...");

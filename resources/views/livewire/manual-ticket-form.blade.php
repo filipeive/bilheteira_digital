@@ -24,7 +24,7 @@
                         </a>
                     @else
                         <a href="{{ route('admin.tickets.bulk_download', ['ids' => implode(',', $lastTicketIds)]) }}" target="_blank" class="btn-gold" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
-                            <i data-lucide="download" class="w-4 h-4"></i> BAIXAR TODOS (PDF)
+                            <i data-lucide="download" class="w-4 h-4"></i> BAIXAR TODOS (ZIP)
                         </a>
                     @endif
                 </div>

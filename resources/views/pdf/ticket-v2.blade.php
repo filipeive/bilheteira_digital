@@ -151,13 +151,25 @@
             margin-bottom: 5px;
         }
         
-        .terms {
-            font-size: 10px;
-            color: #888;
-            margin-top: 15px;
-            text-align: center;
-            line-height: 1.4;
-            padding: 0 15px;
+        .header-section {
+            border-bottom: 1px solid rgba(212,175,55,0.3);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .alpha-logo {
+            height: 50px;
+            opacity: 0.9;
+        }
+
+        .event-details {
+            background: linear-gradient(135deg, rgba(212,175,55,0.1) 0%, rgba(0,0,0,0) 100%);
+            border: 1px solid rgba(212,175,55,0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -182,36 +194,47 @@
                 
                 <!-- MIDDLE: INFO -->
                 <td class="col-info">
-                    <div class="brand">ALPHA PRODUÇÕES E FAITH APRESENTAM</div>
-                    <div class="title">{{ $ticket->event->name ?? 'CONCERTO RENÚNCIA' }}</div>
-                    <div class="subtitle">ABEL LASTE & NAIR NANY</div>
-
-                    <table style="width: 100%; color: #fff; margin-bottom: 15px; border-collapse: collapse;">
-                        <tr>
-                            <td style="padding-bottom: 10px; width: 50%;">
-                                <div style="color: #D4AF37; font-size: 13px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">DATA E HORA</div>
-                                <div style="font-size: 16px; font-weight: bold;">{{ \Carbon\Carbon::parse($ticket->event->date)->translatedFormat('d \d\e F Y, H\hi') }}</div>
-                            </td>
-                            <td style="padding-bottom: 10px; width: 50%;">
-                                <div style="color: #D4AF37; font-size: 13px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">LOCAL</div>
-                                <div style="font-size: 16px; font-weight: bold;">{{ $ticket->event->venue ?? 'Pavilhão do Benfica' }}, {{ $ticket->event->city ?? 'Quelimane' }}</div>
-                            </td>
-                        </tr>
+                    <table style="width: 100%; border-bottom: 1px solid rgba(212,175,55,0.3); padding-bottom: 10px; margin-bottom: 15px;">
                         <tr>
                             <td>
-                                <div style="color: #D4AF37; font-size: 13px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">TITULAR DO BILHETE</div>
-                                <div style="font-size: 16px; font-weight: bold;">{{ Str::limit($ticket->buyer_name, 25) }}</div>
+                                <div class="brand">ALPHA PRODUÇÕES E FAITH APRESENTAM</div>
+                                <div class="title">{{ $ticket->event->name ?? 'CONCERTO RENÚNCIA' }}</div>
+                                <div class="subtitle">ABEL LASTE & NAIR NANY</div>
                             </td>
-                            <td>
-                                <div style="color: #D4AF37; font-size: 13px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">APOIO AO CLIENTE</div>
-                                <div style="font-size: 16px; font-weight: bold;">+258 87 541 1644</div>
+                            <td style="text-align: right; vertical-align: top;">
+                                <img src="{{ public_path('alpha-logo-gold.png') }}" class="alpha-logo">
                             </td>
                         </tr>
                     </table>
+
+                    <div class="event-details">
+                        <table style="width: 100%; color: #fff; border-collapse: collapse;">
+                            <tr>
+                                <td style="padding-bottom: 12px; width: 50%;">
+                                    <div style="color: #D4AF37; font-size: 13px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">DATA E HORA</div>
+                                    <div style="font-size: 16px; font-weight: bold;">{{ \Carbon\Carbon::parse($ticket->event->date)->translatedFormat('d \d\e F Y, H\hi') }}</div>
+                                </td>
+                                <td style="padding-bottom: 12px; width: 50%;">
+                                    <div style="color: #D4AF37; font-size: 13px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">LOCAL</div>
+                                    <div style="font-size: 16px; font-weight: bold;">{{ $ticket->event->venue ?? 'Pavilhão do Benfica' }}, {{ $ticket->event->city ?? 'Quelimane' }}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div style="color: #D4AF37; font-size: 13px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">TITULAR DO BILHETE</div>
+                                    <div style="font-size: 16px; font-weight: bold;">{{ Str::limit($ticket->buyer_name, 25) }}</div>
+                                </td>
+                                <td>
+                                    <div style="color: #D4AF37; font-size: 13px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">APOIO AO CLIENTE</div>
+                                    <div style="font-size: 16px; font-weight: bold;">+258 87 541 1644</div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                     
-                    <div style="margin-top: 10px;">
-                        <div class="badge">BILHETE {{ $ticket->getTicketTypeLabel() }}</div>
-                        <div class="badge">PREÇO: {{ number_format($ticket->price, 0, ',', '.') }} MT</div>
+                    <div style="margin-top: 5px;">
+                        <div class="badge">BILHETE {{ mb_strtoupper($ticket->getTicketTypeLabel()) }}</div>
+                        <div class="badge" style="background: transparent; color: #D4AF37; border: 2px solid #D4AF37;">PREÇO: {{ number_format($ticket->price, 0, ',', '.') }} MT</div>
                     </div>
                 </td>
 
@@ -221,7 +244,7 @@
                     
                     <div class="ticket-code">{{ $ticket->ticket_code }}</div>
                     
-                    <div style="color: #D4AF37; font-weight: bold; font-size: 18px; text-transform: uppercase;">
+                    <div style="color: #D4AF37; font-weight: bold; font-size: 16px; text-transform: uppercase; margin-top: 10px;">
                         VALIDAÇÃO NA ENTRADA
                     </div>
 
