@@ -12,8 +12,9 @@
 
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            background: #ffffff;
+            background: url();
             margin: 0px;
+            
             padding: 0px;
             color: #ffffff;
         }
@@ -91,8 +92,14 @@
         }
 
         .col-main {
+            position: absolute;
+            left: 50px;
             width: 540px;
             height: 240px;
+            top: -5px;
+            margin-left: 50px;
+            z-index: 10;
+            transform: translateY(18px);
         }
 
         .col-perf {
@@ -120,7 +127,7 @@
         }
 
         .tm-brand {
-            font-size: 11px;
+            font-size: 14px;
             font-weight: bold;
             letter-spacing: 2px;
             color: #C9A227;
@@ -357,7 +364,7 @@
                                         </tr>
                                     </table>
                                 </td>
-                                <td style="width: 80px; text-align: right; vertical-align: middle; transform: translateY(40px) translateX(80px);">
+                                <td style="width: 100px; text-align: right; vertical-align: middle; transform: translateY(-20px) translateX(12px);">
                                     <div class="tm-date-badge">
                                         <div class="tm-date-day">{{ $date->format('d') }}</div>
                                         <div class="tm-date-rest">
@@ -368,7 +375,7 @@
                             </tr>
                         </table>
 
-                        <table class="tm-bottom">
+                        <table class="tm-bottom" style="font-size: 18px;">
                             <tr>
                                 <td style="width: 85px;">
                                     <div class="tm-info-label">Tipo</div>
@@ -385,7 +392,7 @@
                                 <td style="width: 95px;">
                                     <div class="tm-info-label">Local</div>
                                     <div class="tm-info-value">
-                                        {{ Str::limit($ticket->event->venue ?? 'Pavilhão', 12) }}
+                                        {{ Str::limit($ticket->event->venue ?? 'Pavilhão', 14) }}
                                     </div>
                                 </td>
                                 <td style="width: 70px;">
