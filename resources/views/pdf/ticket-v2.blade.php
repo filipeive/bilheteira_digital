@@ -417,16 +417,16 @@
                                         {{ mb_strtoupper($ticket->getTicketTypeLabel()) }}
                                     </div>
                                 </td>
-                                <td style="width: 140px;">
-                                    <div class="tm-info-label">Titular</div>
+                                <td style="width: 120px;">
+                                    <div class="tm-info-label">Nome do Titular</div>
                                     <div class="tm-info-value">
                                         {{ Str::limit($ticket->buyer_name, 18) }}
                                     </div>
                                 </td>
-                                <td style="width: 95px;">
+                                <td style="width: 135px;" >
                                     <div class="tm-info-label">Local</div>
                                     <div class="tm-info-value">
-                                        {{ Str::limit($ticket->event->venue ?? 'Pavilhão', 14) }}
+                                        {{ $ticket->event->venue ?? 'Pavilhão' }}
                                     </div>
                                 </td>
                                 <td style="width: 70px;">

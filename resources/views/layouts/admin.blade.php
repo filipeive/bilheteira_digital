@@ -106,8 +106,8 @@
 
         /* TOPBAR (Cabecalho superior) */
         .admin-topbar {
-            height: 80px;
-            padding: 0 32px;
+            min-height: 80px;
+            padding: 20px 32px;
             border-bottom: 1px solid var(--dark-border);
             display: flex;
             align-items: center;
@@ -130,7 +130,12 @@
         .mobile-toggle {
             display: none;
             background: none; border: none; color: var(--gold);
-            cursor: pointer; position: absolute; left: 16px; top: 22px;
+            cursor: pointer;
+            outline: none;
+            padding: 8px;
+            margin-right: 8px;
+            align-items: center;
+            justify-content: center;
         }
 
         /* RESPONSIVO */
@@ -138,8 +143,15 @@
             .admin-sidebar { transform: translateX(-100%); }
             .admin-sidebar.open { transform: translateX(0); }
             .admin-wrapper { margin-left: 0; }
-            .mobile-toggle { display: block; }
-            .admin-topbar { justify-content: space-between; padding-left: 60px; }
+            .mobile-toggle { display: flex; }
+            .admin-topbar {
+                justify-content: space-between;
+                padding-top: calc(24px + env(safe-area-inset-top, 0px));
+                padding-bottom: 20px;
+                padding-left: calc(16px + env(safe-area-inset-left, 0px));
+                padding-right: calc(16px + env(safe-area-inset-right, 0px));
+                min-height: 70px;
+            }
             .admin-main { padding: 20px 16px; }
         }
 
@@ -445,13 +457,13 @@
     <!-- ÁREA PRINCIPAL -->
     <div class="admin-wrapper">
 
-        <!-- Mobile Toggle -->
-        <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Abrir menu">
-            <i data-lucide="menu" class="w-6 h-6"></i>
-        </button>
-
         <!-- TOPBAR -->
         <header class="admin-topbar">
+            <!-- Mobile Toggle -->
+            <button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')" aria-label="Abrir menu">
+                <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+
             <div style="display: flex; align-items: center; gap: 16px;">
                 <div class="hidden md:block" style="text-align: right;">
                     <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">{{ auth()->user()->name ?? 'Admin' }}</p>
