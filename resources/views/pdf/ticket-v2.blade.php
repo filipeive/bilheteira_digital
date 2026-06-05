@@ -136,6 +136,7 @@
             line-height: 1.1;
             letter-spacing: 1px;
             margin-bottom: 5px;
+            white-space: nowrap;
         }
 
         .tm-artists-table {
@@ -163,6 +164,7 @@
             color: #9A8E7A;
             letter-spacing: 3px;
             text-transform: uppercase;
+            white-space: nowrap;
         }
 
         /* Badge de data */
