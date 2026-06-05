@@ -12,11 +12,13 @@
 
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            background: url();
+            background: url('{{ public_path("images/ticket-bg-premium.png") }}');
             margin: 0px;
-            
             padding: 0px;
             color: #ffffff;
+            background-repeat: no-repeat;
+            background-size: cover 100%;
+            background-position: center;
         }
 
         /* ─── Wrapper do Bilhete ─── */
@@ -99,7 +101,7 @@
             top: -5px;
             margin-left: 50px;
             z-index: 10;
-            transform: translateY(18px);
+            transform: translateY(12px);
         }
 
         .col-perf {
@@ -314,6 +316,38 @@
             padding-top: 6px;
         }
 
+        /* ─── Terms Section ─── */
+        .tm-terms-section {
+            text-align: center;
+            padding-top: 6px;
+        }
+
+        .tm-terms-divider {
+            width: 100%;
+            height: 1px;
+            border-top: 1px dashed rgba(201, 162, 39, 0.25);
+            margin: 6px 0;
+        }
+
+        .tm-terms-label {
+            color: #C9A227;
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        .tm-terms-text {
+            color: #9A8E7A;
+            font-size: 7.5px;
+            line-height: 1.3;
+            margin: 0 auto;
+            width: 440px;
+            text-align: center;
+        }
+
     </style>
 </head>
 <body>
@@ -343,7 +377,7 @@
                             <tr>
                                 <td>
                                     <div class="tm-brand">
-                                        {{ $ticket->event->organizer ?? 'Alpha Produções & Faith Apresentam' }}
+                                        {{ $ticket->event->organizer ?? 'Alpha Produções Apresenta:' }}
                                     </div>
                                     <div class="tm-event-name">
                                         {{ Str::limit($ticket->event->name ?? 'Concerto Renúncia', 30) }}
@@ -402,6 +436,15 @@
                                     </div>
                                 </td>
                             </tr>
+                           <tr>
+                               <td colspan="4" class="tm-terms-section">
+                                   <div class="tm-terms-divider"></div>
+                                   <div class="tm-terms-label">Termos &amp; Condições</div>
+                                   <div class="tm-terms-text">
+                                       Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.
+                                   </div>
+                               </td>
+                           </tr>
                         </table>
                     </div>
                 </td>
