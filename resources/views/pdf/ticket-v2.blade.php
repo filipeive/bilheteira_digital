@@ -136,7 +136,26 @@
             margin-bottom: 5px;
         }
 
-        .tm-artists {
+        .tm-artists-table {
+            border-collapse: collapse;
+            border: none;
+            margin-top: 5px;
+        }
+
+        .tm-artists-table td {
+            border: none !important;
+            padding: 0 !important;
+            vertical-align: middle;
+        }
+
+        .tm-artist-img {
+            width: 28px;
+            height: 28px;
+            border-radius: 14px;
+            border: 1.5px solid #C9A227;
+        }
+
+        .tm-artists-text {
             font-size: 11px;
             font-weight: normal;
             color: #9A8E7A;
@@ -318,9 +337,21 @@
                                     <div class="tm-event-name">
                                         {{ Str::limit($ticket->event->name ?? 'Concerto Renúncia', 30) }}
                                     </div>
-                                    <div class="tm-artists">
-                                        {{ $ticket->event->artists ?? 'Abel Laste · Nair Nany' }}
-                                    </div>
+                                    
+                                    {{-- Artistas com Fotos em Círculos --}}
+                                    <table class="tm-artists-table">
+                                        <tr>
+                                            <td style="padding-right: 6px !important;">
+                                                <img src="{{ public_path('artists/abel-2.png') }}" class="tm-artist-img">
+                                            </td>
+                                            <td style="padding-right: 12px !important;">
+                                                <img src="{{ public_path('artists/nair-2.jpg') }}" class="tm-artist-img">
+                                            </td>
+                                            <td class="tm-artists-text">
+                                                {{ $ticket->event->artists ?? 'Abel Laste · Nair Nany' }}
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </td>
                                 <td style="width: 80px; text-align: right; vertical-align: middle;">
                                     <div class="tm-date-badge">
