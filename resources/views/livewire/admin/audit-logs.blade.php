@@ -21,6 +21,7 @@
                     <th>Utilizador</th>
                     <th>Acção</th>
                     <th>Alvo</th>
+                    <th>Detalhes da Modificação</th>
                     <th>IP</th>
                 </tr>
             </thead>
@@ -39,10 +40,22 @@
                             —
                         @endif
                     </td>
+                    <td>
+                        @php $changes = $log->getFormattedChanges(); @endphp
+                        @if(!empty($changes))
+                            <ul style="margin: 0; padding-left: 16px; list-style-type: disc; font-size: 0.85rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 4px;">
+                                @foreach($changes as $change)
+                                    <li>{!! $change !!}</li>
+                                @endforeach
+                            </ul>
+                        @else
+                            <span style="color: var(--text-muted); font-size: 0.8rem;">—</span>
+                        @endif
+                    </td>
                     <td><span class="mono" style="font-size: 0.75rem; color: var(--text-muted);">{{ $log->ip_address }}</span></td>
                 </tr>
                 @empty
-                <tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">Nenhum registo de auditoria.</td></tr>
+                <tr><td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">Nenhum registo de auditoria.</td></tr>
                 @endforelse
             </tbody>
         </table>
