@@ -98,6 +98,7 @@
         .col-perf {
             width: 26px;
             height: 240px;
+            transform:  translateX(300px);
         }
 
         .col-stub {
@@ -105,6 +106,7 @@
             height: 240px;
             background: transparent;
             text-align: center;
+            transform: translateY(12px) translateX(36px);
         }
 
         /* ─── Main Details ─── */
@@ -118,7 +120,7 @@
         }
 
         .tm-brand {
-            font-size: 10px;
+            font-size: 11px;
             font-weight: bold;
             letter-spacing: 2px;
             color: #C9A227;
@@ -127,7 +129,7 @@
         }
 
         .tm-event-name {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: bold;
             color: #FFFFFF;
             text-transform: uppercase;
@@ -139,7 +141,7 @@
         .tm-artists-table {
             border-collapse: collapse;
             border: none;
-            margin-top: 5px;
+            margin-top: 8px;
         }
 
         .tm-artists-table td {
@@ -149,14 +151,14 @@
         }
 
         .tm-artist-img {
-            width: 28px;
-            height: 28px;
-            border-radius: 14px;
+            width: 36px;
+            height: 36px;
+            border-radius: 18px;
             border: 1.5px solid #C9A227;
         }
 
         .tm-artists-text {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: normal;
             color: #9A8E7A;
             letter-spacing: 3px;
@@ -341,10 +343,10 @@
                                     {{-- Artistas com Fotos em Círculos --}}
                                     <table class="tm-artists-table">
                                         <tr>
-                                            <td style="padding-right: 6px !important;">
+                                            <td style="padding-right: 8px !important;">
                                                 <img src="{{ public_path('artists/abel-2.png') }}" class="tm-artist-img">
                                             </td>
-                                            <td style="padding-right: 12px !important;">
+                                            <td style="padding-right: 16px !important;">
                                                 <img src="{{ public_path('artists/nair-2.jpg') }}" class="tm-artist-img">
                                             </td>
                                             <td class="tm-artists-text">
@@ -353,7 +355,7 @@
                                         </tr>
                                     </table>
                                 </td>
-                                <td style="width: 80px; text-align: right; vertical-align: middle;">
+                                <td style="width: 80px; text-align: right; vertical-align: middle; transform: translateY(40px) translateX(80px);">
                                     <div class="tm-date-badge">
                                         <div class="tm-date-day">{{ $date->format('d') }}</div>
                                         <div class="tm-date-rest">
@@ -409,7 +411,7 @@
                     <div class="stub-inner">
                         <div class="stub-title">Entrada</div>
                         <div class="stub-date">
-                            {{ $date->format('d/m/Y') }} · Portas: {{ $doorsOpen }}
+                            {{ $date->format('d/m/Y') }} <br> Portões abrem às {{ $doorsOpen }}
                         </div>
 
                         <div class="stub-qr-wrapper">
