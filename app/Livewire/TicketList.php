@@ -108,27 +108,72 @@ class TicketList extends Component
     public function confirmTicket(string $ticketId): void
     {
         $ticket = Ticket::findOrFail($ticketId);
+        $oldValues = $ticket->only(['status']);
         app(TicketService::class)->confirmTicket($ticket);
+        $newValues = $ticket->fresh()->only(['status']);
+
+        \App\Services\AuditService::log(
+            action: 'ticket_confirmed',
+            model: $ticket,
+            oldValues: $oldValues,
+            newValues: $newValues
+        );
+
         $this->dispatch('notify', type: 'success', message: "Bilhete {$ticket->ticket_code} confirmado.");
     }
 
     public function cancelTicket(string $ticketId): void
     {
         $ticket = Ticket::findOrFail($ticketId);
+        $oldValues = $ticket->only(['status']);
         app(TicketService::class)->cancelTicket($ticket);
+        $newValues = $ticket->fresh()->only(['status']);
+
+        \App\Services\AuditService::log(
+            action: 'ticket_cancelled',
+            model: $ticket,
+            oldValues: $oldValues,
+            newValues: $newValues
+        );
+
         $this->dispatch('notify', type: 'warning', message: "Bilhete {$ticket->ticket_code} cancelado.");
     }
 
     public function validateTicket(string $ticketId): void
     {
         $ticket = Ticket::findOrFail($ticketId);
+        $oldValues = $ticket->only(['status', 'used_at', 'scanned_by']);
         $result = app(TicketService::class)->validateTicket($ticket->ticket_code, auth()->user());
         
         if ($result['status'] === 'valid') {
+            $newValues = $ticket->fresh()->only(['status', 'used_at', 'scanned_by']);
+            \App\Services\AuditService::log(
+                action: 'ticket_validated',
+                model: $ticket,
+                oldValues: $oldValues,
+                newValues: $newValues
+            );
             $this->dispatch('notify', type: 'success', message: "Bilhete {$ticket->ticket_code} validado com sucesso.");
         } else {
             $this->dispatch('notify', type: 'error', message: $result['message']);
         }
+    }
+
+    public function deleteTicket(string $ticketId): void
+    {
+        $ticket = Ticket::findOrFail($ticketId);
+        $oldValues = $ticket->toArray();
+        
+        \App\Services\AuditService::log(
+            action: 'ticket_deleted',
+            model: $ticket,
+            oldValues: $oldValues,
+            newValues: []
+        );
+
+        $ticket->delete();
+        
+        $this->dispatch('notify', type: 'warning', message: "Bilhete {$ticket->ticket_code} eliminado permanentemente.");
     }
 
     public function resendTicket(string $ticketId): void
@@ -165,6 +210,7 @@ class TicketList extends Component
         ]);
 
         $ticket = Ticket::findOrFail($this->editingTicketId);
+        $oldValues = $ticket->only(['buyer_name', 'buyer_phone', 'buyer_email', 'status', 'used_at', 'scanned_by']);
         
         $updateData = [
             'buyer_name' => $this->editingName,
@@ -187,6 +233,14 @@ class TicketList extends Component
         }
 
         $ticket->update($updateData);
+        $newValues = $ticket->fresh()->only(['buyer_name', 'buyer_phone', 'buyer_email', 'status', 'used_at', 'scanned_by']);
+
+        \App\Services\AuditService::log(
+            action: 'ticket_updated',
+            model: $ticket,
+            oldValues: $oldValues,
+            newValues: $newValues
+        );
 
         $this->isEditing = false;
         $this->editingTicketId = null;

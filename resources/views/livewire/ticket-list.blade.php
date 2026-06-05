@@ -148,41 +148,63 @@
                             <td style="font-size: 0.8rem;">{{ $ticket->created_at->format('d/m/Y H:i') }}</td>
                             <td>
                                 <div style="display: flex; gap: 6px; flex-wrap: nowrap;">
-                                    <a href="https://wa.me/{{ str_replace('+', '', $ticket->buyer_phone) }}?text={{ urlencode('Aqui está o seu bilhete para o Concerto Renúncia: ' . URL::signedRoute('tickets.download', $ticket)) }}" target="_blank" class="btn-sm" title="Enviar WhatsApp" style="background: rgba(37,211,102,0.1); color: #25D366; border-color: rgba(37,211,102,0.3); text-decoration: none;">
-                                        <i data-lucide="message-circle" class="w-4 h-4"></i>
-                                    </a>
-                                    <a href="{{ route('admin.tickets.download.png', $ticket) }}" class="btn-sm" title="Baixar PNG" style="background: rgba(255,255,255,0.05); color: var(--text-secondary); border-color: rgba(255,255,255,0.1); text-decoration: none;">
-                                        <i data-lucide="image" class="w-4 h-4"></i>
-                                    </a>
-                                    <a href="{{ route('admin.tickets.preview', $ticket) }}" target="_blank" class="btn-sm" title="Pré-visualizar" style="background: rgba(59,130,246,0.14); color: #3B82F6; border-color: rgba(59,130,246,0.3); text-decoration: none;">
-                                        <i data-lucide="eye" class="w-4 h-4"></i>
-                                    </a>
                                     <a href="{{ route('admin.tickets.download', $ticket) }}" class="btn-sm" title="Baixar PDF" style="background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none;">
                                         <i data-lucide="download" class="w-4 h-4"></i>
                                     </a>
+
                                     <button wire:click="editTicket('{{ $ticket->id }}')" class="btn-sm" title="Editar" style="background: rgba(212,160,23,0.14); color: var(--gold); border-color: rgba(212,160,23,0.3);">
                                         <i data-lucide="edit" class="w-4 h-4"></i>
                                     </button>
-                                    @if ($ticket->isPending())
-                                        <button wire:click="confirmTicket('{{ $ticket->id }}')" wire:confirm="Confirmar bilhete {{ $ticket->ticket_code }}?" class="btn-sm btn-confirm" title="Confirmar">
-                                            <i data-lucide="check" class="w-4 h-4"></i>
+
+                                    <div x-data="{ open: false }" style="position: relative;">
+                                        <button @click="open = !open" @click.outside="open = false" class="btn-sm" title="Mais Opções" style="background: rgba(255,255,255,0.05); color: var(--text-secondary); border-color: rgba(255,255,255,0.1); padding: 8px;">
+                                            <i data-lucide="more-vertical" class="w-4 h-4"></i>
                                         </button>
-                                    @endif
-                                    @if ($ticket->isConfirmed())
-                                        <button wire:click="validateTicket('{{ $ticket->id }}')" wire:confirm="Validar entrada do bilhete {{ $ticket->ticket_code }}?" class="btn-sm" title="Validar Entrada" style="background: rgba(16,185,129,0.14); color: #10B981; border-color: rgba(16,185,129,0.3);">
-                                            <i data-lucide="scan-line" class="w-4 h-4"></i>
-                                        </button>
-                                    @endif
-                                    @if ($ticket->isConfirmed() || $ticket->isUsed())
-                                        <button wire:click="resendTicket('{{ $ticket->id }}')" wire:confirm="Reenviar bilhete {{ $ticket->ticket_code }}?" class="btn-sm" title="Reenviar" style="background: rgba(59,130,246,0.14); color: var(--accent-blue); border-color: rgba(59,130,246,0.3);">
-                                            <i data-lucide="send" class="w-4 h-4"></i>
-                                        </button>
-                                    @endif
-                                    @if (!$ticket->isUsed() && !$ticket->isCancelled())
-                                        <button wire:click="cancelTicket('{{ $ticket->id }}')" wire:confirm="Cancelar bilhete {{ $ticket->ticket_code }}?" class="btn-sm btn-cancel" title="Cancelar">
-                                            <i data-lucide="x" class="w-4 h-4"></i>
-                                        </button>
-                                    @endif
+                                        <div x-show="open" x-transition style="position: absolute; right: 0; top: 100%; margin-top: 6px; background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); z-index: 90; min-width: 190px; padding: 6px; display: flex; flex-direction: column; gap: 2px;" style="display: none;">
+                                            
+                                            <a href="https://wa.me/{{ str_replace('+', '', $ticket->buyer_phone) }}?text={{ urlencode('Aqui está o seu bilhete para o Concerto Renúncia: ' . URL::signedRoute('tickets.download', $ticket)) }}" target="_blank" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; border-radius: 6px; transition: all 0.2s;">
+                                                <i data-lucide="message-circle" class="w-4 h-4" style="color: #25D366;"></i> WhatsApp
+                                            </a>
+
+                                            <a href="{{ route('admin.tickets.download.png', $ticket) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; border-radius: 6px; transition: all 0.2s;">
+                                                <i data-lucide="image" class="w-4 h-4" style="color: var(--gold);"></i> Baixar PNG
+                                            </a>
+
+                                            <a href="{{ route('admin.tickets.preview', $ticket) }}" target="_blank" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; border-radius: 6px; transition: all 0.2s;">
+                                                <i data-lucide="eye" class="w-4 h-4" style="color: #3B82F6;"></i> Pré-visualizar
+                                            </a>
+
+                                            @if ($ticket->isPending())
+                                                <button wire:click="confirmTicket('{{ $ticket->id }}')" wire:confirm="Confirmar bilhete {{ $ticket->ticket_code }}?" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                                    <i data-lucide="check" class="w-4 h-4" style="color: #10B981;"></i> Confirmar
+                                                </button>
+                                            @endif
+
+                                            @if ($ticket->isConfirmed())
+                                                <button wire:click="validateTicket('{{ $ticket->id }}')" wire:confirm="Validar entrada do bilhete {{ $ticket->ticket_code }}?" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                                    <i data-lucide="scan-line" class="w-4 h-4" style="color: #10B981;"></i> Validar Entrada
+                                                </button>
+                                            @endif
+
+                                            @if ($ticket->isConfirmed() || $ticket->isUsed())
+                                                <button wire:click="resendTicket('{{ $ticket->id }}')" wire:confirm="Reenviar bilhete {{ $ticket->ticket_code }}?" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #3B82F6; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                                    <i data-lucide="send" class="w-4 h-4" style="color: #3B82F6;"></i> Reenviar
+                                                </button>
+                                            @endif
+
+                                            @if (!$ticket->isUsed() && !$ticket->isCancelled())
+                                                <button wire:click="cancelTicket('{{ $ticket->id }}')" wire:confirm="Cancelar bilhete {{ $ticket->ticket_code }}?" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #F59E0B; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                                    <i data-lucide="x" class="w-4 h-4" style="color: #F59E0B;"></i> Cancelar
+                                                </button>
+                                            @endif
+
+                                            <div style="height: 1px; background: var(--dark-border); margin: 4px 0;"></div>
+
+                                            <button wire:click="deleteTicket('{{ $ticket->id }}')" wire:confirm="Tens a certeza que desejas ELIMINAR permanentemente o bilhete {{ $ticket->ticket_code }}? Esta acção é irreversível e o bilhete não poderá ser recuperado." class="dropdown-item text-danger" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #EF4444; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                                <i data-lucide="trash-2" class="w-4 h-4" style="color: #EF4444;"></i> Eliminar
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </td>
                         </tr>
@@ -243,28 +265,63 @@
                 </div>
 
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <a href="https://wa.me/{{ str_replace('+', '', $ticket->buyer_phone) }}?text={{ urlencode('Aqui está o seu bilhete para o Concerto Renúncia: ' . URL::signedRoute('tickets.download', $ticket)) }}" target="_blank" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(37,211,102,0.1); color: #25D366; border-color: rgba(37,211,102,0.3); text-decoration: none;">
-                        <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
-                    </a>
-                    <a href="{{ route('admin.tickets.preview', $ticket) }}" target="_blank" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(59,130,246,0.14); color: #3B82F6; border-color: rgba(59,130,246,0.3); text-decoration: none;">
-                        <i data-lucide="eye" class="w-4 h-4"></i> Ver
-                    </a>
                     <a href="{{ route('admin.tickets.download', $ticket) }}" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none;">
                         <i data-lucide="download" class="w-4 h-4"></i> PDF
                     </a>
+
                     <button wire:click="editTicket('{{ $ticket->id }}')" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(212,160,23,0.14); color: var(--gold); border-color: rgba(212,160,23,0.3);">
                         <i data-lucide="edit" class="w-4 h-4"></i> Editar
                     </button>
-                    @if ($ticket->isPending())
-                        <button wire:click="confirmTicket('{{ $ticket->id }}')" wire:confirm="Confirmar bilhete {{ $ticket->ticket_code }}?" class="btn-sm btn-confirm" style="flex: 1; justify-content: center;">
-                            <i data-lucide="check" class="w-4 h-4"></i> Confirmar
+
+                    <div x-data="{ open: false }" style="position: relative;">
+                        <button @click="open = !open" @click.outside="open = false" class="btn-sm" title="Mais Opções" style="background: rgba(255,255,255,0.05); color: var(--text-secondary); border-color: rgba(255,255,255,0.1); padding: 8px; height: 38px; display: flex; align-items: center;">
+                            <i data-lucide="more-vertical" class="w-4 h-4"></i>
                         </button>
-                    @endif
-                    @if (!$ticket->isUsed() && !$ticket->isCancelled())
-                        <button wire:click="cancelTicket('{{ $ticket->id }}')" wire:confirm="Cancelar bilhete {{ $ticket->ticket_code }}?" class="btn-sm btn-cancel" style="flex: 1; justify-content: center;">
-                            <i data-lucide="x" class="w-4 h-4"></i> Cancelar
-                        </button>
-                    @endif
+                        <div x-show="open" x-transition style="position: absolute; right: 0; bottom: 100%; margin-bottom: 6px; background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 8px; box-shadow: 0 -10px 30px rgba(0,0,0,0.6); z-index: 90; min-width: 190px; padding: 6px; display: flex; flex-direction: column; gap: 2px;" style="display: none;">
+                            
+                            <a href="https://wa.me/{{ str_replace('+', '', $ticket->buyer_phone) }}?text={{ urlencode('Aqui está o seu bilhete para o Concerto Renúncia: ' . URL::signedRoute('tickets.download', $ticket)) }}" target="_blank" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; border-radius: 6px; transition: all 0.2s;">
+                                <i data-lucide="message-circle" class="w-4 h-4" style="color: #25D366;"></i> WhatsApp
+                            </a>
+
+                            <a href="{{ route('admin.tickets.download.png', $ticket) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; border-radius: 6px; transition: all 0.2s;">
+                                <i data-lucide="image" class="w-4 h-4" style="color: var(--gold);"></i> Baixar PNG
+                            </a>
+
+                            <a href="{{ route('admin.tickets.preview', $ticket) }}" target="_blank" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; border-radius: 6px; transition: all 0.2s;">
+                                <i data-lucide="eye" class="w-4 h-4" style="color: #3B82F6;"></i> Pré-visualizar
+                            </a>
+
+                            @if ($ticket->isPending())
+                                <button wire:click="confirmTicket('{{ $ticket->id }}')" wire:confirm="Confirmar bilhete {{ $ticket->ticket_code }}?" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                    <i data-lucide="check" class="w-4 h-4" style="color: #10B981;"></i> Confirmar
+                                </button>
+                            @endif
+
+                            @if ($ticket->isConfirmed())
+                                <button wire:click="validateTicket('{{ $ticket->id }}')" wire:confirm="Validar entrada do bilhete {{ $ticket->ticket_code }}?" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                    <i data-lucide="scan-line" class="w-4 h-4" style="color: #10B981;"></i> Validar Entrada
+                                </button>
+                            @endif
+
+                            @if ($ticket->isConfirmed() || $ticket->isUsed())
+                                <button wire:click="resendTicket('{{ $ticket->id }}')" wire:confirm="Reenviar bilhete {{ $ticket->ticket_code }}?" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #3B82F6; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                    <i data-lucide="send" class="w-4 h-4" style="color: #3B82F6;"></i> Reenviar
+                                </button>
+                            @endif
+
+                            @if (!$ticket->isUsed() && !$ticket->isCancelled())
+                                <button wire:click="cancelTicket('{{ $ticket->id }}')" wire:confirm="Cancelar bilhete {{ $ticket->ticket_code }}?" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #F59E0B; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                    <i data-lucide="x" class="w-4 h-4" style="color: #F59E0B;"></i> Cancelar
+                                </button>
+                            @endif
+
+                            <div style="height: 1px; background: var(--dark-border); margin: 4px 0;"></div>
+
+                            <button wire:click="deleteTicket('{{ $ticket->id }}')" wire:confirm="Tens a certeza que desejas ELIMINAR permanentemente o bilhete {{ $ticket->ticket_code }}? Esta acção é irreversível e o bilhete não poderá ser recuperado." class="dropdown-item text-danger" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #EF4444; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                <i data-lucide="trash-2" class="w-4 h-4" style="color: #EF4444;"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         @empty
@@ -343,6 +400,14 @@
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
+        }
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: var(--gold) !important;
+        }
+        .dropdown-item.text-danger:hover {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: #EF4444 !important;
         }
     </style>
 </div>
