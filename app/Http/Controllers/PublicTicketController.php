@@ -102,7 +102,7 @@ class PublicTicketController extends Controller
         $pdf = Pdf::loadView('pdf.ticket-v2', [
             'ticket' => $ticket,
             'qrCode' => $qrCodeService->generateQrPng($ticket, 300),
-        ])->setPaper([0, 0, 1400, 450], 'portrait');
+        ])->setPaper([0, 0, 720, 250], 'portrait');
 
         return $pdf->download('bilhete-' . $ticket->ticket_code . '.pdf');
     }
@@ -114,7 +114,7 @@ class PublicTicketController extends Controller
         $pdf = Pdf::loadView('pdf.ticket-v2', [
             'ticket' => $ticket,
             'qrCode' => $qrCodeService->generateQrPng($ticket, 300),
-        ])->setPaper([0, 0, 1400, 450], 'portrait');
+        ])->setPaper([0, 0, 720, 250], 'portrait');
 
         $tempPdf = tempnam(sys_get_temp_dir(), 'ticket_') . '.pdf';
         file_put_contents($tempPdf, $pdf->output());

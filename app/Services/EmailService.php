@@ -85,7 +85,7 @@ class EmailService
                 $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket-v2', [
                     'ticket' => $ticket,
                     'qrCode' => $qrCode,
-                ])->setPaper([0, 0, 1300, 500], 'portrait');
+                ])->setPaper([0, 0, 720, 250], 'portrait');
 
                 $pdfPath = 'tickets/' . $ticket->ticket_code . '.pdf';
                 \Illuminate\Support\Facades\Storage::disk('local')->put($pdfPath, $pdf->output());

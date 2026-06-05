@@ -1,360 +1,426 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Bilhete Único - Concerto Renúncia</title>
+    <title>Bilhete — {{ $ticket->event->name ?? 'Concerto Renúncia' }}</title>
     <style>
+        /* ─── DOMPDF Page Setup ─── */
         @page {
             margin: 0px;
-            size: 1400px 450px;
+            size: 720px 250px;
         }
 
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
+            background: #ffffff;
             margin: 0px;
             padding: 0px;
-            background: #ffffff;
             color: #ffffff;
         }
 
+        /* ─── Wrapper do Bilhete ─── */
         .ticket-wrapper {
-            width: 1400px;
-            height: 450px;
+            width: 720px;
+            height: 240px;
             position: absolute;
-            top: 0;
+            top: 5px;
             left: 0;
             overflow: hidden;
-            background: #111;
+            background: #0E0C15;
+            border-radius: 16px;
         }
 
-        /* Fundo do Corpo Principal */
+        /* ─── Elementos Absolutos (DomPDF Friendly) ─── */
         .bg-layer {
             position: absolute;
             top: 0;
             left: 0;
-            width: 1050px;
-            height: 450px;
-            z-index: -3;
-            object-fit: cover;
-        }
-        
-        .dark-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 1050px;
-            height: 450px;
-            background: linear-gradient(90deg, rgba(15,15,15,0.95) 0%, rgba(15,15,15,0.8) 40%, rgba(15,15,15,0.6) 100%);
-            z-index: -2;
+            width: 720px;
+            height: 240px;
+            z-index: 1;
+            border-radius: 16px;
         }
 
-        /* Fundo do Stub */
-        .stub-layer {
+        .tm-accent-bar {
             position: absolute;
-            top: 0;
-            left: 1050px;
-            width: 350px;
-            height: 450px;
-            background: #0A0A0A;
-            z-index: -1;
-            border-left: 3px dashed #D4AF37;
+            top: 0; left: 0;
+            width: 4px; height: 240px;
+            background: #C9A227;
+            z-index: 2;
         }
 
-        /* Efeito de Picote / Punch holes */
         .punch-top {
             position: absolute;
-            top: -20px;
-            left: 1030px;
-            width: 40px;
-            height: 40px;
+            top: -12px;
+            left: 511px;
+            width: 24px;
+            height: 24px;
             background: #ffffff;
             border-radius: 50%;
-            z-index: 10;
-        }
-        
-        .punch-bottom {
-            position: absolute;
-            bottom: -20px;
-            left: 1030px;
-            width: 40px;
-            height: 40px;
-            background: #ffffff;
-            border-radius: 50%;
-            z-index: 10;
+            z-index: 20;
         }
 
-        /* Tabela Estrutural Principal */
+        .punch-bottom {
+            position: absolute;
+            bottom: -12px;
+            left: 511px;
+            width: 24px;
+            height: 24px;
+            background: #ffffff;
+            border-radius: 50%;
+            z-index: 20;
+        }
+
+        /* ─── Layout using Tables ─── */
         table.layout {
-            width: 1400px;
-            height: 450px;
+            width: 720px;
+            height: 240px;
             border-collapse: collapse;
             table-layout: fixed;
             margin: 0;
             padding: 0;
+            position: relative;
+            z-index: 5;
         }
-        
+
         table.layout td {
             vertical-align: top;
-            padding: 30px 40px;
             box-sizing: border-box;
+            padding: 0;
+            margin: 0;
         }
-        
-        .col-main { width: 1050px; height: 450px; }
-        .col-stub { width: 350px; height: 450px; text-align: center; }
 
-        /* Estilos do Corpo Principal */
-        .date-box {
+        .col-main {
+            width: 510px;
+            height: 240px;
+        }
+
+        .col-perf {
+            width: 26px;
+            height: 240px;
+        }
+
+        .col-stub {
+            width: 184px;
+            height: 240px;
+            background: transparent;
             text-align: center;
-            border-right: 2px solid #D4AF37;
-            padding-right: 25px;
-            margin-right: 15px;
-        }
-        
-        .date-day {
-            font-size: 65px;
-            font-weight: bold;
-            color: #ffffff;
-            line-height: 1;
-        }
-        
-        .date-month-time {
-            font-size: 16px;
-            color: #D4AF37;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 5px;
         }
 
-        .brand {
-            color: #D4AF37;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 3px;
-            margin-bottom: 8px;
-        }
-        
-        .title {
-            font-size: 42px;
-            font-weight: bold;
-            text-transform: uppercase;
-            line-height: 1.1;
-            margin-bottom: 5px;
-        }
-        
-        .subtitle {
-            font-size: 20px;
-            color: #e0e0e0;
-            letter-spacing: 5px;
-        }
-        
-        .alpha-logo {
-            height: 45px;
-            opacity: 0.95;
+        /* ─── Main Details ─── */
+        .tm-inner {
+            padding: 20px 26px 15px 30px;
         }
 
-        /* Bloco Inferior de Informações */
-        .info-bar {
-            width: 100%;
-            margin-top: 35px;
-            background: linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(0,0,0,0) 100%);
-            border: 1px solid rgba(212,175,55,0.3);
-            border-radius: 12px;
-            padding: 15px 25px;
-        }
-        
-        .info-table {
+        table.tm-top {
             width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
-        
-        .info-table td {
-            vertical-align: top;
-            padding: 0 15px;
-            border-right: 1px solid rgba(255,255,255,0.15);
-        }
-        
-        .info-table td:first-child { padding-left: 0; }
-        .info-table td:last-child { border-right: none; padding-right: 0; }
-        
-        .info-label {
-            color: #D4AF37;
-            font-size: 12px;
+
+        .tm-brand {
+            font-size: 10px;
             font-weight: bold;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            color: #C9A227;
+            text-transform: uppercase;
             margin-bottom: 6px;
+        }
+
+        .tm-event-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: #FFFFFF;
+            text-transform: uppercase;
+            line-height: 1;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .tm-artists {
+            font-size: 11px;
+            font-weight: normal;
+            color: #9A8E7A;
+            letter-spacing: 3px;
             text-transform: uppercase;
         }
-        
-        .info-value {
-            font-size: 16px;
+
+        /* Badge de data */
+        .tm-date-badge {
+            background: #171420;
+            border: 1px solid rgba(201,162,39,0.32);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            width: 60px;
+        }
+
+        .tm-date-day {
+            font-size: 38px;
             font-weight: bold;
-            color: #ffffff;
+            color: #F5D96B;
+            line-height: 1;
+            margin-bottom: 2px;
+        }
+
+        .tm-date-rest {
+            font-size: 10px;
+            font-weight: bold;
+            color: #C9A227;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        /* Bottom block */
+        table.tm-bottom {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            margin-top: 15px;
+        }
+        
+        table.tm-bottom td {
+            border-right: 1px solid rgba(255,255,255,0.07);
+            padding-right: 12px;
+            padding-left: 12px;
+            vertical-align: top;
+        }
+        
+        table.tm-bottom td:first-child { padding-left: 0; }
+        table.tm-bottom td:last-child { border-right: none; padding-right: 0; }
+
+        .tm-type-pill {
+            background: #C9A227;
+            color: #0E0C15;
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .tm-info-label {
+            font-size: 9px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            color: #C9A227;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .tm-info-value {
+            font-size: 13px;
+            font-weight: bold;
+            color: #FFFFFF;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        /* Estilos do Canhoto (Stub) */
-        .qr-wrapper {
-            background: #ffffff;
-            padding: 10px;
-            border-radius: 8px;
-            display: inline-block;
-            margin-bottom: 15px;
-            margin-top: 15px;
+        /* ─── Perforation ─── */
+        .perf-line {
+            width: 1px;
+            height: 220px;
+            margin-top: 10px;
+            margin-left: 12px;
+            border-left: 2px dashed rgba(255,255,255,0.15);
         }
-        
-        .qr-image {
-            width: 150px;
-            height: 150px;
-            display: block;
+
+        /* ─── Stub ─── */
+        .stub-inner {
+            padding: 18px 14px;
+            text-align: center;
         }
-        
-        .ticket-code {
-            color: #D4AF37;
-            font-size: 22px;
-            font-weight: bold;
-            font-family: monospace;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            background: rgba(212,175,55,0.1);
-            padding: 6px 12px;
-            border-radius: 4px;
-            display: inline-block;
-        }
-        
+
         .stub-title {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
+            color: #FFFFFF;
             text-transform: uppercase;
-            margin-bottom: 5px;
+            letter-spacing: 2.5px;
+            margin-bottom: 4px;
         }
-        
-        .stub-subtitle {
-            color: #D4AF37;
+
+        .stub-date {
+            font-size: 10px;
+            color: #C9A227;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .stub-qr-wrapper {
+            width: 90px;
+            height: 90px;
+            background: #FFFFFF;
+            border-radius: 8px;
+            padding: 5px;
+            margin: 0 auto 12px auto;
+        }
+
+        .stub-qr-wrapper img {
+            width: 90px;
+            height: 90px;
+        }
+
+        .stub-code {
+            font-family: monospace;
             font-size: 13px;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-        }
-        
-        .validation-text {
-            color: #a0a0a0;
-            font-size: 11px;
-            line-height: 1.4;
-            border-top: 1px dashed rgba(212,175,55,0.3);
-            padding-top: 15px;
-            margin-top: auto;
-        }
-        
-        .badge-type {
-            background: #D4AF37;
-            color: #000;
-            padding: 5px 12px;
-            border-radius: 6px;
-            font-size: 14px;
             font-weight: bold;
+            color: #F5D96B;
+            letter-spacing: 2px;
+            background: #171420;
+            border: 1px solid rgba(201,162,39,0.25);
+            border-radius: 6px;
+            padding: 6px 12px;
             display: inline-block;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
+            margin-bottom: 12px;
         }
+
+        .stub-hint {
+            font-size: 9px;
+            color: #4D4535;
+            text-align: center;
+            line-height: 1.4;
+            border-top: 1px dashed rgba(201,162,39,0.18);
+            padding-top: 10px;
+        }
+
     </style>
 </head>
 <body>
 
+    @php
+        $date = \Carbon\Carbon::parse($ticket->event->date ?? '2026-07-11 18:00:00');
+        $monthAbbr = mb_strtoupper(mb_substr($date->translatedFormat('F'), 0, 3));
+        $doorsOpen = \App\Models\SiteSetting::getValue('event_doors_open', '16:00');
+        $showTime = \App\Models\SiteSetting::getValue('event_show_time', '18:00');
+    @endphp
+
     <div class="ticket-wrapper">
-        <!-- Fundo Main -->
-        <img src="{{ public_path('images/abel-1-small.png') }}" class="bg-layer">
-        <div class="dark-overlay"></div>
+        <img src="{{ public_path('images/ticket-bg-premium.png') }}" class="bg-layer">
         
-        <!-- Fundo Stub + Picotado -->
-        <div class="stub-layer"></div>
+        <div class="tm-accent-bar"></div>
         <div class="punch-top"></div>
         <div class="punch-bottom"></div>
 
         <table class="layout">
             <tr>
-                <!-- CORPO PRINCIPAL -->
+                {{-- ══════════════════════════════
+                     CORPO PRINCIPAL
+                ══════════════════════════════ --}}
                 <td class="col-main">
-                    
-                    <table style="width: 100%;">
-                        <tr>
-                            <!-- Esquerda: Data -->
-                            <td style="width: 130px; vertical-align: top;">
-                                <div class="date-box">
-                                    @php
-                                        $date = \Carbon\Carbon::parse($ticket->event->date ?? '2026-07-11 18:00');
-                                    @endphp
-                                    <div class="date-day">{{ $date->format('d') }}</div>
-                                    <div class="date-month-time">
-                                        {{ mb_substr($date->translatedFormat('F'), 0, 3) }}<br>
-                                        {{ $date->format('H:i') }}
-                                    </div>
-                                </div>
-                            </td>
-                            
-                            <!-- Centro: Título -->
-                            <td style="vertical-align: top;">
-                                <div class="brand">ALPHA PRODUÇÕES E FAITH APRESENTAM</div>
-                                <div class="title">{{ Str::limit($ticket->event->name ?? 'CONCERTO RENÚNCIA', 35) }}</div>
-                                <div class="subtitle">ABEL LASTE & NAIR NANY</div>
-                            </td>
-
-                            <!-- Direita: Logo -->
-                            <td style="width: 120px; vertical-align: top; text-align: right;">
-                                <img src="{{ public_path('alpha-logo-gold.png') }}" class="alpha-logo">
-                            </td>
-                        </tr>
-                    </table>
-
-                    <!-- Imagens dos Artistas -->
-                    <div style="margin-top: 35px; height: 130px; overflow: hidden; white-space: nowrap;">
-                        <img src="{{ public_path('images/nair-1-small.jpeg') }}" style="height: 130px; border-radius: 8px; border: 2px solid rgba(212,175,55,0.8); margin-right: 15px;">
-                        <img src="{{ public_path('images/abel-2-small.png') }}" style="height: 130px; border-radius: 8px; border: 2px solid rgba(212,175,55,0.8);">
-                    </div>
-
-                    <!-- Informações do Bilhete -->
-                    <div class="info-bar">
-                        <table class="info-table">
+                    <div class="tm-inner">
+                        <table class="tm-top">
                             <tr>
-                                <td style="width: 20%;">
-                                    <div class="info-label">TIPO</div>
-                                    <div class="info-value" style="color: #D4AF37;">{{ mb_strtoupper($ticket->getTicketTypeLabel()) }}</div>
+                                <td style="width: 370px;">
+                                    <div class="tm-brand">
+                                        {{ $ticket->event->organizer ?? 'Alpha Produções & Faith Apresentam' }}
+                                    </div>
+                                    <div class="tm-event-name">
+                                        {{ Str::limit($ticket->event->name ?? 'Concerto Renúncia', 30) }}
+                                    </div>
+                                    <div class="tm-artists">
+                                        {{ $ticket->event->artists ?? 'Abel Laste · Nair Nany' }}
+                                    </div>
                                 </td>
-                                <td style="width: 40%;">
-                                    <div class="info-label">TITULAR DO BILHETE</div>
-                                    <div class="info-value">{{ Str::limit($ticket->buyer_name, 25) }}</div>
+                                <td style="width: 84px; text-align: right; vertical-align: middle;">
+                                    <div class="tm-date-badge">
+                                        <div class="tm-date-day">{{ $date->format('d') }}</div>
+                                        <div class="tm-date-rest">
+                                            {{ $monthAbbr }} · {{ $showTime }}
+                                        </div>
+                                    </div>
                                 </td>
-                                <td style="width: 25%;">
-                                    <div class="info-label">LOCAL</div>
-                                    <div class="info-value">{{ Str::limit($ticket->event->venue ?? 'Pavilhão do Benfica', 20) }}</div>
+                            </tr>
+                        </table>
+
+                        <table class="tm-bottom">
+                            <!-- Linha 1: Badge Tipo (VIP, Normal, etc.) -->
+                            <tr>
+                                <td style="width: 100px; height: 20px;">
+                                    <div class="tm-type-pill">
+                                        {{ mb_strtoupper($ticket->getTicketTypeLabel()) }}
+                                    </div>
                                 </td>
-                                <td style="width: 15%;">
-                                    <div class="info-label">PREÇO</div>
-                                    <div class="info-value">{{ number_format($ticket->price, 0, ',', '.') }} MT</div>
+                                <td style="width: 170px;"></td>
+                                <td style="width: 110px;"></td>
+                                <td style="width: 74px;"></td>
+                            </tr>
+                            
+                            <!-- Linha 2: Labels -->
+                            <tr>
+                                <td style="padding-top: 5px;">
+                                    <div class="tm-info-label">Tipo</div>
+                                </td>
+                                <td style="padding-top: 5px;">
+                                    <div class="tm-info-label">Titular</div>
+                                </td>
+                                <td style="padding-top: 5px;">
+                                    <div class="tm-info-label">Local</div>
+                                </td>
+                                <td style="padding-top: 5px;">
+                                    <div class="tm-info-label">Preço</div>
+                                </td>
+                            </tr>
+
+                            <!-- Linha 3: Valores dinâmicos da base de dados -->
+                            <tr>
+                                <td>
+                                    <div class="tm-info-value" style="color:#F5D96B;">
+                                        {{ $ticket->getTicketTypeLabel() }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="tm-info-value">
+                                        {{ Str::limit($ticket->buyer_name, 22) }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="tm-info-value">
+                                        {{ Str::limit($ticket->event->venue ?? 'Pavilhão do Benfica', 16) }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="tm-info-value">
+                                        {{ number_format($ticket->price, 0, ',', '.') }} MT
+                                    </div>
                                 </td>
                             </tr>
                         </table>
                     </div>
-
                 </td>
 
-                <!-- CANHOTO (STUB) -->
-                <td class="col-stub">
-                    <div class="badge-type">BILHETE {{ mb_strtoupper($ticket->getTicketTypeLabel()) }}</div>
-                    
-                    <div class="stub-title">Entrada</div>
-                    <div class="stub-subtitle">{{ $date->format('d/m/Y') }} · {{ $date->format('H:i') }}</div>
+                {{-- ══════════════════════════════
+                     PERFURAÇÃO (picote)
+                ══════════════════════════════ --}}
+                <td class="col-perf">
+                    <div class="perf-line"></div>
+                </td>
 
-                    <div class="qr-wrapper">
-                        <img src="data:image/png;base64,{!! base64_encode($qrCode) !!}" class="qr-image">
-                    </div>
-                    
-                    <div class="ticket-code">{{ $ticket->ticket_code }}</div>
-                    
-                    <div class="validation-text">
-                        Apresente este código na entrada.<br>
-                        Bilhete único. A duplicação<br>implica perda de validade.
+                {{-- ══════════════════════════════
+                     CANHOTO (STUB)
+                ══════════════════════════════ --}}
+                <td class="col-stub">
+                    <div class="stub-inner">
+                        <div class="stub-title">Entrada</div>
+                        <div class="stub-date">
+                            {{ $date->format('d/m/Y') }} · Portas: {{ $doorsOpen }}
+                        </div>
+
+                        <div class="stub-qr-wrapper">
+                            @isset($qrCode)
+                                <img src="data:image/png;base64,{{ base64_encode($qrCode) }}" alt="QR Code">
+                            @endisset
+                        </div>
+
+                        <div class="stub-code">{{ $ticket->ticket_code }}</div>
+
+                        <div class="stub-hint">
+                            Apresente este código na entrada.<br>
+                            Bilhete único e intransferível.
+                        </div>
                     </div>
                 </td>
             </tr>

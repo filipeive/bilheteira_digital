@@ -47,6 +47,9 @@ class AdminController extends Controller
             'event_date' => ['nullable', 'date'],
             'event_venue' => ['nullable', 'string', 'max:100'],
             'event_city' => ['nullable', 'string', 'max:50'],
+            'event_doors_open' => ['nullable', 'string', 'max:10'],
+            'event_show_time' => ['nullable', 'string', 'max:10'],
+            'event_end_time' => ['nullable', 'string', 'max:10'],
         ], [
             'hero_image.uploaded' => 'Falha ao carregar a imagem. Tente novamente.',
             'hero_image.max' => 'A imagem deve ter no máximo 4MB.',
@@ -54,7 +57,7 @@ class AdminController extends Controller
             'event_date.date' => 'A data deve estar no formato válido.',
         ]);
 
-        foreach (['hero_label', 'hero_title', 'hero_artists', 'hero_support', 'support_phone', 'support_whatsapp'] as $key) {
+        foreach (['hero_label', 'hero_title', 'hero_artists', 'hero_support', 'support_phone', 'support_whatsapp', 'event_doors_open', 'event_show_time', 'event_end_time'] as $key) {
             SiteSetting::putValue($key, $validated[$key] ?? null);
         }
 
@@ -98,9 +101,21 @@ class AdminController extends Controller
         $pdf = Pdf::loadView('pdf.ticket-v2', [
             'ticket' => $ticket,
             'qrCode' => $qrCodeService->generateQrPng($ticket, 300),
-        ])->setPaper([0, 0, 1300, 500], 'portrait');
+        ])->setPaper([0, 0, 720, 250], 'portrait');
 
         return $pdf->download('bilhete-' . $ticket->ticket_code . '.pdf');
+    }
+
+    public function previewTicket(Ticket $ticket, QrCodeService $qrCodeService): Response
+    {
+        $ticket->load('event');
+
+        $pdf = Pdf::loadView('pdf.ticket-v2', [
+            'ticket' => $ticket,
+            'qrCode' => $qrCodeService->generateQrPng($ticket, 300),
+        ])->setPaper([0, 0, 720, 250], 'portrait');
+
+        return $pdf->stream('bilhete-' . $ticket->ticket_code . '.pdf');
     }
 
     public function bulkDownloadTickets(Request $request, QrCodeService $qrCodeService): Response
@@ -120,7 +135,7 @@ class AdminController extends Controller
                 $pdf = Pdf::loadView('pdf.ticket-v2', [
                     'ticket' => $ticket,
                     'qrCode' => $qrCodeService->generateQrPng($ticket, 300),
-                ])->setPaper([0, 0, 1300, 500], 'portrait');
+                ])->setPaper([0, 0, 720, 250], 'portrait');
                 
                 $zip->addFromString('bilhete-' . $ticket->ticket_code . '.pdf', $pdf->output());
             }
@@ -139,7 +154,7 @@ class AdminController extends Controller
         $pdf = Pdf::loadView('pdf.ticket-v2', [
             'ticket' => $ticket,
             'qrCode' => $qrCodeService->generateQrPng($ticket, 300),
-        ])->setPaper([0, 0, 1300, 500], 'portrait');
+        ])->setPaper([0, 0, 720, 250], 'portrait');
 
         $tempPdf = tempnam(sys_get_temp_dir(), 'ticket_') . '.pdf';
         file_put_contents($tempPdf, $pdf->output());
@@ -230,6 +245,9 @@ class AdminController extends Controller
             'support_phone' => '87 541 1644',
             'support_whatsapp' => '258875411644',
             'hero_image' => '',
+            'event_doors_open' => '16:00',
+            'event_show_time' => '18:00',
+            'event_end_time' => '23:00',
         ];
     }
 }

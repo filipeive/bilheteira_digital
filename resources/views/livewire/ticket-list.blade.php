@@ -154,6 +154,9 @@
                                     <a href="{{ route('admin.tickets.download.png', $ticket) }}" class="btn-sm" title="Baixar PNG" style="background: rgba(255,255,255,0.05); color: var(--text-secondary); border-color: rgba(255,255,255,0.1); text-decoration: none;">
                                         <i data-lucide="image" class="w-4 h-4"></i>
                                     </a>
+                                    <a href="{{ route('admin.tickets.preview', $ticket) }}" target="_blank" class="btn-sm" title="Pré-visualizar" style="background: rgba(59,130,246,0.14); color: #3B82F6; border-color: rgba(59,130,246,0.3); text-decoration: none;">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                    </a>
                                     <a href="{{ route('admin.tickets.download', $ticket) }}" class="btn-sm" title="Baixar PDF" style="background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none;">
                                         <i data-lucide="download" class="w-4 h-4"></i>
                                     </a>
@@ -239,6 +242,9 @@
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <a href="https://wa.me/{{ str_replace('+', '', $ticket->buyer_phone) }}?text={{ urlencode('Aqui está o seu bilhete para o Concerto Renúncia: ' . URL::signedRoute('tickets.download', $ticket)) }}" target="_blank" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(37,211,102,0.1); color: #25D366; border-color: rgba(37,211,102,0.3); text-decoration: none;">
                         <i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp
+                    </a>
+                    <a href="{{ route('admin.tickets.preview', $ticket) }}" target="_blank" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(59,130,246,0.14); color: #3B82F6; border-color: rgba(59,130,246,0.3); text-decoration: none;">
+                        <i data-lucide="eye" class="w-4 h-4"></i> Ver
                     </a>
                     <a href="{{ route('admin.tickets.download', $ticket) }}" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none;">
                         <i data-lucide="download" class="w-4 h-4"></i> PDF

@@ -38,6 +38,7 @@ Route::middleware(['auth', CheckRole::class . ':admin,organizer,super_admin'])->
     Route::get('/tickets', TicketList::class)->name('admin.tickets');
     Route::get('/tickets/bulk/download', [AdminController::class, 'bulkDownloadTickets'])->name('admin.tickets.bulk_download');
     Route::get('/tickets/{ticket}/download', [AdminController::class, 'downloadTicket'])->name('admin.tickets.download');
+    Route::get('/tickets/{ticket}/preview', [AdminController::class, 'previewTicket'])->name('admin.tickets.preview');
     Route::get('/tickets/{ticket}/download/png', [AdminController::class, 'downloadTicketPng'])->name('admin.tickets.download.png');
     Route::get('/manual', ManualTicketForm::class)->name('admin.manual');
     Route::get('/site', [AdminController::class, 'siteContent'])->name('admin.site');

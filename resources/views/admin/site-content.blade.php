@@ -86,6 +86,23 @@
                     <input id="event_city" name="event_city" class="form-input" value="{{ old('event_city', $event->city ?? '') }}">
                     @error('event_city') <p class="form-error">{{ $message }}</p> @enderror
                 </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-top: 14px;">
+                    <div class="form-group">
+                        <label class="form-label" for="event_doors_open">Abertura (Portas)</label>
+                        <input id="event_doors_open" name="event_doors_open" type="time" class="form-input" value="{{ old('event_doors_open', $settings['event_doors_open'] ?? '') }}">
+                        @error('event_doors_open') <p class="form-error">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="event_show_time">Início do Show</label>
+                        <input id="event_show_time" name="event_show_time" type="time" class="form-input" value="{{ old('event_show_time', $settings['event_show_time'] ?? '') }}">
+                        @error('event_show_time') <p class="form-error">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="event_end_time">Término Previsto</label>
+                        <input id="event_end_time" name="event_end_time" type="time" class="form-input" value="{{ old('event_end_time', $settings['event_end_time'] ?? '') }}">
+                        @error('event_end_time') <p class="form-error">{{ $message }}</p> @enderror
+                    </div>
                 </div>
 
                 <hr style="border: none; border-top: 1px solid rgba(212,175,55,0.12); margin: 24px 0;">
