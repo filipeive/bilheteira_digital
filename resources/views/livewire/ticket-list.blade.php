@@ -160,6 +160,9 @@
                                     <a href="{{ route('admin.tickets.download', $ticket) }}" class="btn-sm" title="Baixar PDF" style="background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none;">
                                         <i data-lucide="download" class="w-4 h-4"></i>
                                     </a>
+                                    <button wire:click="editTicket('{{ $ticket->id }}')" class="btn-sm" title="Editar" style="background: rgba(212,160,23,0.14); color: var(--gold); border-color: rgba(212,160,23,0.3);">
+                                        <i data-lucide="edit" class="w-4 h-4"></i>
+                                    </button>
                                     @if ($ticket->isPending())
                                         <button wire:click="confirmTicket('{{ $ticket->id }}')" wire:confirm="Confirmar bilhete {{ $ticket->ticket_code }}?" class="btn-sm btn-confirm" title="Confirmar">
                                             <i data-lucide="check" class="w-4 h-4"></i>
@@ -249,6 +252,9 @@
                     <a href="{{ route('admin.tickets.download', $ticket) }}" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none;">
                         <i data-lucide="download" class="w-4 h-4"></i> PDF
                     </a>
+                    <button wire:click="editTicket('{{ $ticket->id }}')" class="btn-sm" style="flex: 1; justify-content: center; background: rgba(212,160,23,0.14); color: var(--gold); border-color: rgba(212,160,23,0.3);">
+                        <i data-lucide="edit" class="w-4 h-4"></i> Editar
+                    </button>
                     @if ($ticket->isPending())
                         <button wire:click="confirmTicket('{{ $ticket->id }}')" wire:confirm="Confirmar bilhete {{ $ticket->ticket_code }}?" class="btn-sm btn-confirm" style="flex: 1; justify-content: center;">
                             <i data-lucide="check" class="w-4 h-4"></i> Confirmar
@@ -275,6 +281,55 @@
     </div>
     @endif
 
+    @if($isEditing)
+    <div style="position: fixed; inset: 0; background: rgba(13,11,7,0.85); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 9999; animation: fadeIn 0.2s ease;">
+        <div style="background: var(--dark-surface); border: 1px solid var(--dark-border); border-radius: 16px; width: 100%; max-width: 500px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: var(--gold); font-size: 1.5rem; font-family: 'Bebas Neue'; letter-spacing: 1px;">EDITAR BILHETE</h3>
+                <button wire:click="$set('isEditing', false)" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form wire:submit.prevent="saveTicket">
+                <div style="margin-bottom: 16px;">
+                    <label class="form-label">Nome do Titular</label>
+                    <input type="text" wire:model="editingName" class="form-input" required>
+                    @error('editingName') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label class="form-label">Telefone</label>
+                    <input type="text" wire:model="editingPhone" class="form-input">
+                    @error('editingPhone') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label class="form-label">Email</label>
+                    <input type="email" wire:model="editingEmail" class="form-input">
+                    @error('editingEmail') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label class="form-label">Estado do Bilhete</label>
+                    <select wire:model="editingStatus" class="form-input" style="cursor: pointer;">
+                        <option value="pending">Pendente</option>
+                        <option value="confirmed">Confirmado</option>
+                        <option value="used">Usado (Entrada Validada)</option>
+                        <option value="cancelled">Cancelado</option>
+                    </select>
+                    @error('editingStatus') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" wire:click="$set('isEditing', false)" class="btn-outline" style="padding: 8px 16px;">Cancelar</button>
+                    <button type="submit" class="btn-gold" style="padding: 8px 20px;"><i data-lucide="save" class="w-4 h-4"></i> Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endif
+
     <style>
         @media (max-width: 1024px) {
             div[style*="grid-template-columns: 2fr 1fr 1fr"] {
@@ -284,6 +339,10 @@
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </div>

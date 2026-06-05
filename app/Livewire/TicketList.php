@@ -29,6 +29,14 @@ class TicketList extends Component
     public array $selectedIds = [];
     public bool $selectAll = false;
 
+    // Editing state
+    public bool $isEditing = false;
+    public ?string $editingTicketId = null;
+    public string $editingName = '';
+    public string $editingPhone = '';
+    public string $editingEmail = '';
+    public string $editingStatus = '';
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -134,6 +142,56 @@ class TicketList extends Component
 
         \App\Jobs\SendTicketJob::dispatch($ticket);
         $this->dispatch('notify', type: 'success', message: "Bilhete {$ticket->ticket_code} está a ser reenviado...");
+    }
+
+    public function editTicket(string $id): void
+    {
+        $ticket = Ticket::findOrFail($id);
+        $this->editingTicketId = $ticket->id;
+        $this->editingName = $ticket->buyer_name;
+        $this->editingPhone = $ticket->buyer_phone ?? '';
+        $this->editingEmail = $ticket->buyer_email ?? '';
+        $this->editingStatus = $ticket->status;
+        $this->isEditing = true;
+    }
+
+    public function saveTicket(): void
+    {
+        $this->validate([
+            'editingName' => 'required|string|min:3',
+            'editingPhone' => 'nullable|string',
+            'editingEmail' => 'nullable|email',
+            'editingStatus' => 'required|in:pending,confirmed,used,cancelled',
+        ]);
+
+        $ticket = Ticket::findOrFail($this->editingTicketId);
+        
+        $updateData = [
+            'buyer_name' => $this->editingName,
+            'buyer_phone' => $this->editingPhone ?: null,
+            'buyer_email' => $this->editingEmail ?: null,
+            'status' => $this->editingStatus,
+        ];
+
+        // If status changed from used to confirmed/pending/cancelled, clear scanner info
+        if ($ticket->status === 'used' && $this->editingStatus !== 'used') {
+            $updateData['used_at'] = null;
+            $updateData['scanned_by'] = null;
+            $updateData['scanned_device'] = null;
+        }
+        
+        // If status changed to used, mark scan info
+        if ($ticket->status !== 'used' && $this->editingStatus === 'used') {
+            $updateData['used_at'] = now();
+            $updateData['scanned_by'] = auth()->id();
+        }
+
+        $ticket->update($updateData);
+
+        $this->isEditing = false;
+        $this->editingTicketId = null;
+        
+        $this->dispatch('notify', type: 'success', message: "Bilhete {$ticket->ticket_code} actualizado com sucesso.");
     }
 
     #[Computed]

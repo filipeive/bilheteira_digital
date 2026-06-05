@@ -1,7 +1,7 @@
 <div>
     <h1 style="font-size: 2rem; color: var(--gold); margin-bottom: 24px;">O MEU PERFIL</h1>
 
-    <div style="display: grid; grid-template-columns: 1fr; gap: 24px; max-width: 600px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; width: 100%; max-width: 1200px;">
         {{-- Profile info --}}
         <div style="background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 12px; padding: 24px;">
             <h3 style="color: var(--gold); font-size: 1.2rem; margin-bottom: 16px;">INFORMAÇÕES</h3>
