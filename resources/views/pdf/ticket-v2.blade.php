@@ -109,13 +109,12 @@
 
         /* ─── Main Details ─── */
         .tm-inner {
-            padding: 20px 26px 15px 30px;
+            padding: 16px 24px 10px 30px;
         }
 
         table.tm-top {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
         }
 
         .tm-brand {
@@ -124,15 +123,15 @@
             letter-spacing: 2px;
             color: #C9A227;
             text-transform: uppercase;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         .tm-event-name {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: bold;
             color: #FFFFFF;
             text-transform: uppercase;
-            line-height: 1;
+            line-height: 1.1;
             letter-spacing: 1px;
             margin-bottom: 5px;
         }
@@ -150,13 +149,13 @@
             background: #171420;
             border: 1px solid rgba(201,162,39,0.32);
             border-radius: 10px;
-            padding: 10px;
+            padding: 8px;
             text-align: center;
             width: 60px;
         }
 
         .tm-date-day {
-            font-size: 38px;
+            font-size: 34px;
             font-weight: bold;
             color: #F5D96B;
             line-height: 1;
@@ -164,10 +163,10 @@
         }
 
         .tm-date-rest {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             color: #C9A227;
-            letter-spacing: 1.5px;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
 
@@ -175,14 +174,13 @@
         table.tm-bottom {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
             margin-top: 15px;
         }
         
         table.tm-bottom td {
             border-right: 1px solid rgba(255,255,255,0.07);
-            padding-right: 12px;
-            padding-left: 12px;
+            padding-right: 10px;
+            padding-left: 10px;
             vertical-align: top;
         }
         
@@ -196,9 +194,15 @@
             font-weight: bold;
             letter-spacing: 1px;
             text-transform: uppercase;
-            padding: 4px 8px;
+            padding: 3px 6px;
             border-radius: 4px;
             display: inline-block;
+            margin-bottom: 6px;
+        }
+
+        .tm-spacer {
+            height: 15px;
+            margin-bottom: 6px;
         }
 
         .tm-info-label {
@@ -214,9 +218,6 @@
             font-size: 13px;
             font-weight: bold;
             color: #FFFFFF;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
 
         /* ─── Perforation ─── */
@@ -230,61 +231,61 @@
 
         /* ─── Stub ─── */
         .stub-inner {
-            padding: 18px 14px;
+            padding: 12px 14px 10px 14px;
             text-align: center;
         }
 
         .stub-title {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             color: #FFFFFF;
             text-transform: uppercase;
-            letter-spacing: 2.5px;
-            margin-bottom: 4px;
+            letter-spacing: 2px;
+            margin-bottom: 3px;
         }
 
         .stub-date {
-            font-size: 10px;
+            font-size: 9px;
             color: #C9A227;
             letter-spacing: 1px;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
         }
 
         .stub-qr-wrapper {
-            width: 90px;
-            height: 90px;
+            width: 80px;
+            height: 80px;
             background: #FFFFFF;
             border-radius: 8px;
-            padding: 5px;
-            margin: 0 auto 12px auto;
+            padding: 4px;
+            margin: 0 auto 6px auto;
         }
 
         .stub-qr-wrapper img {
-            width: 90px;
-            height: 90px;
+            width: 80px;
+            height: 80px;
         }
 
         .stub-code {
             font-family: monospace;
-            font-size: 13px;
+            font-size: 11px;
             font-weight: bold;
             color: #F5D96B;
             letter-spacing: 2px;
             background: #171420;
             border: 1px solid rgba(201,162,39,0.25);
             border-radius: 6px;
-            padding: 6px 12px;
+            padding: 3px 8px;
             display: inline-block;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
         }
 
         .stub-hint {
-            font-size: 9px;
-            color: #4D4535;
+            font-size: 8px;
+            color: #5E5340;
             text-align: center;
-            line-height: 1.4;
+            line-height: 1.3;
             border-top: 1px dashed rgba(201,162,39,0.18);
-            padding-top: 10px;
+            padding-top: 6px;
         }
 
     </style>
@@ -314,7 +315,7 @@
                     <div class="tm-inner">
                         <table class="tm-top">
                             <tr>
-                                <td style="width: 370px;">
+                                <td>
                                     <div class="tm-brand">
                                         {{ $ticket->event->organizer ?? 'Alpha Produções & Faith Apresentam' }}
                                     </div>
@@ -325,7 +326,7 @@
                                         {{ $ticket->event->artists ?? 'Abel Laste · Nair Nany' }}
                                     </div>
                                 </td>
-                                <td style="width: 84px; text-align: right; vertical-align: middle;">
+                                <td style="width: 80px; text-align: right; vertical-align: middle;">
                                     <div class="tm-date-badge">
                                         <div class="tm-date-day">{{ $date->format('d') }}</div>
                                         <div class="tm-date-rest">
@@ -337,52 +338,33 @@
                         </table>
 
                         <table class="tm-bottom">
-                            <!-- Linha 1: Badge Tipo (VIP, Normal, etc.) -->
                             <tr>
-                                <td style="width: 100px; height: 20px;">
+                                <td style="width: 100px;">
                                     <div class="tm-type-pill">
                                         {{ mb_strtoupper($ticket->getTicketTypeLabel()) }}
                                     </div>
-                                </td>
-                                <td style="width: 170px;"></td>
-                                <td style="width: 110px;"></td>
-                                <td style="width: 74px;"></td>
-                            </tr>
-                            
-                            <!-- Linha 2: Labels -->
-                            <tr>
-                                <td style="padding-top: 5px;">
                                     <div class="tm-info-label">Tipo</div>
-                                </td>
-                                <td style="padding-top: 5px;">
-                                    <div class="tm-info-label">Titular</div>
-                                </td>
-                                <td style="padding-top: 5px;">
-                                    <div class="tm-info-label">Local</div>
-                                </td>
-                                <td style="padding-top: 5px;">
-                                    <div class="tm-info-label">Preço</div>
-                                </td>
-                            </tr>
-
-                            <!-- Linha 3: Valores dinâmicos da base de dados -->
-                            <tr>
-                                <td>
                                     <div class="tm-info-value" style="color:#F5D96B;">
                                         {{ $ticket->getTicketTypeLabel() }}
                                     </div>
                                 </td>
-                                <td>
+                                <td style="width: 170px;">
+                                    <div class="tm-spacer"></div>
+                                    <div class="tm-info-label">Titular</div>
                                     <div class="tm-info-value">
                                         {{ Str::limit($ticket->buyer_name, 22) }}
                                     </div>
                                 </td>
-                                <td>
+                                <td style="width: 110px;">
+                                    <div class="tm-spacer"></div>
+                                    <div class="tm-info-label">Local</div>
                                     <div class="tm-info-value">
                                         {{ Str::limit($ticket->event->venue ?? 'Pavilhão do Benfica', 16) }}
                                     </div>
                                 </td>
-                                <td>
+                                <td style="width: 74px;">
+                                    <div class="tm-spacer"></div>
+                                    <div class="tm-info-label">Preço</div>
                                     <div class="tm-info-value">
                                         {{ number_format($ticket->price, 0, ',', '.') }} MT
                                     </div>
