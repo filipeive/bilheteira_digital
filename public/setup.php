@@ -139,6 +139,12 @@ if ($action === 'config_mail') {
     }
 }
 
+// ── 6.6 EXECUTAR COMANDO (troubleshooting) ──────────────────
+if ($action === 'run_cmd') {
+    $cmd = $_GET['cmd'] ?? 'ls -la';
+    $results[] = run($cmd, $base);
+}
+
 // ── 7. DIAGNÓSTICO COMPLETO ─────────────────────────────────
 if ($action === 'diagnose') {
     $out = "═══ AMBIENTE ═══\n";
@@ -200,6 +206,19 @@ if ($action === 'diagnose') {
                 $out .= trim($line) . "\n";
             }
         }
+    }
+
+    // .htaccess content
+    $htaccessFile = $publicAlpha . '/.htaccess';
+    if (file_exists($htaccessFile)) {
+        $out .= "\n═══ ALPHA/BILHETES/.HTACCESS ═══\n";
+        $out .= file_get_contents($htaccessFile) . "\n";
+    }
+
+    $publicHtaccess = $base . '/public/.htaccess';
+    if (file_exists($publicHtaccess)) {
+        $out .= "\n═══ PUBLIC/.HTACCESS ═══\n";
+        $out .= file_get_contents($publicHtaccess) . "\n";
     }
 
     $results[] = ['cmd' => 'diagnóstico', 'out' => $out, 'code' => 0];

@@ -1,0 +1,97 @@
+
+[2026-06-04 09:33:17] Deploy: 28 ok, 0 erros
+  routes/web.php
+  app/Console/Commands/SendEventReminders.php
+  app/Http/Requests/Auth/LoginRequest.php
+  app/Http/Requests/ProfileUpdateRequest.php
+  app/Jobs/SendBulkTicketsJob.php
+  app/Jobs/SendTicketJob.php
+  app/Livewire/Admin/QuickSale.php
+  app/Livewire/Admin/Reports.php
+  app/Livewire/ManualTicketForm.php
+  app/Livewire/TicketForm.php
+  app/Livewire/TicketList.php
+  app/Mail/TicketMail.php
+  app/Mail/TicketPendingMail.php
+  app/Services/EmailService.php
+  app/Services/SmsService.php
+  database/factories/UserFactory.php
+  public/favicon.ico
+  public/robots.txt
+  resources/views/emails/ticket-pending.blade.php
+  resources/views/emails/ticket.blade.php
+  resources/views/layouts/admin.blade.php
+  resources/views/livewire/admin-dashboard.blade.php
+  resources/views/livewire/admin/quick-sale.blade.php
+  resources/views/livewire/admin/reports.blade.php
+  resources/views/livewire/manual-ticket-form.blade.php
+  resources/views/livewire/ticket-list.blade.php
+  resources/views/pdf/report.blade.php
+  resources/views/pdf/ticket-v2.blade.php
+
+[2026-06-05 18:32:46] Deploy: 8 ok, 0 erros
+  routes/web.php
+  app/Http/Controllers/AdminController.php
+  app/Http/Controllers/PublicTicketController.php
+  app/Services/EmailService.php
+  public/images/ticket-bg-premium.png
+  resources/views/admin/site-content.blade.php
+  resources/views/livewire/ticket-list.blade.php
+  resources/views/pdf/ticket-v2.blade.php
+
+[2026-06-05 18:58:44] Deploy: 1 ok, 0 erros
+  resources/views/pdf/ticket-v2.blade.php
+
+[2026-06-05 19:13:21] Deploy: 1 ok, 0 erros
+  resources/views/pdf/ticket-v2.blade.php
+
+[2026-06-05 19:49:52] Deploy: 1 ok, 0 erros
+  resources/views/pdf/ticket-v2.blade.php
+
+[2026-06-05 19:56:42] Deploy: 1 ok, 0 erros
+  resources/views/pdf/ticket-v2.blade.php
+
+[2026-06-05 20:18:32] Deploy: 1 ok, 0 erros
+  resources/views/pdf/ticket-v2.blade.php
+
+[2026-06-05 20:47:28] Deploy: 1 ok, 0 erros
+  resources/views/pdf/ticket-v2.blade.php
+
+[2026-06-05 20:54:11] Deploy: 1 ok, 0 erros
+  resources/views/pdf/ticket-v2.blade.php
+
+[2026-06-05 21:12:45] Deploy: 2 ok, 0 erros
+  resources/views/layouts/admin.blade.php
+  resources/views/pdf/ticket-v2.blade.php
+
+[2026-06-05 21:32:43] Deploy: 3 ok, 0 erros
+  app/Livewire/TicketList.php
+  resources/views/livewire/admin/profile.blade.php
+  resources/views/livewire/ticket-list.blade.php
+
+[2026-06-05 21:43:21] Deploy: 2 ok, 0 erros
+  app/Livewire/TicketList.php
+  resources/views/livewire/ticket-list.blade.php
+
+[2026-06-05 21:55:26] Deploy: 2 ok, 0 erros
+  app/Models/AuditLog.php
+  resources/views/livewire/admin/audit-logs.blade.php
+
+[2026-06-05 22:25:17] Deploy: 1 ok, 0 erros
+  resources/views/livewire/admin/audit-logs.blade.php
+
+[2026-06-09 15:56:26] Deploy: 1 ok, 0 erros
+  database/migrations/2026_06_09_000001_make_buyer_phone_nullable_in_tickets_table.php
+
+[2026-06-09 16:21:44] Deploy: 2 ok, 0 erros
+  routes/web.php
+  database/migrations/2026_06_09_000002_change_ticket_type_to_string_in_tickets_table.php
+
+[2026-06-09 16:22:10] Deploy: 1 ok, 0 erros
+  routes/web.php
+
+[2026-06-10 08:14:10] Deploy: 1 ok, 0 erros
+  public/setup.php
+
+[2026-06-10 08:22:22] Deploy: 1 ok, 0 erros
+  public/setup.php

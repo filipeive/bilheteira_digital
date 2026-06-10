@@ -29,31 +29,37 @@ class SendBulkTicketsJob implements ShouldQueue
      */
     public function handle(EmailService $email, SmsService $sms): void
     {
-        if (empty($this->tickets)) {
-            return;
-        }
-
-        $results = [];
-        $firstTicket = $this->tickets[0];
-        $status = $firstTicket->status;
-
-        if (in_array($this->channel, ['email', 'all']) && $firstTicket->buyer_email) {
-            if ($status === 'confirmed') {
-                $results['email'] = $email->sendBulkTicketConfirmation($this->tickets);
-            } elseif ($status === 'pending') {
-                $results['email'] = $email->sendBulkPaymentPending($this->tickets);
+        try {
+            if (empty($this->tickets)) {
+                return;
             }
-        }
 
-        if (in_array($this->channel, ['sms', 'whatsapp', 'all']) && $firstTicket->buyer_phone) {
-            if ($status === 'confirmed') {
-                $results['sms'] = $sms->sendBulkConfirmation($this->tickets);
-            } elseif ($status === 'pending') {
-                $results['sms'] = $sms->sendBulkPaymentPending($this->tickets);
+            $results = [];
+            $firstTicket = $this->tickets[0];
+            $status = $firstTicket->status;
+
+            if (in_array($this->channel, ['email', 'all']) && $firstTicket->buyer_email) {
+                if ($status === 'confirmed') {
+                    $results['email'] = $email->sendBulkTicketConfirmation($this->tickets);
+                } elseif ($status === 'pending') {
+                    $results['email'] = $email->sendBulkPaymentPending($this->tickets);
+                }
             }
-        }
 
-        AuditService::log('sent_bulk_ticket_notification', $firstTicket, [], $results);
-        Log::info("SendBulkTicketsJob: " . count($this->tickets) . " tickets", $results);
+            if (in_array($this->channel, ['sms', 'whatsapp', 'all']) && $firstTicket->buyer_phone) {
+                if ($status === 'confirmed') {
+                    $results['sms'] = $sms->sendBulkConfirmation($this->tickets);
+                } elseif ($status === 'pending') {
+                    $results['sms'] = $sms->sendBulkPaymentPending($this->tickets);
+                }
+            }
+
+            AuditService::log('sent_bulk_ticket_notification', $firstTicket, [], $results);
+            Log::info("SendBulkTicketsJob: " . count($this->tickets) . " tickets", $results);
+        } catch (\Throwable $e) {
+            Log::error("SendBulkTicketsJob failed: " . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
     }
 }

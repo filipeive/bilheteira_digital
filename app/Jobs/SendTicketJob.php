@@ -28,26 +28,32 @@ class SendTicketJob implements ShouldQueue
 
     public function handle(EmailService $email, SmsService $sms): void
     {
-        $results = [];
+        try {
+            $results = [];
 
-        if (in_array($this->channel, ['email', 'all']) && $this->ticket->buyer_email) {
-            if ($this->ticket->status === 'confirmed') {
-                $results['email'] = $email->sendTicketConfirmation($this->ticket);
-            } elseif ($this->ticket->status === 'pending') {
-                $results['email'] = $email->sendPaymentPending($this->ticket);
+            if (in_array($this->channel, ['email', 'all']) && $this->ticket->buyer_email) {
+                if ($this->ticket->status === 'confirmed') {
+                    $results['email'] = $email->sendTicketConfirmation($this->ticket);
+                } elseif ($this->ticket->status === 'pending') {
+                    $results['email'] = $email->sendPaymentPending($this->ticket);
+                }
             }
-        }
 
-        if (in_array($this->channel, ['sms', 'whatsapp', 'all']) && $this->ticket->buyer_phone) {
-            if ($this->ticket->status === 'confirmed') {
-                $results['sms'] = $sms->sendConfirmation($this->ticket);
-            } elseif ($this->ticket->status === 'pending') {
-                $results['sms'] = $sms->sendPaymentPending($this->ticket);
+            if (in_array($this->channel, ['sms', 'whatsapp', 'all']) && $this->ticket->buyer_phone) {
+                if ($this->ticket->status === 'confirmed') {
+                    $results['sms'] = $sms->sendConfirmation($this->ticket);
+                } elseif ($this->ticket->status === 'pending') {
+                    $results['sms'] = $sms->sendPaymentPending($this->ticket);
+                }
             }
-        }
 
-        AuditService::log('sent_ticket_notification', $this->ticket, [], $results);
-        Log::info("SendTicketJob: {$this->ticket->ticket_code}", $results);
+            AuditService::log('sent_ticket_notification', $this->ticket, [], $results);
+            Log::info("SendTicketJob: {$this->ticket->ticket_code}", $results);
+        } catch (\Throwable $e) {
+            Log::error("SendTicketJob failed: " . $e->getMessage(), [
+                'exception' => $e
+            ]);
+        }
     }
 
     public function failed(\Throwable $e): void
