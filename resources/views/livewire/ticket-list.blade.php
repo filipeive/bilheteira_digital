@@ -62,6 +62,26 @@
         </div>
     </div>
 
+    {{-- Migrar Lote Expirado --}}
+    @php
+        $expiredBatch = \App\Models\TicketBatch::where('is_active', true)
+            ->whereNotNull('ends_at')
+            ->where('ends_at', '<', now())
+            ->orderBy('sort_order')
+            ->first();
+    @endphp
+    @if($expiredBatch)
+    <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 10px; padding: 12px 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <span style="color: #EF4444; font-weight: 600; font-size: 0.85rem;">
+            <i data-lucide="alert-triangle" class="w-4 h-4" style="display: inline; vertical-align: middle;"></i>
+            Lote "{{ $expiredBatch->name }}" expirado em {{ $expiredBatch->ends_at->format('d/m/Y H:i') }}
+        </span>
+        <button type="button" wire:click="migrateExpiredBatch" onclick="confirm('Migrar todos os bilhetes pendentes/confirmados do lote expirado para o próximo lote disponível?') || event.stopImmediatePropagation()" class="btn-sm" style="background: rgba(239, 68, 68, 0.14); color: #EF4444; border-color: rgba(239, 68, 68, 0.3); height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+            <i data-lucide="arrow-right-left" class="w-4 h-4"></i> Migrar Bilhetes
+        </button>
+    </div>
+    @endif
+
     {{-- Bulk Action Bar --}}
     @if(count($selectedIds) > 0)
     <div style="background: rgba(212,160,23,0.08); border: 1px solid rgba(212,160,23,0.25); border-radius: 10px; padding: 12px 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; animation: fadeInUp 0.2s ease;">
@@ -70,14 +90,14 @@
             {{ count($selectedIds) }} bilhete(s) seleccionado(s)
         </span>
         <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
-            <select wire:model.live="bulkBatchId" class="form-input" style="padding: 4px 8px; font-size: 0.8rem; width: auto; background: var(--dark-surface); border-color: rgba(212,175,55,0.3); height: 34px; color: var(--text-primary); cursor: pointer;">
+            <select wire:model="bulkBatchId" class="form-input" style="padding: 4px 8px; font-size: 0.8rem; width: auto; background: var(--dark-surface); border-color: rgba(212,175,55,0.3); height: 34px; color: var(--text-primary); cursor: pointer;">
                 <option value="">Alterar Lote para...</option>
                 @foreach($this->batches as $batch)
-                    <option value="{{ $batch->id }}">{{ $batch->name }} ({{ number_format($batch->price, 0, ',', '.') }} MT)</option>
+                    <option value="{{ $batch->id }}">{{ $batch->display_name }} ({{ number_format($batch->price, 0, ',', '.') }} MT)</option>
                 @endforeach
             </select>
 
-            <select wire:model.live="bulkStatus" class="form-input" style="padding: 4px 8px; font-size: 0.8rem; width: auto; background: var(--dark-surface); border-color: rgba(212,175,55,0.3); height: 34px; color: var(--text-primary); cursor: pointer;">
+            <select wire:model="bulkStatus" class="form-input" style="padding: 4px 8px; font-size: 0.8rem; width: auto; background: var(--dark-surface); border-color: rgba(212,175,55,0.3); height: 34px; color: var(--text-primary); cursor: pointer;">
                 <option value="">Alterar Estado para...</option>
                 <option value="pending">Pendente</option>
                 <option value="confirmed">Confirmado</option>
@@ -85,7 +105,7 @@
                 <option value="cancelled">Cancelado</option>
             </select>
 
-            <button type="button" wire:click="bulkEdit" onclick="confirm('Aplicar estas alterações em massa para os {{ count($selectedIds) }} bilhetes seleccionados?') || event.stopImmediatePropagation()" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+            <button type="button" wire:click="bulkEdit" onclick="confirm('Aplicar estas alterações em massa para os {{ count($selectedIds) }} bilhetes seleccionados?')" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
                 <span wire:loading.remove wire:target="bulkEdit" style="display: inline-flex; align-items: center;">
                     <i data-lucide="save" class="w-4 h-4"></i>
                 </span>
@@ -409,6 +429,17 @@
                     <label class="form-label">Email</label>
                     <input type="email" wire:model="editingEmail" class="form-input">
                     @error('editingEmail') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label class="form-label">Lote do Bilhete</label>
+                    <select wire:model="editingBatchId" class="form-input" style="cursor: pointer;">
+                        <option value="">Seleccionar lote...</option>
+                        @foreach($this->batches as $batch)
+                            <option value="{{ $batch->id }}">{{ $batch->display_name }} ({{ number_format($batch->price, 0, ',', '.') }} MT)</option>
+                        @endforeach
+                    </select>
+                    @error('editingBatchId') <p class="form-error">{{ $message }}</p> @enderror
                 </div>
 
                 <div style="margin-bottom: 24px;">

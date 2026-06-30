@@ -42,3 +42,38 @@ Este documento regista cronologicamente as melhorias e novas funcionalidades imp
   - Configurado com `style="display: none;"` por omissão no HTML de forma a evitar que o loader apareça bloqueado durante a renderização inicial antes do Livewire estar pronto.
   - Centrado perfeitamente no centro vertical e horizontal do ecrã do utilizador através de `position: fixed;`, com efeito premium de vidro fosco (`backdrop-filter: blur(2px)`).
 - **Deploy Efetuado:** Alterações sincronizadas com o servidor de produção da HostGator via script Python (`deploy.py`).
+
+### 7. Migração Automática de Lotes Expirados e Edição Individual de Lote
+- **Migração por Expiração (`migrateExpiredBatch`):**
+  - Adicionada ação one-click na página de bilhetes que detecta automaticamente lotes com `ends_at` expirado.
+  - Migra todos os bilhetes pendentes/confirmados do lote expirado para o próximo lote ativo do mesmo `ticket_type`.
+  - Atualização atômica dos contadores `sold` (decrementa lote antigo, incrementa lote novo).
+  - Registo de auditoria individualizado para cada bilhete migrado via `AuditService::log()`.
+- **Edição Individual de Lote:**
+  - Adicionado campo "Lote do Bilhete" no modal de edição individual (`editingBatchId`).
+  - Ao alterar o lote no modal, aplica a mesma lógica atômica de atualização de contadores `sold`.
+  - Incluídos `batch_id`, `ticket_type` e `price` nos valores registados no `AuditService` durante a edição.
+- **Interface:**
+  - Alerta visual vermelho no topo da listagem quando há lote expirado, com botão "Migrar Bilhetes" e confirmação nativa.
+  - Seletor de lote adicionado ao formulário de edição individual, mantendo o lote atual como valor padrão.
+- **Validações e Edge Cases:**
+  - Não migra se não houver lote destino disponível ou se o lote já não tiver bilhetes pendentes/confirmados.
+  - A migração ignora bilhetes `used` e `cancelled`.
+  - A edição individual só altera o lote quando um novo lote é explicitamente selecionado.
+
+### 8. Melhoria de UI/UX: Nomes de Lotes Legíveis e Deploy Otimizado
+- **Accessor `display_name` no Model `TicketBatch`:**
+  - Adicionado `getDisplayNameAttribute()` que converte nomes técnicos armazenados no banco (`first_phasetickets`, `First_Phase`, `second_lot`, etc.) para texto legível em português.
+  - Remove sufixos comuns como `tickets`, `ticket`, `bilhetes` antes da normalização.
+  - Mapeamento específico: `first_phase` → `Primeiro Lote`, `second_phase` → `Segundo Lote`, `promotional` → `Promocional`, `vip` → `VIP`, etc.
+  - Fallback formata underscores/hífens em espaços e capitaliza o texto.
+- **Atualização de Views:**
+  - Substituído `$batch->name` por `$batch->display_name` em:
+    - `ticket-list.blade.php` (ação em massa e edição individual).
+    - `batch-manager.blade.php` (lista de lotes).
+    - `quick-sale.blade.php` (formulário de venda rápida).
+- **Correção do Botão Aplicar (Bulk Actions):**
+  - Removido `event.stopImmediatePropagation()` do `onclick` que interferia no fluxo do Livewire.
+  - Alterado `wire:model.live` para `wire:model` nos selects de Lote e Estado, eliminando requisições paralelas conflitantes durante a seleção.
+- **Otimização do Script de Deploy (`deploy.py`):**
+  - Adicionado suporte a múltiplos arquivos no argumento `--file` (ex: `--file path1 --file path2`).

@@ -47,4 +47,37 @@ class TicketBatch extends Model
         if ($this->quantity === 0) return 0;
         return (int) (($this->sold / $this->quantity) * 100);
     }
+
+    public function getDisplayNameAttribute(): string
+    {
+        $raw = strtolower($this->name);
+
+        $suffixes = ['_tickets', '-tickets', 'tickets', '_ticket', '-ticket', 'ticket', '_bilhetes', '-bilhetes', 'bilhetes'];
+        foreach ($suffixes as $suffix) {
+            if (str_ends_with($raw, $suffix)) {
+                $raw = substr($raw, 0, -strlen($suffix));
+                break;
+            }
+        }
+
+        $map = [
+            'first_phase' => 'Primeiro Lote',
+            'first_lot' => 'Primeiro Lote',
+            'second_phase' => 'Segundo Lote',
+            'second_lot' => 'Segundo Lote',
+            'promotional' => 'Promocional',
+            'vip' => 'VIP',
+            'vip_promotional' => 'VIP Promocional',
+            'vip_second_lot' => 'VIP 2º Lote',
+            'gate' => 'No Portão',
+            'free' => 'Gratuito',
+            'child' => 'Criança',
+        ];
+
+        if (isset($map[$raw])) {
+            return $map[$raw];
+        }
+
+        return ucwords(str_replace(['_', '-'], ' ', $raw));
+    }
 }

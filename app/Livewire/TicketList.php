@@ -41,6 +41,7 @@ class TicketList extends Component
     public string $editingPhone = '';
     public string $editingEmail = '';
     public string $editingStatus = '';
+    public ?string $editingBatchId = null;
 
     public function updatedSearch(): void
     {
@@ -187,6 +188,78 @@ class TicketList extends Component
         $this->dispatch('notify', type: 'success', message: "Edição em massa concluída para {$count} bilhete(s).");
     }
 
+    public function migrateExpiredBatch(): void
+    {
+        $event = Event::where('is_active', true)->first();
+        if (!$event) {
+            $this->dispatch('notify', type: 'error', message: 'Nenhum evento ativo encontrado.');
+            return;
+        }
+
+        $expiredBatch = TicketBatch::where('event_id', $event->id)
+            ->where('is_active', true)
+            ->whereNotNull('ends_at')
+            ->where('ends_at', '<', now())
+            ->orderBy('sort_order')
+            ->first();
+
+        if (!$expiredBatch) {
+            $this->dispatch('notify', type: 'info', message: 'Nenhum lote expirado encontrado.');
+            return;
+        }
+
+        $nextBatch = TicketBatch::where('event_id', $event->id)
+            ->where('is_active', true)
+            ->where('ticket_type', $expiredBatch->ticket_type)
+            ->where('id', '!=', $expiredBatch->id)
+            ->where(function ($q) use ($expiredBatch) {
+                $q->whereNull('starts_at')->orWhere('starts_at', '<=', now());
+            })
+            ->orderBy('sort_order')
+            ->first();
+
+        if (!$nextBatch) {
+            $this->dispatch('notify', type: 'error', message: "Não há lote seguinte disponível para o tipo '{$expiredBatch->ticket_type}'.");
+            return;
+        }
+
+        $tickets = Ticket::where('batch_id', $expiredBatch->id)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->get();
+
+        if ($tickets->isEmpty()) {
+            $this->dispatch('notify', type: 'info', message: 'Nenhum bilhete pendente ou confirmado para migrar neste lote.');
+            return;
+        }
+
+        $count = 0;
+        foreach ($tickets as $ticket) {
+            $oldValues = $ticket->only(['batch_id', 'ticket_type', 'price', 'status']);
+            $updateData = [
+                'batch_id' => $nextBatch->id,
+                'ticket_type' => $nextBatch->ticket_type,
+                'price' => $nextBatch->price,
+            ];
+
+            $expiredBatch->decrement('sold');
+            $nextBatch->increment('sold');
+
+            $ticket->update($updateData);
+            $newValues = $ticket->fresh()->only(['batch_id', 'ticket_type', 'price', 'status']);
+
+            \App\Services\AuditService::log(
+                action: 'ticket_batch_migrated',
+                model: $ticket,
+                oldValues: $oldValues,
+                newValues: $newValues
+            );
+
+            $count++;
+        }
+
+        $this->dispatch('notify', type: 'success', message: "Migração concluída: {$count} bilhete(s) movidos de '{$expiredBatch->name}' para '{$nextBatch->name}'.");
+    }
+
     #[Computed]
     public function batches()
     {
@@ -293,6 +366,7 @@ class TicketList extends Component
         $this->editingPhone = $ticket->buyer_phone ?? '';
         $this->editingEmail = $ticket->buyer_email ?? '';
         $this->editingStatus = $ticket->status;
+        $this->editingBatchId = (string) $ticket->batch_id;
         $this->isEditing = true;
     }
 
@@ -303,10 +377,11 @@ class TicketList extends Component
             'editingPhone' => 'nullable|string',
             'editingEmail' => 'nullable|email',
             'editingStatus' => 'required|in:pending,confirmed,used,cancelled',
+            'editingBatchId' => 'nullable|exists:ticket_batches,id',
         ]);
 
         $ticket = Ticket::findOrFail($this->editingTicketId);
-        $oldValues = $ticket->only(['buyer_name', 'buyer_phone', 'buyer_email', 'status', 'used_at', 'scanned_by']);
+        $oldValues = $ticket->only(['buyer_name', 'buyer_phone', 'buyer_email', 'status', 'used_at', 'scanned_by', 'batch_id', 'ticket_type', 'price']);
         
         $updateData = [
             'buyer_name' => $this->editingName,
@@ -328,8 +403,23 @@ class TicketList extends Component
             $updateData['scanned_by'] = auth()->id();
         }
 
+        // Change Batch atomically
+        if ($this->editingBatchId && $ticket->batch_id != $this->editingBatchId) {
+            $oldBatch = $ticket->batch;
+            $newBatch = TicketBatch::find($this->editingBatchId);
+
+            if ($newBatch && $oldBatch && $oldBatch->id !== $newBatch->id) {
+                $oldBatch->decrement('sold');
+                $newBatch->increment('sold');
+
+                $updateData['batch_id'] = $newBatch->id;
+                $updateData['ticket_type'] = $newBatch->ticket_type;
+                $updateData['price'] = $newBatch->price;
+            }
+        }
+
         $ticket->update($updateData);
-        $newValues = $ticket->fresh()->only(['buyer_name', 'buyer_phone', 'buyer_email', 'status', 'used_at', 'scanned_by']);
+        $newValues = $ticket->fresh()->only(['buyer_name', 'buyer_phone', 'buyer_email', 'status', 'used_at', 'scanned_by', 'batch_id', 'ticket_type', 'price']);
 
         \App\Services\AuditService::log(
             action: 'ticket_updated',
@@ -340,6 +430,7 @@ class TicketList extends Component
 
         $this->isEditing = false;
         $this->editingTicketId = null;
+        $this->editingBatchId = null;
         
         $this->dispatch('notify', type: 'success', message: "Bilhete {$ticket->ticket_code} actualizado com sucesso.");
     }

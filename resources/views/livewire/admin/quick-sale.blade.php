@@ -31,7 +31,7 @@
                     <select wire:model="batchId" class="form-select">
                         <option value="0">— Seleccione um lote —</option>
                         @foreach($batches as $batch)
-                            <option value="{{ $batch->id }}">{{ $batch->name }} — {{ $batch->price }} MZN ({{ $batch->available }} disp.)</option>
+                            <option value="{{ $batch->id }}">{{ $batch->display_name }} — {{ $batch->price }} MZN ({{ $batch->available }} disp.)</option>
                         @endforeach
                     </select>
                     @error('batchId') <p class="form-error">{{ $message }}</p> @enderror

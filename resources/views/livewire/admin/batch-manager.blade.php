@@ -52,7 +52,7 @@
             <div style="background: var(--dark-card); border: 1px solid {{ $batch->is_active ? 'rgba(212,175,55,0.2)' : 'var(--dark-border)' }}; border-radius: 10px; padding: 16px; {{ !$batch->is_active ? 'opacity: 0.6;' : '' }}">
                 <div style="display: flex; justify-content: space-between; align-items: start;">
                     <div>
-                        <h4 style="font-size: 1.1rem; color: var(--gold);">{{ $batch->name }}</h4>
+                        <h4 style="font-size: 1.1rem; color: var(--gold);">{{ $batch->display_name }}</h4>
                         <p style="font-size: 0.8rem; color: var(--text-muted);">{{ $batch->ticket_type }} · {{ $batch->price }} MZN</p>
                     </div>
                     @if($batch->is_active)<span class="badge badge-green">Activo</span>@else<span class="badge badge-red">Inactivo</span>@endif

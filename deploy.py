@@ -454,16 +454,23 @@ def main():
         deploy(get_all_deployable_files(), dry_run=True)
 
     elif "--file" in args:
-        idx = args.index("--file")
-        if idx + 1 >= len(args):
-            err("Especifique o ficheiro: --file path/to/file")
+        filepaths = []
+        i = 0
+        while i < len(args):
+            if args[i] == "--file" and i + 1 < len(args):
+                filepaths.append(args[i + 1])
+                i += 2
+            else:
+                i += 1
+        if not filepaths:
+            err("Especifique o(s) ficheiro(s): --file path1 --file path2")
             sys.exit(1)
-        filepath = args[idx + 1]
-        if os.path.isabs(filepath):
-            filepath = os.path.relpath(filepath, LOCAL_BASE)
-        filepath = filepath.replace("\\", "/")
-        title(f"Deploy: {filepath}")
-        deploy([filepath], force=True)
+        for filepath in filepaths:
+            if os.path.isabs(filepath):
+                filepath = os.path.relpath(filepath, LOCAL_BASE)
+            filepath = filepath.replace("\\", "/")
+        title(f"Deploy: {len(filepaths)} ficheiro(s)")
+        deploy(filepaths, force=True)
 
     else:
         # Grupos específicos
