@@ -110,3 +110,6 @@
   resources/views/livewire/ticket-list.blade.php
   resources/views/public/about.blade.php
   resources/views/public/sale.blade.php
+
+[2026-06-30 17:46:47] Deploy: 1 ok, 0 erros
+  resources/views/livewire/ticket-list.blade.php
