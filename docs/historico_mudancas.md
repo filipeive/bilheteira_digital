@@ -33,3 +33,12 @@ Este documento regista cronologicamente as melhorias e novas funcionalidades imp
 ### 5. Pasta de Documentação e Ritual de Alinhamento
 - Criada a pasta `docs/` para abrigar a documentação arquitetural e de mudanças.
 - Criado o arquivo `docs/0_A_Inicio_ritual.md` contendo as diretrizes de início obrigatórias para os próximos agentes de IA.
+
+### 6. Otimização de Performance e Feedbacks de Interface (Ações em Massa)
+- **Eliminação de Concorrência de Rede:** Removido o `wire:model.live` do checkbox "Select All", utilizando exclusivamente `wire:click="toggleSelectAll"` e determinando o estado verificado condicionalmente para evitar pedidos paralelos e conflitos na UI.
+- **Substituição de Confirmações Livewire:** Trocado o atributo nativo `wire:confirm` do Livewire por diálogos `onclick="confirm(...) || event.stopImmediatePropagation()"` que se integram nativamente com o browser e previnem a submissão acidental de formulários.
+- **Loader Animado em Viewport (Viewport-Centered Overlay):**
+  - Implementado o componente de carregamento `loading-overlay` que reage em tempo real a todas as ações assíncronas de listagem (pesquisas, paginação, seleção em lote, etc.).
+  - Configurado com `style="display: none;"` por omissão no HTML de forma a evitar que o loader apareça bloqueado durante a renderização inicial antes do Livewire estar pronto.
+  - Centrado perfeitamente no centro vertical e horizontal do ecrã do utilizador através de `position: fixed;`, com efeito premium de vidro fosco (`backdrop-filter: blur(2px)`).
+- **Deploy Efetuado:** Alterações sincronizadas com o servidor de produção da HostGator via script Python (`deploy.py`).
