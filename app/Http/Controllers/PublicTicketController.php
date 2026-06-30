@@ -192,6 +192,8 @@ class PublicTicketController extends Controller
             'support_phone' => '87 541 1644',
             'support_whatsapp' => '258875411644',
             'hero_image' => '',
+            'about_description' => 'Um momento de adoração, louvor e entrega total. O Concerto Renúncia não é apenas um evento musical, mas um encontro de almas dispostas a renunciar o mundo e abraçar a fé.',
+            'other_artists' => '[]',
         ]);
     }
 }

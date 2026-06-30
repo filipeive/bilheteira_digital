@@ -95,3 +95,18 @@
 
 [2026-06-10 08:22:22] Deploy: 1 ok, 0 erros
   public/setup.php
+
+[2026-06-30 17:39:36] Deploy: 13 ok, 0 erros
+  routes/web.php
+  app/Http/Controllers/AdminController.php
+  app/Http/Controllers/PublicTicketController.php
+  app/Jobs/SendBulkTicketsJob.php
+  app/Jobs/SendTicketJob.php
+  app/Livewire/Admin/NotificationsManager.php
+  app/Livewire/TicketList.php
+  resources/views/admin/site-content.blade.php
+  resources/views/layouts/admin.blade.php
+  resources/views/livewire/admin/notifications-manager.blade.php
+  resources/views/livewire/ticket-list.blade.php
+  resources/views/public/about.blade.php
+  resources/views/public/sale.blade.php

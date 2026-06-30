@@ -439,6 +439,9 @@
             <a href="{{ url('/admin/audit') }}" class="{{ request()->is('admin/audit') ? 'active' : '' }}">
                 <span class="nav-icon"><i data-lucide="shield" class="w-4 h-4"></i></span> Auditoria
             </a>
+            <a href="{{ url('/admin/notifications') }}" class="{{ request()->is('admin/notifications') ? 'active' : '' }}">
+                <span class="nav-icon"><i data-lucide="bell" class="w-4 h-4"></i></span> Notificações
+            </a>
             @endif
 
             <div class="sidebar-section-label">Ferramentas</div>

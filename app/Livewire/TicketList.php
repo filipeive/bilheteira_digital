@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Event;
 use App\Models\Ticket;
+use App\Models\TicketBatch;
 use App\Services\TicketService;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
@@ -29,6 +30,10 @@ class TicketList extends Component
     public array $selectedIds = [];
     public bool $selectAll = false;
 
+    // Bulk editing options
+    public ?string $bulkBatchId = null;
+    public string $bulkStatus = '';
+
     // Editing state
     public bool $isEditing = false;
     public ?string $editingTicketId = null;
@@ -39,11 +44,15 @@ class TicketList extends Component
 
     public function updatedSearch(): void
     {
+        $this->selectedIds = [];
+        $this->selectAll = false;
         $this->resetPage();
     }
 
     public function updatedFilterStatus(): void
     {
+        $this->selectedIds = [];
+        $this->selectAll = false;
         $this->resetPage();
     }
 
@@ -66,8 +75,9 @@ class TicketList extends Component
 
     public function toggleSelectAll(): void
     {
+        $this->selectAll = !$this->selectAll;
         if ($this->selectAll) {
-            $this->selectedIds = $this->tickets->pluck('id')->toArray();
+            $this->selectedIds = $this->tickets->pluck('id')->map(fn($id) => (string)$id)->toArray();
         } else {
             $this->selectedIds = [];
         }
@@ -97,6 +107,92 @@ class TicketList extends Component
         $this->selectedIds = [];
         $this->selectAll = false;
         $this->dispatch('notify', type: 'warning', message: "{$count} bilhete(s) cancelado(s).");
+    }
+
+    public function bulkEdit(): void
+    {
+        if (empty($this->selectedIds)) {
+            $this->dispatch('notify', type: 'error', message: 'Nenhum bilhete selecionado.');
+            return;
+        }
+
+        if (!$this->bulkBatchId && !$this->bulkStatus) {
+            $this->dispatch('notify', type: 'error', message: 'Por favor, selecione um lote ou estado para alterar.');
+            return;
+        }
+
+        $tickets = Ticket::whereIn('id', $this->selectedIds)->get();
+        $count = 0;
+
+        foreach ($tickets as $ticket) {
+            $oldValues = $ticket->only(['batch_id', 'ticket_type', 'price', 'status']);
+            $updateData = [];
+
+            // Change Batch
+            if ($this->bulkBatchId) {
+                $newBatch = TicketBatch::find($this->bulkBatchId);
+                if ($newBatch && $ticket->batch_id != $newBatch->id) {
+                    // Decrement old batch
+                    if ($ticket->batch_id) {
+                        $oldBatch = TicketBatch::find($ticket->batch_id);
+                        if ($oldBatch) {
+                            $oldBatch->decrement('sold');
+                        }
+                    }
+                    // Increment new batch
+                    $newBatch->increment('sold');
+
+                    $updateData['batch_id'] = $newBatch->id;
+                    $updateData['ticket_type'] = $newBatch->ticket_type;
+                    $updateData['price'] = $newBatch->price;
+                }
+            }
+
+            // Change Status
+            if ($this->bulkStatus) {
+                $updateData['status'] = $this->bulkStatus;
+
+                if ($ticket->status === 'used' && $this->bulkStatus !== 'used') {
+                    $updateData['used_at'] = null;
+                    $updateData['scanned_by'] = null;
+                    $updateData['scanned_device'] = null;
+                }
+
+                if ($ticket->status !== 'used' && $this->bulkStatus === 'used') {
+                    $updateData['used_at'] = now();
+                    $updateData['scanned_by'] = auth()->id();
+                }
+            }
+
+            if (!empty($updateData)) {
+                $ticket->update($updateData);
+                $newValues = $ticket->fresh()->only(['batch_id', 'ticket_type', 'price', 'status']);
+
+                \App\Services\AuditService::log(
+                    action: 'ticket_bulk_updated',
+                    model: $ticket,
+                    oldValues: $oldValues,
+                    newValues: $newValues
+                );
+
+                $count++;
+            }
+        }
+
+        $this->selectedIds = [];
+        $this->selectAll = false;
+        $this->bulkBatchId = null;
+        $this->bulkStatus = '';
+
+        $this->dispatch('notify', type: 'success', message: "Edição em massa concluída para {$count} bilhete(s).");
+    }
+
+    #[Computed]
+    public function batches()
+    {
+        $event = Event::where('is_active', true)->first();
+        if (!$event) return collect();
+        return TicketBatch::where('event_id', $event->id)->orderBy('sort_order')->get();
     }
 
     public function getBulkDownloadUrlProperty(): string

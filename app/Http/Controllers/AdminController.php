@@ -50,6 +50,15 @@ class AdminController extends Controller
             'event_doors_open' => ['nullable', 'string', 'max:10'],
             'event_show_time' => ['nullable', 'string', 'max:10'],
             'event_end_time' => ['nullable', 'string', 'max:10'],
+            'about_description' => ['nullable', 'string', 'max:5000'],
+            'other_artists_name' => ['nullable', 'array'],
+            'other_artists_name.*' => ['nullable', 'string', 'max:120'],
+            'other_artists_bio' => ['nullable', 'array'],
+            'other_artists_bio.*' => ['nullable', 'string', 'max:500'],
+            'other_artists_existing_photo' => ['nullable', 'array'],
+            'other_artists_existing_photo.*' => ['nullable', 'string'],
+            'other_artists_photo' => ['nullable', 'array'],
+            'other_artists_photo.*' => ['nullable', 'image', 'max:2048', 'mimes:jpeg,png,jpg,gif,webp'],
         ], [
             'hero_image.uploaded' => 'Falha ao carregar a imagem. Tente novamente.',
             'hero_image.max' => 'A imagem deve ter no máximo 4MB.',
@@ -57,7 +66,7 @@ class AdminController extends Controller
             'event_date.date' => 'A data deve estar no formato válido.',
         ]);
 
-        foreach (['hero_label', 'hero_title', 'hero_artists', 'hero_support', 'support_phone', 'support_whatsapp', 'event_doors_open', 'event_show_time', 'event_end_time'] as $key) {
+        foreach (['hero_label', 'hero_title', 'hero_artists', 'hero_support', 'support_phone', 'support_whatsapp', 'event_doors_open', 'event_show_time', 'event_end_time', 'about_description'] as $key) {
             SiteSetting::putValue($key, $validated[$key] ?? null);
         }
 
@@ -65,6 +74,31 @@ class AdminController extends Controller
             $path = $request->file('hero_image')->store('site', 'public');
             SiteSetting::putValue('hero_image', 'storage/' . $path);
         }
+
+        // Process other artists list
+        $otherArtists = [];
+        $names = $request->input('other_artists_name', []);
+        $bios = $request->input('other_artists_bio', []);
+        $existingPhotos = $request->input('other_artists_existing_photo', []);
+        $photos = $request->file('other_artists_photo', []);
+
+        for ($i = 0; $i < count($names); $i++) {
+            if (empty($names[$i])) continue;
+            
+            $photoPath = $existingPhotos[$i] ?? '';
+            
+            if (isset($photos[$i]) && $photos[$i]->isValid()) {
+                $path = $photos[$i]->store('artists', 'public');
+                $photoPath = 'storage/' . $path;
+            }
+            
+            $otherArtists[] = [
+                'name' => $names[$i],
+                'bio' => $bios[$i] ?? '',
+                'photo' => $photoPath,
+            ];
+        }
+        SiteSetting::putValue('other_artists', json_encode($otherArtists));
 
         $gallery = json_decode(SiteSetting::get('gallery_images', '[]'), true) ?? [];
         if ($request->has('remove_gallery')) {
@@ -248,6 +282,8 @@ class AdminController extends Controller
             'event_doors_open' => '16:00',
             'event_show_time' => '18:00',
             'event_end_time' => '23:00',
+            'about_description' => 'Um momento de adoração, louvor e entrega total. O Concerto Renúncia não é apenas um evento musical, mas um encontro de almas dispostas a renunciar o mundo e abraçar a fé.',
+            'other_artists' => '[]',
         ];
     }
 }

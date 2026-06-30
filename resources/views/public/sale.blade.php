@@ -5,7 +5,7 @@
         <!-- Background Effects -->
         <div style="position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.08) 0%, transparent 60%), radial-gradient(ellipse at top right, rgba(212, 175, 55, 0.05) 0%, transparent 50%), var(--dark-bg);"></div>
         @if (!empty($siteSettings['hero_image']))
-            <img src="{{ asset($siteSettings['hero_image']) }}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.22; filter: saturate(0.9) contrast(1.08);">
+            <img src="{{ asset(ltrim($siteSettings['hero_image'], '/')) }}" alt="" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.22; filter: saturate(0.9) contrast(1.08);">
             <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(13,11,7,0.34), rgba(13,11,7,0.72) 62%, var(--dark-bg));"></div>
         @endif
         <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle at 30% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 40%); animation: float 15s ease-in-out infinite;"></div>

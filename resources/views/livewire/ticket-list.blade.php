@@ -58,17 +58,38 @@
             <i data-lucide="check-square" class="w-4 h-4" style="display: inline; vertical-align: middle;"></i>
             {{ count($selectedIds) }} bilhete(s) seleccionado(s)
         </span>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <a href="{{ $this->bulkDownloadUrl }}" target="_blank" class="btn-sm" style="background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <select wire:model.live="bulkBatchId" class="form-input" style="padding: 4px 8px; font-size: 0.8rem; width: auto; background: var(--dark-surface); border-color: rgba(212,175,55,0.3); height: 34px; color: var(--text-primary); cursor: pointer;">
+                <option value="">Alterar Lote para...</option>
+                @foreach($this->batches as $batch)
+                    <option value="{{ $batch->id }}">{{ $batch->name }} ({{ number_format($batch->price, 0, ',', '.') }} MT)</option>
+                @endforeach
+            </select>
+
+            <select wire:model.live="bulkStatus" class="form-input" style="padding: 4px 8px; font-size: 0.8rem; width: auto; background: var(--dark-surface); border-color: rgba(212,175,55,0.3); height: 34px; color: var(--text-primary); cursor: pointer;">
+                <option value="">Alterar Estado para...</option>
+                <option value="pending">Pendente</option>
+                <option value="confirmed">Confirmado</option>
+                <option value="used">Usado</option>
+                <option value="cancelled">Cancelado</option>
+            </select>
+
+            <button type="button" wire:click="bulkEdit" onclick="confirm('Aplicar estas alterações em massa para os {{ count($selectedIds) }} bilhetes seleccionados?') || event.stopImmediatePropagation()" class="btn-sm btn-confirm" style="height: 34px;">
+                <i data-lucide="save" class="w-4 h-4"></i> Aplicar
+            </button>
+
+            <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); margin: 0 4px;"></div>
+
+            <a href="{{ $this->bulkDownloadUrl }}" target="_blank" class="btn-sm" style="background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none; height: 34px; display: inline-flex; align-items: center;">
                 <i data-lucide="download" class="w-4 h-4"></i> Baixar ZIP
             </a>
-            <button wire:click="bulkConfirm" wire:confirm="Confirmar {{ count($selectedIds) }} bilhete(s) seleccionado(s)?" class="btn-sm btn-confirm">
-                <i data-lucide="check" class="w-4 h-4"></i> Confirmar
+            <button type="button" wire:click="bulkConfirm" onclick="confirm('Confirmar {{ count($selectedIds) }} bilhete(s) seleccionado(s)?') || event.stopImmediatePropagation()" class="btn-sm btn-confirm" style="height: 34px;">
+                <i data-lucide="check" class="w-4 h-4"></i> Confirmar todos
             </button>
-            <button wire:click="bulkCancel" wire:confirm="Cancelar {{ count($selectedIds) }} bilhete(s) seleccionado(s)?" class="btn-sm btn-cancel">
-                <i data-lucide="x" class="w-4 h-4"></i> Cancelar
+            <button type="button" wire:click="bulkCancel" onclick="confirm('Cancelar {{ count($selectedIds) }} bilhete(s) seleccionado(s)?') || event.stopImmediatePropagation()" class="btn-sm btn-cancel" style="height: 34px;">
+                <i data-lucide="x" class="w-4 h-4"></i> Cancelar todos
             </button>
-            <button wire:click="$set('selectedIds', [])" class="btn-sm" style="color: var(--text-muted);">
+            <button type="button" wire:click="$set('selectedIds', [])" class="btn-sm" style="color: var(--text-muted); height: 34px;">
                 <i data-lucide="x-circle" class="w-4 h-4"></i> Limpar
             </button>
         </div>
@@ -83,7 +104,7 @@
                 <thead>
                     <tr>
                         <th style="width: 40px; cursor: default;">
-                            <input type="checkbox" wire:model.live="selectAll" wire:click="toggleSelectAll" style="accent-color: var(--gold); cursor: pointer;">
+                            <input type="checkbox" wire:click="toggleSelectAll" {{ $selectAll ? 'checked' : '' }} style="accent-color: var(--gold); cursor: pointer;">
                         </th>
                         <th wire:click="sortBy('ticket_code')">
                             Código

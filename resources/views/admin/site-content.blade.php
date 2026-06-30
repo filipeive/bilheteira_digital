@@ -107,6 +107,58 @@
 
                 <hr style="border: none; border-top: 1px solid rgba(212,175,55,0.12); margin: 24px 0;">
 
+                <h3 style="color: var(--gold); margin-bottom: 16px; font-size: 1.4rem;">Sobre o Evento</h3>
+                <div class="form-group">
+                    <label class="form-label" for="about_description">Descrição da página Sobre</label>
+                    <textarea id="about_description" name="about_description" class="form-input" rows="5">{{ old('about_description', $settings['about_description'] ?? '') }}</textarea>
+                    @error('about_description') <p class="form-error">{{ $message }}</p> @enderror
+                </div>
+
+                <hr style="border: none; border-top: 1px solid rgba(212,175,55,0.12); margin: 24px 0;">
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <h3 style="color: var(--gold); font-size: 1.4rem; margin: 0;">Galeria de Outros Artistas</h3>
+                    <button type="button" onclick="addArtistRow()" class="btn-sm btn-gold" style="display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--gold); cursor: pointer;"><i data-lucide="plus" class="w-4 h-4"></i> Adicionar Artista</button>
+                </div>
+
+                <div id="artists-container" style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
+                    @php $artists = json_decode($settings['other_artists'] ?? '[]', true) ?? []; @endphp
+                    @foreach($artists as $idx => $artist)
+                        <div class="artist-row" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(212,175,55,0.15); border-radius: 12px; padding: 16px; position: relative;" id="artist-row-{{ $idx }}">
+                            <button type="button" onclick="removeArtistRow({{ $idx }})" style="position: absolute; top: 12px; right: 12px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #EF4444; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem;">Remover</button>
+                            
+                            <div style="display: grid; grid-template-columns: 80px 1fr; gap: 16px; align-items: start;">
+                                <div style="text-align: center;">
+                                    @if(!empty($artist['photo']))
+                                        <img id="artist-img-{{ $idx }}" src="{{ asset(ltrim($artist['photo'], '/')) }}" style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); margin-bottom: 8px; display: inline-block;">
+                                    @else
+                                        <div id="artist-preview-{{ $idx }}" style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px dashed rgba(212,175,55,0.3); display: grid; place-items: center; color: var(--text-muted); margin-bottom: 8px; margin: 0 auto 8px;">
+                                            <i data-lucide="user" class="w-6 h-6"></i>
+                                        </div>
+                                    @endif
+                                    <input type="hidden" name="other_artists_existing_photo[{{ $idx }}]" value="{{ $artist['photo'] }}">
+                                    <label style="font-size: 0.75rem; color: var(--gold); cursor: pointer; text-decoration: underline; display: block; margin-top: 4px;">
+                                        Foto
+                                        <input type="file" name="other_artists_photo[{{ $idx }}]" accept="image/*" style="display: none;" onchange="previewArtistPhoto(this, {{ $idx }})">
+                                    </label>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <div>
+                                        <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">Nome do Artista</label>
+                                        <input type="text" name="other_artists_name[{{ $idx }}]" value="{{ $artist['name'] }}" class="form-input" placeholder="Ex: Minister Asafe Jamal" style="padding: 6px 12px; font-size: 0.9rem;" required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">Pequena Bio / Função</label>
+                                        <input type="text" name="other_artists_bio[{{ $idx }}]" value="{{ $artist['bio'] }}" class="form-input" placeholder="Ex: Cantor Gospel / Solo" style="padding: 6px 12px; font-size: 0.9rem;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <hr style="border: none; border-top: 1px solid rgba(212,175,55,0.12); margin: 24px 0;">
+
                 <h3 style="color: var(--gold); margin-bottom: 16px; font-size: 1.4rem;">Galeria de Imagens</h3>
                 <div class="form-group">
                     <label class="form-label" for="gallery_images">Adicionar novas imagens</label>
@@ -133,7 +185,7 @@
             <aside style="background: rgba(13,11,7,0.58); border: 1px solid var(--dark-border); border-radius: 14px; padding: 18px;">
                 <label class="form-label" for="hero_image">Imagem de fundo</label>
                 @if (!empty($settings['hero_image']))
-                    <img src="{{ asset($settings['hero_image']) }}" alt="" style="width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; margin-bottom: 12px; border: 1px solid rgba(212,175,55,0.2);">
+                    <img src="{{ asset(ltrim($settings['hero_image'], '/')) }}" alt="" style="width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 12px; margin-bottom: 12px; border: 1px solid rgba(212,175,55,0.2);">
                 @else
                     <div style="width: 100%; aspect-ratio: 16 / 10; border-radius: 12px; margin-bottom: 12px; border: 1px dashed rgba(212,175,55,0.28); display: grid; place-items: center; color: var(--text-muted);">
                         <i data-lucide="image" class="w-8 h-8"></i>
@@ -192,4 +244,82 @@
             }
         }
     </style>
+
+    <script>
+        let artistIndex = {{ count($artists) }};
+        function addArtistRow() {
+            const container = document.getElementById('artists-container');
+            const rowHtml = `
+                <div class="artist-row" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(212,175,55,0.15); border-radius: 12px; padding: 16px; position: relative;" id="artist-row-${artistIndex}">
+                    <button type="button" onclick="removeArtistRow(${artistIndex})" style="position: absolute; top: 12px; right: 12px; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #EF4444; border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem;">Remover</button>
+                    
+                    <div style="display: grid; grid-template-columns: 80px 1fr; gap: 16px; align-items: start;">
+                        <div style="text-align: center;">
+                            <div id="artist-preview-${artistIndex}" style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px dashed rgba(212,175,55,0.3); display: grid; place-items: center; color: var(--text-muted); margin: 0 auto 8px;">
+                                <i data-lucide="user" class="w-6 h-6"></i>
+                            </div>
+                            <input type="hidden" name="other_artists_existing_photo[${artistIndex}]" value="">
+                            <label style="font-size: 0.75rem; color: var(--gold); cursor: pointer; text-decoration: underline; display: block; margin-top: 4px;">
+                                Foto
+                                <input type="file" name="other_artists_photo[${artistIndex}]" accept="image/*" style="display: none;" onchange="previewArtistPhoto(this, ${artistIndex})">
+                            </label>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <div>
+                                <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">Nome do Artista</label>
+                                <input type="text" name="other_artists_name[${artistIndex}]" value="" class="form-input" placeholder="Ex: Novo Artista" style="padding: 6px 12px; font-size: 0.9rem;" required>
+                            </div>
+                            <div>
+                                <label class="form-label" style="font-size: 0.8rem; margin-bottom: 4px;">Pequena Bio / Função</label>
+                                <input type="text" name="other_artists_bio[${artistIndex}]" value="" class="form-input" placeholder="Ex: Solo" style="padding: 6px 12px; font-size: 0.9rem;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', rowHtml);
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+            artistIndex++;
+        }
+
+        function removeArtistRow(index) {
+            const row = document.getElementById(`artist-row-${index}`);
+            if (row) {
+                row.remove();
+            }
+        }
+
+        function previewArtistPhoto(input, index) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById(`artist-preview-${index}`);
+                    const parent = input.parentElement.parentElement;
+                    
+                    let img = document.getElementById(`artist-img-${index}`);
+                    if (!img) {
+                        img = document.createElement('img');
+                        img.id = `artist-img-${index}`;
+                        img.style.width = '70px';
+                        img.style.height = '70px';
+                        img.style.borderRadius = '50%';
+                        img.style.objectFit = 'cover';
+                        img.style.border = '2px solid var(--gold)';
+                        img.style.marginBottom = '8px';
+                        img.style.display = 'inline-block';
+                        
+                        if (preview) {
+                            preview.replaceWith(img);
+                        } else {
+                            parent.prepend(img);
+                        }
+                    }
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 </x-admin-layout>
