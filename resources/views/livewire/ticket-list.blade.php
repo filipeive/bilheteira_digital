@@ -1,6 +1,6 @@
-<div style="position: relative;">
+<div>
     <!-- Premium Loading Overlay -->
-    <div wire:loading.delay wire:target="tickets, search, filterStatus, filterType, toggleSelectAll, selectedIds, bulkEdit, bulkConfirm, bulkCancel" style="position: absolute; inset: 0; background: rgba(13,11,7,0.7); display: flex; align-items: center; justify-content: center; z-index: 999; border-radius: 16px; backdrop-filter: blur(2px);">
+    <div wire:loading.delay wire:target="search, filterStatus, filterType" class="loading-overlay" style="display: none;">
         <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; background: rgba(20, 18, 14, 0.95); padding: 28px 48px; border-radius: 16px; border: 1px solid rgba(212,175,55,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.6);">
             <svg style="animation: spin 1s linear infinite; width: 44px; height: 44px; color: var(--gold);" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -85,8 +85,12 @@
                 <option value="cancelled">Cancelado</option>
             </select>
 
-            <button type="button" wire:click="bulkEdit" onclick="confirm('Aplicar estas alterações em massa para os {{ count($selectedIds) }} bilhetes seleccionados?') || event.stopImmediatePropagation()" class="btn-sm btn-confirm" style="height: 34px;">
-                <i data-lucide="save" class="w-4 h-4"></i> Aplicar
+            <button type="button" wire:click="bulkEdit" onclick="confirm('Aplicar estas alterações em massa para os {{ count($selectedIds) }} bilhetes seleccionados?') || event.stopImmediatePropagation()" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+                <span wire:loading.remove wire:target="bulkEdit" style="display: inline-flex; align-items: center;">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                </span>
+                <span wire:loading wire:target="bulkEdit" class="spinner-sm" style="display: none;"></span>
+                Aplicar
             </button>
 
             <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.15); margin: 0 4px;"></div>
@@ -94,11 +98,19 @@
             <a href="{{ $this->bulkDownloadUrl }}" target="_blank" class="btn-sm" style="background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none; height: 34px; display: inline-flex; align-items: center;">
                 <i data-lucide="download" class="w-4 h-4"></i> Baixar ZIP
             </a>
-            <button type="button" wire:click="bulkConfirm" onclick="confirm('Confirmar {{ count($selectedIds) }} bilhete(s) seleccionado(s)?') || event.stopImmediatePropagation()" class="btn-sm btn-confirm" style="height: 34px;">
-                <i data-lucide="check" class="w-4 h-4"></i> Confirmar todos
+            <button type="button" wire:click="bulkConfirm" onclick="confirm('Confirmar {{ count($selectedIds) }} bilhete(s) seleccionado(s)?') || event.stopImmediatePropagation()" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+                <span wire:loading.remove wire:target="bulkConfirm" style="display: inline-flex; align-items: center;">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                </span>
+                <span wire:loading wire:target="bulkConfirm" class="spinner-sm" style="display: none;"></span>
+                Confirmar todos
             </button>
-            <button type="button" wire:click="bulkCancel" onclick="confirm('Cancelar {{ count($selectedIds) }} bilhete(s) seleccionado(s)?') || event.stopImmediatePropagation()" class="btn-sm btn-cancel" style="height: 34px;">
-                <i data-lucide="x" class="w-4 h-4"></i> Cancelar todos
+            <button type="button" wire:click="bulkCancel" onclick="confirm('Cancelar {{ count($selectedIds) }} bilhete(s) seleccionado(s)?') || event.stopImmediatePropagation()" wire:loading.attr="disabled" class="btn-sm btn-cancel" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+                <span wire:loading.remove wire:target="bulkCancel" style="display: inline-flex; align-items: center;">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </span>
+                <span wire:loading wire:target="bulkCancel" class="spinner-sm" style="display: none;"></span>
+                Cancelar todos
             </button>
             <button type="button" wire:click="$set('selectedIds', [])" class="btn-sm" style="color: var(--text-muted); height: 34px;">
                 <i data-lucide="x-circle" class="w-4 h-4"></i> Limpar
@@ -436,6 +448,25 @@
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+        }
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(13,11,7,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+        .spinner-sm {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
         }
         .dropdown-item:hover {
             background: rgba(255, 255, 255, 0.05) !important;

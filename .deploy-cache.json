@@ -154,7 +154,7 @@
   "resources/views/livewire/admin/user-list.blade.php": "6f18339670b882dbe69331511e7cbed7",
   "resources/views/livewire/manual-ticket-form.blade.php": "08a702c70cc2e8a38f1ce3d309242a19",
   "resources/views/livewire/ticket-form.blade.php": "8f8610596908d5f1587691082b3d4324",
-  "resources/views/livewire/ticket-list.blade.php": "63bf938e7ab850d9ecde04c7d55a38a3",
+  "resources/views/livewire/ticket-list.blade.php": "6dffaa60a81ae9a9d75480554c674d32",
   "resources/views/pdf/report.blade.php": "6cb6bf89033055cf5c20fb2813f7945f",
   "resources/views/pdf/ticket-v2.blade.php": "2bd5135f2be93fdc9a895a2f30c2fe3f",
   "resources/views/pdf/ticket.blade.php": "67b2a932822fd54514dd0bc8a2353a2c",

@@ -113,3 +113,9 @@
 
 [2026-06-30 17:46:47] Deploy: 1 ok, 0 erros
   resources/views/livewire/ticket-list.blade.php
+
+[2026-06-30 18:08:55] Deploy: 1 ok, 0 erros
+  resources/views/livewire/ticket-list.blade.php
+
+[2026-06-30 18:30:10] Deploy: 1 ok, 0 erros
+  resources/views/livewire/ticket-list.blade.php
