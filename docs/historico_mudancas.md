@@ -223,3 +223,16 @@ Vendedor vende → Admin confirma (bulkEdit ou confirmTicket)
 **Ficheiros alterados:**
 - `resources/views/layouts/admin.blade.php` — Inclusão do SweetAlert2 JS CDN, definição do helper `swalConfirm` e dos estilos CSS premium.
 - `resources/views/livewire/ticket-list.blade.php` — Atualização de todas as ações de botões e links de confirmação para utilizar a função `swalConfirm`.
+
+---
+
+### 15. Numeração Incremental Global da Venda Rápida
+
+**Contexto:** Ao gerar bilhetes na "Venda Rápida" com o nome do comprador vazio, o sistema atribuía nomes genéricos como `Venda Rápida #1`, `Venda Rápida #2`, baseando-se apenas na iteração local da quantidade. Ao iniciar um novo processo de venda rápida, o sufixo reiniciava em `#1`, causando duplicação de nomes e confusão ao gerir ou eliminar bilhetes cancelados.
+
+**O que foi feito:**
+- Implementado um cálculo global de sufixo no `QuickSale.php` que faz a varredura eficiente dos nomes de bilhetes gerados anteriormente (`buyer_name LIKE 'Venda Rápida #%'`) via `pluck()` de forma a extrair o número máximo atual.
+- O ponto de partida é determinado dinamicamente como `MAX + 1`, garantindo que os bilhetes gerados subsequentes continuem a sequência numérica global de forma incremental e nunca repitam números de bilhetes ativos.
+
+**Ficheiros alterados:**
+- `app/Livewire/Admin/QuickSale.php` — Lógica de inicialização do número sequencial e aplicação na criação de cada bilhete na venda rápida.

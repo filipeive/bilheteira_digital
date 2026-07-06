@@ -55,6 +55,22 @@ class QuickSale extends Component
         $tickets = [];
         $ticketModels = [];
 
+        // Determine starting suffix number for "Venda Rápida #" to ensure global increment
+        $existingNames = Ticket::where('buyer_name', 'like', 'Venda Rápida #%')
+            ->pluck('buyer_name')
+            ->toArray();
+
+        $latestQuickSale = 0;
+        foreach ($existingNames as $name) {
+            if (preg_match('/Venda Rápida #(\d+)/', $name, $matches)) {
+                $num = (int) $matches[1];
+                if ($num > $latestQuickSale) {
+                    $latestQuickSale = $num;
+                }
+            }
+        }
+        $startNumber = $latestQuickSale + 1;
+
         for ($i = 0; $i < $this->quantity; $i++) {
             $ticketCode = Ticket::generateCode();
             $ticket = Ticket::create([
@@ -65,7 +81,7 @@ class QuickSale extends Component
                 'price'          => $batch->price,
                 'payment_method' => $this->payment_method,
                 'payment_ref'    => 'PRESENCIAL-' . strtoupper(substr(uniqid(), -6)),
-                'buyer_name'     => $this->buyer_name ?: "Venda Rápida #" . ($i + 1),
+                'buyer_name'     => $this->buyer_name ?: "Venda Rápida #" . ($startNumber + $i),
                 'buyer_phone'    => $this->buyer_phone ?: null,
                 'buyer_email'    => $this->buyer_email ?: null,
                 'ticket_mode'    => $this->isQuickMode ? 'quick_sale' : 'personalized',
