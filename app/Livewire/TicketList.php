@@ -24,6 +24,9 @@ class TicketList extends Component
     #[Url]
     public string $filterType = '';
 
+    #[Url]
+    public string $filterMode = '';
+
     public string $sortBy = 'created_at';
     public string $sortDirection = 'desc';
     public string $viewMode = 'table';
@@ -58,6 +61,13 @@ class TicketList extends Component
     }
 
     public function updatedFilterType(): void
+    {
+        $this->selectedIds = [];
+        $this->selectAll = false;
+        $this->resetPage();
+    }
+
+    public function updatedFilterMode(): void
     {
         $this->selectedIds = [];
         $this->selectAll = false;
@@ -468,31 +478,33 @@ class TicketList extends Component
     #[Computed]
     public function ticketTypes(): array
     {
-        $typesFromTickets = Ticket::distinct()->pluck('ticket_type')->filter()->map(fn($t) => strtolower($t))->toArray();
-        $typesFromBatches = TicketBatch::distinct()->pluck('ticket_type')->filter()->map(fn($t) => strtolower($t))->toArray();
-        
-        $types = array_unique(array_merge($typesFromTickets, $typesFromBatches));
-        
-        $map = [
-            'first_phase' => 'Primeiro Lote',
-            'first_lot'   => 'Primeiro Lote',
-            'second_phase' => 'Segundo Lote',
-            'second_lot'  => 'Segundo Lote',
-            'promotional' => 'Promocional',
-            'vip'         => 'VIP',
-            'vip_promotional' => 'VIP Promocional',
-            'vip_second_lot'  => 'VIP 2º Lote',
-            'gate'        => 'No Portão',
-            'free'        => 'Gratuito',
-            'child'       => 'Criança',
-        ];
+        return \Illuminate\Support\Facades\Cache::remember('ticket_types_list', 60, function () {
+            $typesFromTickets = Ticket::distinct()->pluck('ticket_type')->filter()->map(fn($t) => strtolower($t))->toArray();
+            $typesFromBatches = TicketBatch::distinct()->pluck('ticket_type')->filter()->map(fn($t) => strtolower($t))->toArray();
+            
+            $types = array_unique(array_merge($typesFromTickets, $typesFromBatches));
+            
+            $map = [
+                'first_phase' => 'Primeiro Lote',
+                'first_lot'   => 'Primeiro Lote',
+                'second_phase' => 'Segundo Lote',
+                'second_lot'  => 'Segundo Lote',
+                'promotional' => 'Promocional',
+                'vip'         => 'VIP',
+                'vip_promotional' => 'VIP Promocional',
+                'vip_second_lot'  => 'VIP 2º Lote',
+                'gate'        => 'No Portão',
+                'free'        => 'Gratuito',
+                'child'       => 'Criança',
+            ];
 
-        $result = [];
-        foreach ($types as $type) {
-            $result[$type] = $map[$type] ?? ucwords(str_replace(['_', '-'], ' ', $type));
-        }
+            $result = [];
+            foreach ($types as $type) {
+                $result[$type] = $map[$type] ?? ucwords(str_replace(['_', '-'], ' ', $type));
+            }
 
-        return $result;
+            return $result;
+        });
     }
 
     #[Computed]
@@ -521,6 +533,10 @@ class TicketList extends Component
 
         if ($this->filterType) {
             $query->where('ticket_type', $this->filterType);
+        }
+
+        if ($this->filterMode) {
+            $query->where('ticket_mode', $this->filterMode);
         }
 
         return $query->orderBy($this->sortBy, $this->sortDirection)->paginate(20);
