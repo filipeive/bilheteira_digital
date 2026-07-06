@@ -82,6 +82,11 @@ if ($action === 'cache') {
     $results[] = run('php artisan view:cache', $base);
 }
 
+// ── 4.5 ORDENAR VENDA RÁPIDA ────────────────────────────────
+if ($action === 'resequence') {
+    $results[] = run('php artisan app:resequence-quick-sale-tickets', $base);
+}
+
 // ── 5. LOGS ─────────────────────────────────────────────────
 if ($action === 'logs') {
     $log = $base . '/storage/logs/laravel.log';
@@ -649,6 +654,13 @@ if ($action === 'info') {
     <div class="btn-row">
       <a class="btn btn-orange" href="?key=renuncia2026&action=clear">🧹 Limpar Cache</a>
       <a class="btn btn-green"  href="?key=renuncia2026&action=cache">⚡ Recriar Cache</a>
+    </div>
+  </div>
+
+  <div>
+    <div class="btn-group-label">// Utilitários de Bilhetes</div>
+    <div class="btn-row">
+      <a class="btn btn-gold" href="?key=renuncia2026&action=resequence" onclick="return confirm('Organizar e re-sequenciar todos os bilhetes de Venda Rápida na base de dados de forma cronológica?')">🔢 Ordenar Venda Rápida</a>
     </div>
   </div>
 
