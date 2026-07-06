@@ -539,7 +539,11 @@
         lucide.createIcons();
         document.addEventListener('livewire:init', () => {
             if (window.Livewire?.hook) {
-                Livewire.hook('morph.updated', () => lucide.createIcons());
+                let lucideTimeout = null;
+                Livewire.hook('morph.updated', () => {
+                    if (lucideTimeout) clearTimeout(lucideTimeout);
+                    lucideTimeout = setTimeout(() => lucide.createIcons(), 50);
+                });
             }
         });
     </script>

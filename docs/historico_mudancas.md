@@ -187,3 +187,19 @@ Vendedor vende → Admin confirma (bulkEdit ou confirmTicket)
 **Ficheiros alterados:**
 - `app/Livewire/TicketList.php` — Propriedades `filterMode` e `perPage`, hooks correspondentes, cache em `ticketTypes`, tratamento no query builder `tickets()`.
 - `resources/views/livewire/ticket-list.blade.php` — Novos dropdowns de filtro por Origem e Quantidade por página, alteração de colunas da tabela para incluir "Origem" e "Telefone" como ordenáveis por clique, e visualização de Origem na vista de grelha.
+
+---
+
+### 13. Resolução de Congelamento do Navegador (Performance de Renderização)
+
+**Contexto:** Ao selecionar grandes volumes de dados (ações em massa), alterar a paginação ou aplicar filtros, o navegador do utilizador ficava extremamente lento ou chegava a congelar completamente (ficando apenas o cursor a responder).
+
+**Causa:** Nos layouts `admin.blade.php` e `public.blade.php`, o hook `morph.updated` do Livewire executava `lucide.createIcons()` imediatamente para *cada* elemento DOM atualizado. Numa tabela com 100 linhas e múltiplos ícones por linha, isso disparava milhares de varreduras completas no DOM (`document.querySelectorAll('[data-lucide]')`) numa única renderização, gerando um gargalo de processamento massivo ($O(N^2)$) que travava a thread de execução do navegador.
+
+**O que foi feito:**
+1. **Debounce do Lucide:** Introduzido um debounce de 50ms no hook `morph.updated` em ambos os layouts (`admin` e `public`).
+2. **Otimização:** Isto garante que a varredura e renderização dos ícones do Lucide ocorre apenas **uma única vez** no final de todo o processo de morphing do Livewire, eliminando o gargalo de processamento e deixando a interface instantânea.
+
+**Ficheiros alterados:**
+- `resources/views/layouts/admin.blade.php` — Debounce adicionado no morph.updated do Livewire.
+- `resources/views/layouts/public.blade.php` — Debounce adicionado no morph.updated do Livewire.
