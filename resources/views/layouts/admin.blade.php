@@ -14,6 +14,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         :root {
@@ -546,12 +548,92 @@
                 });
             }
         });
+
+        // Premium SweetAlert2 Confirmation helper
+        window.swalConfirm = function(title, text, confirmCallback, options = {}) {
+            Swal.fire({
+                title: title,
+                text: text,
+                icon: options.icon || 'warning',
+                showCancelButton: true,
+                confirmButtonColor: 'var(--gold)',
+                cancelButtonColor: 'rgba(255,255,255,0.08)',
+                confirmButtonText: options.confirmButtonText || 'Sim, Confirmar',
+                cancelButtonText: 'Cancelar',
+                background: '#231F18', // matches var(--dark-card)
+                color: '#F5F0E8', // matches var(--text-primary)
+                iconColor: 'var(--gold)',
+                backdrop: 'rgba(13,11,7,0.7)',
+                customClass: {
+                    popup: 'swal-premium-popup',
+                    confirmButton: 'swal-premium-confirm',
+                    cancelButton: 'swal-premium-cancel'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    confirmCallback();
+                }
+            });
+        };
     </script>
 
     <style>
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* SweetAlert2 Premium Overrides */
+        .swal-premium-popup {
+            border: 1px solid rgba(212, 160, 23, 0.25) !important;
+            border-radius: 16px !important;
+            font-family: 'Montserrat', sans-serif !important;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6) !important;
+        }
+        .swal-premium-popup .swal2-title {
+            font-family: 'Bebas Neue', cursive !important;
+            font-size: 2rem !important;
+            letter-spacing: 0.05em !important;
+            color: var(--gold) !important;
+            font-weight: normal !important;
+        }
+        .swal-premium-popup .swal2-html-container {
+            color: var(--text-secondary) !important;
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+        }
+        .swal-premium-confirm {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark)) !important;
+            color: var(--dark-bg) !important;
+            font-weight: 700 !important;
+            border-radius: 8px !important;
+            padding: 10px 24px !important;
+            border: none !important;
+            font-family: 'Montserrat', sans-serif !important;
+            text-transform: uppercase !important;
+            font-size: 0.85rem !important;
+            letter-spacing: 0.05em !important;
+            transition: all 0.2s !important;
+        }
+        .swal-premium-confirm:hover {
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 20px rgba(212, 160, 23, 0.25) !important;
+        }
+        .swal-premium-cancel {
+            background: rgba(255, 255, 255, 0.04) !important;
+            color: var(--text-secondary) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-radius: 8px !important;
+            padding: 10px 24px !important;
+            font-family: 'Montserrat', sans-serif !important;
+            text-transform: uppercase !important;
+            font-size: 0.85rem !important;
+            letter-spacing: 0.05em !important;
+            transition: all 0.2s !important;
+        }
+        .swal-premium-cancel:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: var(--text-primary) !important;
         }
     </style>
 </body>

@@ -111,7 +111,7 @@
             <i data-lucide="alert-triangle" class="w-4 h-4" style="display: inline; vertical-align: middle;"></i>
             Lote "{{ $expiredBatch->name }}" expirado em {{ $expiredBatch->ends_at->format('d/m/Y H:i') }}
         </span>
-        <button type="button" wire:click="migrateExpiredBatch" onclick="confirm('Migrar todos os bilhetes pendentes/confirmados do lote expirado para o próximo lote disponível?') || event.stopImmediatePropagation()" class="btn-sm" style="background: rgba(239, 68, 68, 0.14); color: #EF4444; border-color: rgba(239, 68, 68, 0.3); height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+        <button type="button" x-on:click="swalConfirm('Migrar Bilhetes', 'Migrar todos os bilhetes pendentes/confirmados do lote expirado para o próximo lote disponível?', () => $wire.migrateExpiredBatch())" class="btn-sm" style="background: rgba(239, 68, 68, 0.14); color: #EF4444; border-color: rgba(239, 68, 68, 0.3); height: 34px; display: inline-flex; align-items: center; gap: 8px;">
             <i data-lucide="arrow-right-left" class="w-4 h-4"></i> Migrar Bilhetes
         </button>
     </div>
@@ -139,7 +139,7 @@
                 <option value="cancelled">Cancelado</option>
             </select>
 
-            <button type="button" x-on:click="if (confirm('Aplicar estas alterações em massa para os ' + selectedIds.length + ' bilhetes seleccionados?')) { $wire.bulkEdit(); }" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+            <button type="button" x-on:click="swalConfirm('Aplicar Alterações', 'Aplicar estas alterações em massa para os ' + selectedIds.length + ' bilhetes seleccionados?', () => $wire.bulkEdit())" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
                 <span wire:loading.remove wire:target="bulkEdit" style="display: inline-flex; align-items: center;">
                     <i data-lucide="save" class="w-4 h-4"></i>
                 </span>
@@ -152,14 +152,14 @@
             <a href="{{ $this->bulkDownloadUrl }}" target="_blank" class="btn-sm" style="background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none; height: 34px; display: inline-flex; align-items: center;">
                 <i data-lucide="download" class="w-4 h-4"></i> Baixar ZIP
             </a>
-            <button type="button" x-on:click="if (confirm('Confirmar ' + selectedIds.length + ' bilhete(s) seleccionado(s)?')) { $wire.bulkConfirm(); }" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+            <button type="button" x-on:click="swalConfirm('Confirmar Bilhetes', 'Confirmar os ' + selectedIds.length + ' bilhete(s) seleccionado(s)?', () => $wire.bulkConfirm())" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
                 <span wire:loading.remove wire:target="bulkConfirm" style="display: inline-flex; align-items: center;">
                     <i data-lucide="check" class="w-4 h-4"></i>
                 </span>
                 <span wire:loading wire:target="bulkConfirm" class="spinner-sm" style="display: none;"></span>
                 Confirmar todos
             </button>
-            <button type="button" x-on:click="if (confirm('Cancelar ' + selectedIds.length + ' bilhete(s) seleccionado(s)?')) { $wire.bulkCancel(); }" wire:loading.attr="disabled" class="btn-sm btn-cancel" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+            <button type="button" x-on:click="swalConfirm('Cancelar Bilhetes', 'Cancelar os ' + selectedIds.length + ' bilhete(s) seleccionado(s)?', () => $wire.bulkCancel())" wire:loading.attr="disabled" class="btn-sm btn-cancel" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
                 <span wire:loading.remove wire:target="bulkCancel" style="display: inline-flex; align-items: center;">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </span>
@@ -284,7 +284,7 @@
                                             </a>
 
                                             @if ($ticket->isPending())
-                                                <button type="button" x-on:click="if (confirm('Confirmar bilhete {{ $ticket->ticket_code }}?')) { $wire.confirmTicket('{{ $ticket->id }}'); }" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                                <button type="button" x-on:click="swalConfirm('Confirmar Bilhete', 'Confirmar o bilhete {{ $ticket->ticket_code }}?', () => $wire.confirmTicket('{{ $ticket->id }}'))" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
                                                     <i wire:loading.remove wire:target="confirmTicket('{{ $ticket->id }}')" data-lucide="check" class="w-4 h-4" style="color: #10B981;"></i>
                                                     <span wire:loading wire:target="confirmTicket('{{ $ticket->id }}')" class="spinner-sm" style="border-color: rgba(16, 185, 129, 0.3); border-right-color: #10B981; margin: 0; display: none;"></span>
                                                     Confirmar
@@ -292,7 +292,7 @@
                                             @endif
 
                                             @if ($ticket->isConfirmed())
-                                                <button type="button" x-on:click="if (confirm('Validar entrada do bilhete {{ $ticket->ticket_code }}?')) { $wire.validateTicket('{{ $ticket->id }}'); }" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                                <button type="button" x-on:click="swalConfirm('Validar Entrada', 'Validar entrada do bilhete {{ $ticket->ticket_code }}?', () => $wire.validateTicket('{{ $ticket->id }}'))" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
                                                     <i wire:loading.remove wire:target="validateTicket('{{ $ticket->id }}')" data-lucide="scan-line" class="w-4 h-4" style="color: #10B981;"></i>
                                                     <span wire:loading wire:target="validateTicket('{{ $ticket->id }}')" class="spinner-sm" style="border-color: rgba(16, 185, 129, 0.3); border-right-color: #10B981; margin: 0; display: none;"></span>
                                                     Validar Entrada
@@ -300,7 +300,7 @@
                                             @endif
 
                                             @if ($ticket->isConfirmed() || $ticket->isUsed())
-                                                <button type="button" x-on:click="if (confirm('Reenviar bilhete {{ $ticket->ticket_code }}?')) { $wire.resendTicket('{{ $ticket->id }}'); }" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #3B82F6; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                                <button type="button" x-on:click="swalConfirm('Reenviar Bilhete', 'Reenviar o bilhete {{ $ticket->ticket_code }}?', () => $wire.resendTicket('{{ $ticket->id }}'))" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #3B82F6; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
                                                     <i wire:loading.remove wire:target="resendTicket('{{ $ticket->id }}')" data-lucide="send" class="w-4 h-4" style="color: #3B82F6;"></i>
                                                     <span wire:loading wire:target="resendTicket('{{ $ticket->id }}')" class="spinner-sm" style="border-color: rgba(59, 130, 246, 0.3); border-right-color: #3B82F6; margin: 0; display: none;"></span>
                                                     Reenviar
@@ -308,7 +308,7 @@
                                             @endif
 
                                             @if (!$ticket->isUsed() && !$ticket->isCancelled())
-                                                <button type="button" x-on:click="if (confirm('Cancelar bilhete {{ $ticket->ticket_code }}?')) { $wire.cancelTicket('{{ $ticket->id }}'); }" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #F59E0B; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                                <button type="button" x-on:click="swalConfirm('Cancelar Bilhete', 'Cancelar o bilhete {{ $ticket->ticket_code }}?', () => $wire.cancelTicket('{{ $ticket->id }}'))" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #F59E0B; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
                                                     <i wire:loading.remove wire:target="cancelTicket('{{ $ticket->id }}')" data-lucide="x" class="w-4 h-4" style="color: #F59E0B;"></i>
                                                     <span wire:loading wire:target="cancelTicket('{{ $ticket->id }}')" class="spinner-sm" style="border-color: rgba(245, 158, 11, 0.3); border-right-color: #F59E0B; margin: 0; display: none;"></span>
                                                     Cancelar
@@ -317,7 +317,7 @@
 
                                             <div style="height: 1px; background: var(--dark-border); margin: 4px 0;"></div>
 
-                                            <button type="button" x-on:click="if (confirm('Tens a certeza que desejas ELIMINAR permanentemente o bilhete {{ $ticket->ticket_code }}? Esta acção é irreversível e o bilhete não poderá ser recuperado.')) { $wire.deleteTicket('{{ $ticket->id }}'); }" wire:loading.attr="disabled" class="dropdown-item text-danger" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #EF4444; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                            <button type="button" x-on:click="swalConfirm('ELIMINAR Bilhete', 'Tens a certeza que desejas ELIMINAR permanentemente o bilhete {{ $ticket->ticket_code }}? Esta acção é irreversível e o bilhete não poderá ser recuperado.', () => $wire.deleteTicket('{{ $ticket->id }}'))" wire:loading.attr="disabled" class="dropdown-item text-danger" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #EF4444; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
                                                 <i wire:loading.remove wire:target="deleteTicket('{{ $ticket->id }}')" data-lucide="trash-2" class="w-4 h-4" style="color: #EF4444;"></i>
                                                 <span wire:loading wire:target="deleteTicket('{{ $ticket->id }}')" class="spinner-sm" style="border-color: rgba(239, 68, 68, 0.3); border-right-color: #EF4444; margin: 0; display: none;"></span>
                                                 Eliminar
@@ -415,7 +415,7 @@
                             </a>
 
                             @if ($ticket->isPending())
-                                <button type="button" x-on:click="if (confirm('Confirmar bilhete {{ $ticket->ticket_code }}?')) { $wire.confirmTicket('{{ $ticket->id }}'); }" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                <button type="button" x-on:click="swalConfirm('Confirmar Bilhete', 'Confirmar o bilhete {{ $ticket->ticket_code }}?', () => $wire.confirmTicket('{{ $ticket->id }}'))" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
                                     <i wire:loading.remove wire:target="confirmTicket('{{ $ticket->id }}')" data-lucide="check" class="w-4 h-4" style="color: #10B981;"></i>
                                     <span wire:loading wire:target="confirmTicket('{{ $ticket->id }}')" class="spinner-sm" style="border-color: rgba(16, 185, 129, 0.3); border-right-color: #10B981; margin: 0; display: none;"></span>
                                     Confirmar
@@ -423,7 +423,7 @@
                             @endif
 
                             @if ($ticket->isConfirmed())
-                                <button type="button" x-on:click="if (confirm('Validar entrada do bilhete {{ $ticket->ticket_code }}?')) { $wire.validateTicket('{{ $ticket->id }}'); }" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                <button type="button" x-on:click="swalConfirm('Validar Entrada', 'Validar entrada do bilhete {{ $ticket->ticket_code }}?', () => $wire.validateTicket('{{ $ticket->id }}'))" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #10B981; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
                                     <i wire:loading.remove wire:target="validateTicket('{{ $ticket->id }}')" data-lucide="scan-line" class="w-4 h-4" style="color: #10B981;"></i>
                                     <span wire:loading wire:target="validateTicket('{{ $ticket->id }}')" class="spinner-sm" style="border-color: rgba(16, 185, 129, 0.3); border-right-color: #10B981; margin: 0; display: none;"></span>
                                     Validar Entrada
@@ -431,7 +431,7 @@
                             @endif
 
                             @if ($ticket->isConfirmed() || $ticket->isUsed())
-                                <button type="button" x-on:click="if (confirm('Reenviar bilhete {{ $ticket->ticket_code }}?')) { $wire.resendTicket('{{ $ticket->id }}'); }" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #3B82F6; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                <button type="button" x-on:click="swalConfirm('Reenviar Bilhete', 'Reenviar o bilhete {{ $ticket->ticket_code }}?', () => $wire.resendTicket('{{ $ticket->id }}'))" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #3B82F6; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
                                     <i wire:loading.remove wire:target="resendTicket('{{ $ticket->id }}')" data-lucide="send" class="w-4 h-4" style="color: #3B82F6;"></i>
                                     <span wire:loading wire:target="resendTicket('{{ $ticket->id }}')" class="spinner-sm" style="border-color: rgba(59, 130, 246, 0.3); border-right-color: #3B82F6; margin: 0; display: none;"></span>
                                     Reenviar
@@ -439,7 +439,7 @@
                             @endif
 
                             @if (!$ticket->isUsed() && !$ticket->isCancelled())
-                                <button type="button" x-on:click="if (confirm('Cancelar bilhete {{ $ticket->ticket_code }}?')) { $wire.cancelTicket('{{ $ticket->id }}'); }" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #F59E0B; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                                <button type="button" x-on:click="swalConfirm('Cancelar Bilhete', 'Cancelar o bilhete {{ $ticket->ticket_code }}?', () => $wire.cancelTicket('{{ $ticket->id }}'))" wire:loading.attr="disabled" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #F59E0B; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
                                     <i wire:loading.remove wire:target="cancelTicket('{{ $ticket->id }}')" data-lucide="x" class="w-4 h-4" style="color: #F59E0B;"></i>
                                     <span wire:loading wire:target="cancelTicket('{{ $ticket->id }}')" class="spinner-sm" style="border-color: rgba(245, 158, 11, 0.3); border-right-color: #F59E0B; margin: 0; display: none;"></span>
                                     Cancelar
@@ -448,7 +448,7 @@
 
                             <div style="height: 1px; background: var(--dark-border); margin: 4px 0;"></div>
 
-                            <button type="button" x-on:click="if (confirm('Tens a certeza que desejas ELIMINAR permanentemente o bilhete {{ $ticket->ticket_code }}? Esta acção é irreversível e o bilhete não poderá ser recuperado.')) { $wire.deleteTicket('{{ $ticket->id }}'); }" wire:loading.attr="disabled" class="dropdown-item text-danger" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #EF4444; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
+                            <button type="button" x-on:click="swalConfirm('ELIMINAR Bilhete', 'Tens a certeza que desejas ELIMINAR permanentemente o bilhete {{ $ticket->ticket_code }}? Esta acção é irreversível e o bilhete não poderá ser recuperado.', () => $wire.deleteTicket('{{ $ticket->id }}'))" wire:loading.attr="disabled" class="dropdown-item text-danger" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #EF4444; font-size: 0.85rem; border: none; background: transparent; cursor: pointer; text-align: left; width: 100%; border-radius: 6px; transition: all 0.2s;">
                                 <i wire:loading.remove wire:target="deleteTicket('{{ $ticket->id }}')" data-lucide="trash-2" class="w-4 h-4" style="color: #EF4444;"></i>
                                 <span wire:loading wire:target="deleteTicket('{{ $ticket->id }}')" class="spinner-sm" style="border-color: rgba(239, 68, 68, 0.3); border-right-color: #EF4444; margin: 0; display: none;"></span>
                                 Eliminar

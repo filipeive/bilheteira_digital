@@ -203,3 +203,23 @@ Vendedor vende → Admin confirma (bulkEdit ou confirmTicket)
 **Ficheiros alterados:**
 - `resources/views/layouts/admin.blade.php` — Debounce adicionado no morph.updated do Livewire.
 - `resources/views/layouts/public.blade.php` — Debounce adicionado no morph.updated do Livewire.
+
+---
+
+### 14. Integração do SweetAlert2 (Confirmações Premium)
+
+**Contexto:** O administrador desejava uma experiência de confirmação mais profissional e elegante em substituição aos alertas/confirmações nativas (`confirm(...)`) do navegador.
+
+**O que foi feito:**
+1. **Instalação do SweetAlert2:** Adicionado o script do SweetAlert2 via CDN no layout de administração (`admin.blade.php`).
+2. **Função Global de Confirmação:** Implementada a função global `window.swalConfirm(title, text, confirmCallback, options)` que cria diálogos de confirmação totalmente customizados.
+3. **Design Premium e Coeso:** Personalizados os estilos do SweetAlert2 com CSS personalizado para combinar com o tema escuro e dourado (Gold Premium) da plataforma:
+   - Fundo escuro combinando com a cor do cartão (`--dark-card` / `#231F18`).
+   - Títulos em destaque usando a tipografia `Bebas Neue` e cor dourada.
+   - Botões estilizados com gradiente dourado/preto para confirmação e botões secundários transparentes/bordas douradas para cancelamento.
+   - Efeitos de sombra, transição suave e fundo de desfoque (backdrop blur).
+4. **Substituição nas Ações de Bilhetes:** Substituídos todos os `confirm(...)` nativos do componente `ticket-list.blade.php` (ações individuais na tabela, grelha e ações em lote no topo) para utilizar o `swalConfirm(...)` assíncrono.
+
+**Ficheiros alterados:**
+- `resources/views/layouts/admin.blade.php` — Inclusão do SweetAlert2 JS CDN, definição do helper `swalConfirm` e dos estilos CSS premium.
+- `resources/views/livewire/ticket-list.blade.php` — Atualização de todas as ações de botões e links de confirmação para utilizar a função `swalConfirm`.
