@@ -27,6 +27,9 @@ class TicketList extends Component
     #[Url]
     public string $filterMode = '';
 
+    #[Url]
+    public int $perPage = 20;
+
     public string $sortBy = 'created_at';
     public string $sortDirection = 'desc';
     public string $viewMode = 'table';
@@ -68,6 +71,13 @@ class TicketList extends Component
     }
 
     public function updatedFilterMode(): void
+    {
+        $this->selectedIds = [];
+        $this->selectAll = false;
+        $this->resetPage();
+    }
+
+    public function updatedPerPage(): void
     {
         $this->selectedIds = [];
         $this->selectAll = false;
@@ -539,7 +549,7 @@ class TicketList extends Component
             $query->where('ticket_mode', $this->filterMode);
         }
 
-        return $query->orderBy($this->sortBy, $this->sortDirection)->paginate(20);
+        return $query->orderBy($this->sortBy, $this->sortDirection)->paginate($this->perPage);
     }
 
     public function render()

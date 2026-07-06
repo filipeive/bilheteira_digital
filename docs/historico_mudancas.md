@@ -180,9 +180,10 @@ Vendedor vende → Admin confirma (bulkEdit ou confirmTicket)
 **O que foi feito:**
 1. **Caching de Propriedades Pesadas:** Implementado caching (`Cache::remember`) no método `ticketTypes()` de `TicketList.php` por 60 segundos. Isto elimina o scan completo de `SELECT DISTINCT` na tabela de bilhetes a cada request/keystroke, reduzindo tempos de resposta de segundos para 0.008s.
 2. **Filtro de Origem (ticket_mode):** Adicionado um novo filtro na listagem para separar bilhetes por "Origem" (`personalized` / Online vs `quick_sale` / Venda Rápida). Desta forma, o administrador pode combinar o estado `Pendente` + Origem `Venda Rápida` para listar todos os bilhetes emitidos que não foram vendidos.
-3. **Ordenação por Origem:** Adicionado suporte a ordenação interactiva no cabeçalho da tabela pela coluna "Origem", permitindo alternar rapidamente a vista.
+3. **Ordenação por Origem e Telefone:** Adicionado suporte a ordenação interactiva no cabeçalho da tabela pelas colunas "Origem" e "Telefone" (buyer_phone), tornando a listagem muito mais flexível e robusta como um DataTable.
 4. **Indicador Visual na Grelha (Grid View):** O modo de visualização em grelha (Grid View) também foi actualizado para exibir a etiqueta "Origem" em cada bilhete.
+5. **Paginação Dinâmica:** Adicionado seletor de quantidade de resultados por página (10, 20, 50, 100 resultados) com persistência de estado via URL (`$perPage`), facilitando ações em lote de grandes quantidades de bilhetes.
 
 **Ficheiros alterados:**
-- `app/Livewire/TicketList.php` — Propriedade `filterMode`, cache em `ticketTypes`, tratamento no query builder `tickets()`.
-- `resources/views/livewire/ticket-list.blade.php` — Novo dropdown de filtro por Origem, alteração de colunas da tabela para incluir "Origem" e respectiva ordenação por clique, e visualização de Origem na vista de grelha.
+- `app/Livewire/TicketList.php` — Propriedades `filterMode` e `perPage`, hooks correspondentes, cache em `ticketTypes`, tratamento no query builder `tickets()`.
+- `resources/views/livewire/ticket-list.blade.php` — Novos dropdowns de filtro por Origem e Quantidade por página, alteração de colunas da tabela para incluir "Origem" e "Telefone" como ordenáveis por clique, e visualização de Origem na vista de grelha.

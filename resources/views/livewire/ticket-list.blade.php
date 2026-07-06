@@ -24,7 +24,7 @@
 }">
     <div id="page-ids-container" data-ids="{{ json_encode($this->tickets->pluck('id')->map(fn($id) => (string)$id)->toArray()) }}" style="display: none;"></div>
     <!-- Premium Loading Overlay -->
-    <div wire:loading wire:target="search, filterStatus, filterType, filterMode, gotoPage, previousPage, nextPage, setPage" class="loading-overlay" style="display: none;">
+    <div wire:loading wire:target="search, filterStatus, filterType, filterMode, perPage, gotoPage, previousPage, nextPage, setPage" class="loading-overlay" style="display: none;">
         <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; background: rgba(20, 18, 14, 0.95); padding: 28px 48px; border-radius: 16px; border: 1px solid rgba(212,175,55,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.6);">
             <svg style="animation: spin 1s linear infinite; width: 44px; height: 44px; color: var(--gold);" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle style="opacity: 0.25;" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -55,7 +55,7 @@
 
     {{-- Filters --}}
     <div style="background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 12px; padding: 16px; margin-bottom: 20px;">
-        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr; gap: 12px;">
             <div>
                 <div style="position: relative;">
                     <i data-lucide="search" class="w-4 h-4" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
@@ -84,6 +84,14 @@
                     <option value="">Origem (Todas)</option>
                     <option value="personalized">Online / Personalizado</option>
                     <option value="quick_sale">Venda Rápida</option>
+                </select>
+            </div>
+            <div>
+                <select wire:model.live="perPage" class="form-input" style="cursor: pointer;">
+                    <option value="10">10 / página</option>
+                    <option value="20">20 / página</option>
+                    <option value="50">50 / página</option>
+                    <option value="100">100 / página</option>
                 </select>
             </div>
         </div>
@@ -182,7 +190,10 @@
                             Nome
                             @if ($sortBy === 'buyer_name') <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span> @endif
                         </th>
-                        <th>Telefone</th>
+                        <th wire:click="sortBy('buyer_phone')">
+                            Telefone
+                            @if ($sortBy === 'buyer_phone') <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span> @endif
+                        </th>
                         <th wire:click="sortBy('ticket_type')">
                             Tipo
                             @if ($sortBy === 'ticket_type') <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span> @endif
