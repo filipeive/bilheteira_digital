@@ -130,6 +130,68 @@ class TicketList extends Component
         $this->dispatch('notify', type: 'warning', message: "{$count} bilhete(s) cancelado(s).");
     }
 
+    public function bulkDelete(): void
+    {
+        if (empty($this->selectedIds)) {
+            $this->dispatch('notify', type: 'error', message: 'Nenhum bilhete selecionado.');
+            return;
+        }
+
+        // Only allow deleting cancelled tickets
+        $tickets = Ticket::whereIn('id', $this->selectedIds)->where('status', 'cancelled')->get();
+        $count = 0;
+
+        foreach ($tickets as $ticket) {
+            \App\Services\AuditService::log(
+                action: 'ticket_deleted',
+                model: null,
+                oldValues: [
+                    'ticket_code' => $ticket->ticket_code,
+                    'buyer_name'  => $ticket->buyer_name,
+                    'status'      => $ticket->status,
+                    'price'       => $ticket->price,
+                    'ticket_type' => $ticket->ticket_type,
+                ],
+                newValues: ['deleted_by' => auth()->id()]
+            );
+            $ticket->delete();
+            $count++;
+        }
+
+        $this->selectedIds = [];
+        $this->selectAll = false;
+        $this->dispatch('notify', type: 'warning', message: "{$count} bilhete(s) cancelado(s) eliminado(s) com sucesso.");
+    }
+
+    public function bulkRestore(): void
+    {
+        if (empty($this->selectedIds)) {
+            $this->dispatch('notify', type: 'error', message: 'Nenhum bilhete selecionado.');
+            return;
+        }
+
+        $tickets = Ticket::onlyTrashed()->whereIn('id', $this->selectedIds)->get();
+        $count = 0;
+
+        foreach ($tickets as $ticket) {
+            \App\Services\AuditService::log(
+                action: 'ticket_restored',
+                model: $ticket,
+                oldValues: [
+                    'ticket_code' => $ticket->ticket_code,
+                    'status'      => $ticket->status,
+                ],
+                newValues: ['restored_by' => auth()->id()]
+            );
+            $ticket->restore();
+            $count++;
+        }
+
+        $this->selectedIds = [];
+        $this->selectAll = false;
+        $this->dispatch('notify', type: 'success', message: "{$count} bilhete(s) restaurado(s) com sucesso.");
+    }
+
     public function bulkEdit(): void
     {
         if (empty($this->selectedIds)) {
@@ -395,6 +457,25 @@ class TicketList extends Component
         $this->dispatch('notify', type: 'warning', message: "Bilhete {$code} eliminado permanentemente.");
     }
 
+    public function restoreTicket(string $ticketId): void
+    {
+        $ticket = Ticket::onlyTrashed()->findOrFail($ticketId);
+
+        \App\Services\AuditService::log(
+            action: 'ticket_restored',
+            model: $ticket,
+            oldValues: [
+                'ticket_code' => $ticket->ticket_code,
+                'status'      => $ticket->status,
+            ],
+            newValues: ['restored_by' => auth()->id()]
+        );
+
+        $ticket->restore();
+
+        $this->dispatch('notify', type: 'success', message: "Bilhete {$ticket->ticket_code} restaurado com sucesso.");
+    }
+
     public function resendTicket(string $ticketId): void
     {
         $ticket = Ticket::findOrFail($ticketId);
@@ -526,7 +607,11 @@ class TicketList extends Component
             return Ticket::query()->paginate(20);
         }
 
-        $query = Ticket::with('scanner')->where('event_id', $event->id);
+        if ($this->filterStatus === 'deleted') {
+            $query = Ticket::onlyTrashed()->with('scanner')->where('event_id', $event->id);
+        } else {
+            $query = Ticket::with('scanner')->where('event_id', $event->id);
+        }
 
         if ($this->search) {
             $query->where(function ($q) {
@@ -537,7 +622,7 @@ class TicketList extends Component
             });
         }
 
-        if ($this->filterStatus) {
+        if ($this->filterStatus && $this->filterStatus !== 'deleted') {
             $query->where('status', $this->filterStatus);
         }
 

@@ -229,3 +229,40 @@
   app/Models/TicketBatch.php
   resources/views/livewire/admin/batch-manager.blade.php
   resources/views/livewire/admin/quick-sale.blade.php
+
+[2026-07-06 10:30:44] Deploy: 10 ok, 0 erros
+  routes/web.php
+  app/Http/Controllers/AdminController.php
+  app/Http/Controllers/Api/SaleConfirmController.php
+  app/Livewire/Admin/QuickSale.php
+  app/Livewire/TicketList.php
+  app/Services/TicketService.php
+  resources/views/admin/sale-scanner.blade.php
+  resources/views/layouts/admin.blade.php
+  resources/views/livewire/admin-dashboard.blade.php
+  resources/views/livewire/ticket-list.blade.php
+
+[2026-07-06 13:34:17] Deploy: 2 ok, 0 erros
+  app/Livewire/TicketList.php
+  resources/views/livewire/ticket-list.blade.php
+
+[2026-07-06 13:39:07] Deploy: 2 ok, 0 erros
+  app/Livewire/TicketList.php
+  resources/views/livewire/ticket-list.blade.php
+
+[2026-07-06 14:37:51] Deploy: 2 ok, 0 erros
+  resources/views/layouts/admin.blade.php
+  resources/views/layouts/public.blade.php
+
+[2026-07-06 15:13:41] Deploy: 2 ok, 0 erros
+  resources/views/layouts/admin.blade.php
+  resources/views/livewire/ticket-list.blade.php
+
+[2026-07-06 15:36:37] Deploy: 1 ok, 0 erros
+  app/Livewire/Admin/QuickSale.php
+
+[2026-07-06 15:52:26] Deploy: 1 ok, 0 erros
+  app/Console/Commands/ResequenceQuickSaleTickets.php
+
+[2026-07-06 15:52:40] Deploy: 1 ok, 0 erros
+  public/setup.php

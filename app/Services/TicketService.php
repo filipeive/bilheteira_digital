@@ -107,13 +107,21 @@ class TicketService
      */
     public function validateTicket(string $ticketCode, User $scanner): array
     {
-        $ticket = Ticket::where('ticket_code', $ticketCode)->first();
+        $ticket = Ticket::withTrashed()->where('ticket_code', $ticketCode)->first();
 
         if (!$ticket) {
             return [
                 'status' => 'invalid',
                 'message' => 'Bilhete não encontrado.',
                 'ticket' => null,
+            ];
+        }
+
+        if ($ticket->trashed()) {
+            return [
+                'status' => 'cancelled',
+                'message' => 'Este bilhete foi eliminado/cancelado.',
+                'ticket' => $ticket,
             ];
         }
 
