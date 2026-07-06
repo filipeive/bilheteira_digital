@@ -69,7 +69,7 @@ class QuickSale extends Component
                 'buyer_phone'    => $this->buyer_phone ?: null,
                 'buyer_email'    => $this->buyer_email ?: null,
                 'ticket_mode'    => $this->isQuickMode ? 'quick_sale' : 'personalized',
-                'status'         => 'confirmed',
+                'status'         => 'pending',  // Emitido, aguarda confirmação de venda
                 'qr_payload'     => 'temp',
                 'notes'          => $this->notes ?: null,
             ]);
@@ -85,7 +85,9 @@ class QuickSale extends Component
             \App\Jobs\SendBulkTicketsJob::dispatch($ticketModels, 'all')->delay(now()->addSeconds(5));
         }
 
-        $batch->increment('sold', $this->quantity);
+        // NOTE: batch->sold is NOT incremented here.
+        // The sold counter only moves when a ticket is confirmed (i.e. actually sold).
+        // See TicketService::confirmTicket().
         AuditService::log('quick_sale', null, [], [
             'batch'    => $batch->name,
             'quantity' => $this->quantity,
@@ -98,7 +100,7 @@ class QuickSale extends Component
         $qty = $this->quantity;
         $this->reset(['quantity', 'buyer_name', 'buyer_phone', 'buyer_email', 'notes']);
         $this->quantity = 1;
-        $this->dispatch('notify', type: 'success', message: "{$qty} bilhete(s) gerado(s) e confirmado(s).");
+        $this->dispatch('notify', type: 'success', message: "{$qty} bilhete(s) emitido(s) como PENDENTE. Confirme após a venda.");
     }
 
     public function newSale(): void

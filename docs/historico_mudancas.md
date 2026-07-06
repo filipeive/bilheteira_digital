@@ -77,3 +77,96 @@ Este documento regista cronologicamente as melhorias e novas funcionalidades imp
   - Alterado `wire:model.live` para `wire:model` nos selects de Lote e Estado, eliminando requisições paralelas conflitantes durante a seleção.
 - **Otimização do Script de Deploy (`deploy.py`):**
   - Adicionado suporte a múltiplos arquivos no argumento `--file` (ex: `--file path1 --file path2`).
+
+---
+
+## 📅 Julho de 2026
+
+### 9. Migração para Alpine JS — Seleção em Tempo Real e Filtros Dinâmicos
+
+**Problema resolvido:** A seleção de checkboxes (individual e "Select All") causava latência perceptível e travamentos de UI porque cada clique despoletava um ciclo de rede completo para o servidor Livewire via `wire:model.live`, bloqueando a interface até à resposta.
+
+**Solução implementada:**
+
+- **Alpine JS com `$wire.entangle`:**
+  - O componente `ticket-list.blade.php` foi envolvido num `x-data` Alpine que mantém um array `selectedIds` sincronizado de forma bidirecional com o Livewire via `$wire.entangle('selectedIds')`.
+  - As seleções individuais usam `x-model="selectedIds"` (Alpine puro, sem round-trip ao servidor).
+  - O "Select All" usa `x-on:click="toggleAll()"` e `:checked="isAllSelected()"` — métodos Alpine que calculam o estado localmente a partir dos IDs da página atual embutidos num elemento `<div id="page-ids-container" data-ids="...">` renderizado pelo servidor.
+
+- **Barra de Ações em Massa refatorada:**
+  - Visibilidade controlada por `x-show="selectedIds.length > 0"` em vez de `@if(count($selectedIds) > 0)` do Livewire, eliminando re-renderizações do servidor ao selecionar/deselecionar.
+  - Contagem de bilhetes selecionados via `<span x-text="selectedIds.length">` — atualização instantânea no DOM.
+  - Botões "Aplicar", "Confirmar todos" e "Cancelar todos" usam `x-on:click="if (confirm(...)) { $wire.bulkEdit(); }"` para manter o diálogo de confirmação nativo mas só chamar o servidor após confirmação.
+  - Botão "Limpar" usa `x-on:click="selectedIds = []"` — limpa localmente e sincroniza via entangle.
+
+- **Dropdown de Tipos Dinâmico:**
+  - Adicionada a propriedade computada `ticketTypes(): array` em `TicketList.php` que consulta `Ticket` e `TicketBatch` para obter todos os `ticket_type` reais na base de dados.
+  - Todos os valores são normalizados para `strtolower()` antes de `array_unique()` para eliminar duplicados originados por inconsistências de capitalização (ex: `Primeiro_lote` vs `first_lot`).
+  - O dropdown no Blade renderiza as opções dinamicamente via `@foreach($this->ticketTypes as $value => $label)`.
+
+**Resultado:** As seleções são agora instantâneas (sem latência de rede), o "Select All" seleciona 20 bilhetes em <100ms, e os filtros de tipo refletem com precisão os dados reais da base de dados.
+
+**Ficheiros alterados:**
+- `app/Livewire/TicketList.php` — Adicionada `ticketTypes()` computed property.
+- `resources/views/livewire/ticket-list.blade.php` — Migração completa para Alpine JS entangle.
+
+---
+
+### 10. Correcção de Integridade de Negócio — Receita Real vs Emitidos Pendentes
+
+**Problema identificado:** A Venda Rápida gerava bilhetes directamente com `status='confirmed'`, o que causava:
+1. O Dashboard exibia todos os bilhetes emitidos como **Receita Real** — inflacionando a receita com bilhetes que ainda não tinham sido vendidos fisicamente.
+2. O contador `batch.sold` era incrementado no momento de geração e não da venda, distorcendo a ocupação dos lotes.
+3. Bilhetes movidos entre lotes (ex: Promocional → Lote Normal) por `bulkEdit` ajustavam o `sold` mesmo para bilhetes pendentes.
+
+**Solução implementada:**
+
+- **`QuickSale.php`:** Status alterado de `'confirmed'` → `'pending'`. O contador `batch->sold` deixou de ser incrementado na geração.
+- **`TicketService::confirmTicket()`:** Agora incrementa `batch->sold` no momento da confirmação (venda real).
+- **`TicketService::cancelTicket()`:** Agora decrementa `batch->sold` se o bilhete cancelado estava `confirmed`.
+- **`TicketList::bulkEdit()`:** A troca de lote só ajusta `sold` se o bilhete for `confirmed/used`. A mudança de status entre `pending` ↔ `confirmed` também ajusta o contador correctamente.
+- **`TicketService::getEventStats()`:** Adicionados campos `potential_revenue` (soma dos bilhetes `pending`) e `first_lot` no `by_type`.
+- **Dashboard:** Card "Pendentes" renomeado para **"Emitidos"** com subtítulo "Aguardam venda". Card "Receita Total" → **"Receita Real"** com nota "Confirmado + Usado". Novo card **"Rec. Potencial"** (ouro translúcido) mostra o valor dos emitidos não confirmados.
+
+**Fluxo correcto após a correcção:**
+```
+QuickSale → status='pending' (bilhete impresso, não vendido)
+         → Rec. Potencial sobe
+Vendedor vende → Admin confirma (bulkEdit ou confirmTicket)
+              → batch.sold++
+              → Rec. Real sobe
+              → Rec. Potencial desce
+```
+
+**Ficheiros alterados:**
+- `app/Services/TicketService.php` — confirmTicket, cancelTicket, getEventStats.
+- `app/Livewire/Admin/QuickSale.php` — status e remoção do sold++.
+- `app/Livewire/TicketList.php` — bulkEdit com integridade de sold.
+- `resources/views/livewire/admin-dashboard.blade.php` — novo card Rec. Potencial.
+
+---
+
+### 11. Implementação do Scanner de Vendas e Eliminação de Bilhetes
+
+**Contexto:** Após separar a emissão (bilhetes `pending`) da venda real (bilhetes `confirmed`), surgiu a necessidade de um fluxo ágil para os vendedores físicos poderem confirmar a venda de um bilhete emitido. Além disso, foi pedida a capacidade de eliminar definitivamente bilhetes cancelados para manter a base de dados limpa, sem afectar as estatísticas.
+
+**O que foi feito:**
+
+1. **Scanner de Vendas (Confirmar Venda):**
+   - Criado novo controller `SaleConfirmController` separado do `ValidationController` (usado na entrada do evento) para evitar confusão de fluxos.
+   - O Scanner de Vendas altera o estado de `pending` para `confirmed` e actualiza o contador de vendas do lote (`batch->sold++`).
+   - Mantém as verificações de segurança: impede confirmação dupla, avisa se bilhete foi cancelado ou usado.
+   - Nova interface baseada no design do scanner da porta, adicionada ao menu lateral sob a Venda Rápida.
+
+2. **Eliminação de Bilhetes Cancelados:**
+   - Adicionado método `deleteTicket` no `AdminController` e no `TicketList` (Livewire).
+   - Implementado um "Safety Guard": o sistema só permite apagar bilhetes que tenham o status `cancelled`. Bilhetes activos, confirmados ou usados não podem ser eliminados para preservar a integridade da auditoria.
+   - Ao apagar, é registado no `AuditService` com a informação completa do bilhete antes da eliminação definitiva.
+
+**Ficheiros adicionados/alterados:**
+- `app/Http/Controllers/Api/SaleConfirmController.php` (novo)
+- `resources/views/admin/sale-scanner.blade.php` (novo)
+- `app/Http/Controllers/AdminController.php` — Novo método `deleteTicket`.
+- `app/Livewire/TicketList.php` — Ajustado o `deleteTicket` com guarda de segurança e removido o botão no blade onde não devia.
+- `routes/web.php` — Adicionadas as novas rotas.
+- `resources/views/layouts/admin.blade.php` — Link no sidebar para o Scanner de Vendas.

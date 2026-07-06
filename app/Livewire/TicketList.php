@@ -133,35 +133,53 @@ class TicketList extends Component
             if ($this->bulkBatchId) {
                 $newBatch = TicketBatch::find($this->bulkBatchId);
                 if ($newBatch && $ticket->batch_id != $newBatch->id) {
-                    // Decrement old batch
-                    if ($ticket->batch_id) {
-                        $oldBatch = TicketBatch::find($ticket->batch_id);
-                        if ($oldBatch) {
-                            $oldBatch->decrement('sold');
+                    // Only adjust sold counters if the ticket is actually "sold" (confirmed or used)
+                    if (in_array($ticket->status, ['confirmed', 'used'])) {
+                        if ($ticket->batch_id) {
+                            $oldBatch = TicketBatch::find($ticket->batch_id);
+                            if ($oldBatch) {
+                                $oldBatch->decrement('sold');
+                            }
                         }
+                        $newBatch->increment('sold');
                     }
-                    // Increment new batch
-                    $newBatch->increment('sold');
 
-                    $updateData['batch_id'] = $newBatch->id;
+                    $updateData['batch_id']    = $newBatch->id;
                     $updateData['ticket_type'] = $newBatch->ticket_type;
-                    $updateData['price'] = $newBatch->price;
+                    $updateData['price']       = $newBatch->price;
                 }
             }
 
             // Change Status
-            if ($this->bulkStatus) {
-                $updateData['status'] = $this->bulkStatus;
+            if ($this->bulkStatus && $this->bulkStatus !== $ticket->status) {
+                $newStatus = $this->bulkStatus;
+                $oldStatus = $ticket->status;
 
-                if ($ticket->status === 'used' && $this->bulkStatus !== 'used') {
+                $updateData['status'] = $newStatus;
+
+                // Un-use: clear scan fields
+                if ($oldStatus === 'used' && $newStatus !== 'used') {
                     $updateData['used_at'] = null;
                     $updateData['scanned_by'] = null;
                     $updateData['scanned_device'] = null;
                 }
 
-                if ($ticket->status !== 'used' && $this->bulkStatus === 'used') {
+                // Mark as used: set scan fields
+                if ($oldStatus !== 'used' && $newStatus === 'used') {
                     $updateData['used_at'] = now();
                     $updateData['scanned_by'] = auth()->id();
+                }
+
+                // Batch sold counter: adjust only when moving between unconfirmed ↔ confirmed
+                if ($ticket->batch_id) {
+                    // pending/cancelled → confirmed  →  +1 sold
+                    if (!in_array($oldStatus, ['confirmed', 'used']) && in_array($newStatus, ['confirmed', 'used'])) {
+                        TicketBatch::where('id', $ticket->batch_id)->increment('sold');
+                    }
+                    // confirmed/used → pending/cancelled  →  -1 sold
+                    if (in_array($oldStatus, ['confirmed', 'used']) && !in_array($newStatus, ['confirmed', 'used'])) {
+                        TicketBatch::where('id', $ticket->batch_id)->decrement('sold');
+                    }
                 }
             }
 
@@ -331,18 +349,30 @@ class TicketList extends Component
     public function deleteTicket(string $ticketId): void
     {
         $ticket = Ticket::findOrFail($ticketId);
-        $oldValues = $ticket->toArray();
-        
+
+        // Safety guard — only cancelled tickets may be permanently deleted
+        if ($ticket->status !== 'cancelled') {
+            $this->dispatch('notify', type: 'error', message: 'Apenas bilhetes cancelados podem ser eliminados.');
+            return;
+        }
+
         \App\Services\AuditService::log(
             action: 'ticket_deleted',
-            model: $ticket,
-            oldValues: $oldValues,
-            newValues: []
+            model: null,
+            oldValues: [
+                'ticket_code' => $ticket->ticket_code,
+                'buyer_name'  => $ticket->buyer_name,
+                'status'      => $ticket->status,
+                'price'       => $ticket->price,
+                'ticket_type' => $ticket->ticket_type,
+            ],
+            newValues: ['deleted_by' => auth()->id()]
         );
 
+        $code = $ticket->ticket_code;
         $ticket->delete();
-        
-        $this->dispatch('notify', type: 'warning', message: "Bilhete {$ticket->ticket_code} eliminado permanentemente.");
+
+        $this->dispatch('notify', type: 'warning', message: "Bilhete {$code} eliminado permanentemente.");
     }
 
     public function resendTicket(string $ticketId): void
@@ -433,6 +463,36 @@ class TicketList extends Component
         $this->editingBatchId = null;
         
         $this->dispatch('notify', type: 'success', message: "Bilhete {$ticket->ticket_code} actualizado com sucesso.");
+    }
+
+    #[Computed]
+    public function ticketTypes(): array
+    {
+        $typesFromTickets = Ticket::distinct()->pluck('ticket_type')->filter()->map(fn($t) => strtolower($t))->toArray();
+        $typesFromBatches = TicketBatch::distinct()->pluck('ticket_type')->filter()->map(fn($t) => strtolower($t))->toArray();
+        
+        $types = array_unique(array_merge($typesFromTickets, $typesFromBatches));
+        
+        $map = [
+            'first_phase' => 'Primeiro Lote',
+            'first_lot'   => 'Primeiro Lote',
+            'second_phase' => 'Segundo Lote',
+            'second_lot'  => 'Segundo Lote',
+            'promotional' => 'Promocional',
+            'vip'         => 'VIP',
+            'vip_promotional' => 'VIP Promocional',
+            'vip_second_lot'  => 'VIP 2º Lote',
+            'gate'        => 'No Portão',
+            'free'        => 'Gratuito',
+            'child'       => 'Criança',
+        ];
+
+        $result = [];
+        foreach ($types as $type) {
+            $result[$type] = $map[$type] ?? ucwords(str_replace(['_', '-'], ' ', $type));
+        }
+
+        return $result;
     }
 
     #[Computed]

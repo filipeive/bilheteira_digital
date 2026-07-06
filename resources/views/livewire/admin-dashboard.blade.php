@@ -22,8 +22,9 @@
             <p class="mono" style="font-size: 2rem; font-weight: 700; color: #34D399;">{{ number_format($this->stats['confirmed']) }}</p>
         </div>
         <div class="stat-card" style="border-left: 3px solid #F59E0B;">
-            <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><i data-lucide="alert-triangle" class="w-4 h-4"></i> Pendentes</p>
+            <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><i data-lucide="clock" class="w-4 h-4"></i> Emitidos</p>
             <p class="mono" style="font-size: 2rem; font-weight: 700; color: #FBBF24;">{{ number_format($this->stats['pending']) }}</p>
+            <p style="color: var(--text-muted); font-size: 0.68rem; margin-top: 2px;">Aguardam venda</p>
         </div>
         <div class="stat-card" style="border-left: 3px solid #3B82F6;">
             <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><i data-lucide="scan-line" class="w-4 h-4"></i> Usados</p>
@@ -34,10 +35,17 @@
             <p class="mono" style="font-size: 2rem; font-weight: 700; color: #F87171;">{{ number_format($this->stats['cancelled']) }}</p>
         </div>
         <div class="stat-card" style="border-left: 3px solid var(--gold);">
-            <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><i data-lucide="banknote" class="w-4 h-4"></i> Receita Total</p>
+            <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><i data-lucide="banknote" class="w-4 h-4"></i> Receita Real</p>
             <p class="mono" style="font-size: 2rem; font-weight: 700; color: var(--gold);">{{ number_format($this->stats['revenue'], 0, ',', '.') }}<span style="font-size: 0.9rem; color: var(--text-muted);"> MT</span></p>
+            <p style="color: var(--text-muted); font-size: 0.68rem; margin-top: 2px;">Confirmado + Usado</p>
+        </div>
+        <div class="stat-card" style="border-left: 3px solid rgba(212,175,55,0.4);">
+            <p style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;"><i data-lucide="trending-up" class="w-4 h-4"></i> Rec. Potencial</p>
+            <p class="mono" style="font-size: 2rem; font-weight: 700; color: rgba(212,175,55,0.7);">{{ number_format($this->stats['potential_revenue'], 0, ',', '.') }}<span style="font-size: 0.9rem; color: var(--text-muted);"> MT</span></p>
+            <p style="color: var(--text-muted); font-size: 0.68rem; margin-top: 2px;">Emitidos pendentes</p>
         </div>
     </div>
+
 
     <!-- Charts Row -->
     <div class="charts-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 32px;">

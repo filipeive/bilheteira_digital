@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Api\SaleConfirmController;
 use App\Http\Controllers\Api\ValidationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicTicketController;
@@ -57,6 +58,14 @@ Route::middleware(['auth', CheckRole::class . ':admin,organizer,super_admin'])->
     Route::get('/reports', Reports::class)->name('admin.reports');
     Route::get('/audit', AuditLogs::class)->name('admin.audit');
     Route::get('/notifications', NotificationsManager::class)->name('admin.notifications');
+
+    // ─── Sale Scanner ─────────────────────────────────────────────
+    // Scanner page — confirms pending tickets at the point of physical sale
+    Route::get('/vender', [SaleConfirmController::class, 'index'])->name('admin.sale.scanner');
+    Route::post('/vender/confirmar', [SaleConfirmController::class, 'confirm'])->name('admin.sale.confirm');
+
+    // ─── Ticket Deletion (cancelled only) ─────────────────────────
+    Route::delete('/tickets/{ticket}', [AdminController::class, 'deleteTicket'])->name('admin.tickets.delete');
 });
 
 // ─── Validator Route ─────────────────────────────────────────

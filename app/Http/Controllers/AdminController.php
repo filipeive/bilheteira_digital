@@ -286,4 +286,32 @@ class AdminController extends Controller
             'other_artists' => '[]',
         ];
     }
+
+    /**
+     * Delete a cancelled ticket permanently.
+     * Only cancelled tickets may be deleted to preserve revenue and audit integrity.
+     */
+    public function deleteTicket(Ticket $ticket): \Illuminate\Http\RedirectResponse
+    {
+        if ($ticket->status !== 'cancelled') {
+            return back()->with('error', 'Apenas bilhetes cancelados podem ser eliminados.');
+        }
+
+        \App\Services\AuditService::log(
+            action: 'ticket_deleted',
+            model: null,
+            oldValues: [
+                'ticket_code' => $ticket->ticket_code,
+                'buyer_name'  => $ticket->buyer_name,
+                'status'      => $ticket->status,
+                'price'       => $ticket->price,
+                'ticket_type' => $ticket->ticket_type,
+            ],
+            newValues: ['deleted_by' => auth()->id()]
+        );
+
+        $ticket->delete();
+
+        return back()->with('success', 'Bilhete cancelado eliminado com sucesso.');
+    }
 }

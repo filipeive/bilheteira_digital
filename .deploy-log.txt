@@ -119,3 +119,113 @@
 
 [2026-06-30 18:30:10] Deploy: 1 ok, 0 erros
   resources/views/livewire/ticket-list.blade.php
+
+[2026-06-30 21:38:06] Deploy: 13 ok, 0 erros
+  app/Livewire/Admin/AuditLogs.php
+  app/Livewire/Admin/BatchManager.php
+  app/Livewire/Admin/NotificationsManager.php
+  app/Livewire/Admin/Profile.php
+  app/Livewire/Admin/QuickSale.php
+  app/Livewire/Admin/Reports.php
+  app/Livewire/Admin/SiteSettings.php
+  app/Livewire/Admin/UserForm.php
+  app/Livewire/Admin/UserList.php
+  app/Livewire/AdminDashboard.php
+  app/Livewire/ManualTicketForm.php
+  app/Livewire/TicketForm.php
+  app/Livewire/TicketList.php
+
+[2026-06-30 21:39:34] Deploy: 13 ok, 0 erros
+  app/Livewire/Admin/AuditLogs.php
+  app/Livewire/Admin/BatchManager.php
+  app/Livewire/Admin/NotificationsManager.php
+  app/Livewire/Admin/Profile.php
+  app/Livewire/Admin/QuickSale.php
+  app/Livewire/Admin/Reports.php
+  app/Livewire/Admin/SiteSettings.php
+  app/Livewire/Admin/UserForm.php
+  app/Livewire/Admin/UserList.php
+  app/Livewire/AdminDashboard.php
+  app/Livewire/ManualTicketForm.php
+  app/Livewire/TicketForm.php
+  app/Livewire/TicketList.php
+
+[2026-06-30 21:45:04] Deploy: 13 ok, 0 erros
+  app/Livewire/Admin/AuditLogs.php
+  app/Livewire/Admin/BatchManager.php
+  app/Livewire/Admin/NotificationsManager.php
+  app/Livewire/Admin/Profile.php
+  app/Livewire/Admin/QuickSale.php
+  app/Livewire/Admin/Reports.php
+  app/Livewire/Admin/SiteSettings.php
+  app/Livewire/Admin/UserForm.php
+  app/Livewire/Admin/UserList.php
+  app/Livewire/AdminDashboard.php
+  app/Livewire/ManualTicketForm.php
+  app/Livewire/TicketForm.php
+  app/Livewire/TicketList.php
+
+[2026-06-30 21:49:37] Deploy: 54 ok, 0 erros
+  resources/views/admin/site-content.blade.php
+  resources/views/auth/confirm-password.blade.php
+  resources/views/auth/forgot-password.blade.php
+  resources/views/auth/login.blade.php
+  resources/views/auth/register.blade.php
+  resources/views/auth/reset-password.blade.php
+  resources/views/auth/verify-email.blade.php
+  resources/views/components/application-logo.blade.php
+  resources/views/components/auth-session-status.blade.php
+  resources/views/components/danger-button.blade.php
+  resources/views/components/dropdown-link.blade.php
+  resources/views/components/dropdown.blade.php
+  resources/views/components/input-error.blade.php
+  resources/views/components/input-label.blade.php
+  resources/views/components/modal.blade.php
+  resources/views/components/nav-link.blade.php
+  resources/views/components/primary-button.blade.php
+  resources/views/components/responsive-nav-link.blade.php
+  resources/views/components/secondary-button.blade.php
+  resources/views/components/text-input.blade.php
+  resources/views/dashboard.blade.php
+  resources/views/emails/ticket-pending.blade.php
+  resources/views/emails/ticket.blade.php
+  resources/views/layouts/admin.blade.php
+  resources/views/layouts/app.blade.php
+  resources/views/layouts/guest.blade.php
+  resources/views/layouts/navigation.blade.php
+  resources/views/layouts/public.blade.php
+  resources/views/livewire/admin-dashboard.blade.php
+  resources/views/livewire/admin/audit-logs.blade.php
+  resources/views/livewire/admin/batch-manager.blade.php
+  resources/views/livewire/admin/notifications-manager.blade.php
+  resources/views/livewire/admin/profile.blade.php
+  resources/views/livewire/admin/quick-sale.blade.php
+  resources/views/livewire/admin/reports.blade.php
+  resources/views/livewire/admin/site-settings.blade.php
+  resources/views/livewire/admin/user-form.blade.php
+  resources/views/livewire/admin/user-list.blade.php
+  resources/views/livewire/manual-ticket-form.blade.php
+  resources/views/livewire/ticket-form.blade.php
+  resources/views/livewire/ticket-list.blade.php
+  resources/views/pdf/report.blade.php
+  resources/views/pdf/ticket-v2.blade.php
+  resources/views/pdf/ticket.blade.php
+  resources/views/pdf/tickets-bulk.blade.php
+  resources/views/profile/edit.blade.php
+  resources/views/profile/partials/delete-user-form.blade.php
+  resources/views/profile/partials/update-password-form.blade.php
+  resources/views/profile/partials/update-profile-information-form.blade.php
+  resources/views/public/about.blade.php
+  resources/views/public/lookup.blade.php
+  resources/views/public/sale.blade.php
+  resources/views/validator/scanner.blade.php
+  resources/views/welcome.blade.php
+
+[2026-06-30 21:58:44] Deploy: 2 ok, 0 erros
+  app/Models/TicketBatch.php
+  resources/views/livewire/ticket-list.blade.php
+
+[2026-06-30 22:04:41] Deploy: 3 ok, 0 erros
+  app/Models/TicketBatch.php
+  resources/views/livewire/admin/batch-manager.blade.php
+  resources/views/livewire/admin/quick-sale.blade.php

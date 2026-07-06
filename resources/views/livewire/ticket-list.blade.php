@@ -1,4 +1,28 @@
-<div>
+<div x-data="{
+    selectedIds: $wire.entangle('selectedIds'),
+    getCurrentPageIds() {
+        let el = document.getElementById('page-ids-container');
+        return el ? JSON.parse(el.getAttribute('data-ids')) : [];
+    },
+    toggleAll() {
+        let pageIds = this.getCurrentPageIds();
+        let allSelected = pageIds.every(id => this.selectedIds.includes(id));
+        if (allSelected) {
+            this.selectedIds = this.selectedIds.filter(id => !pageIds.includes(id));
+        } else {
+            let newSelected = [...this.selectedIds];
+            pageIds.forEach(id => {
+                if (!newSelected.includes(id)) newSelected.push(id);
+            });
+            this.selectedIds = newSelected;
+        }
+    },
+    isAllSelected() {
+        let pageIds = this.getCurrentPageIds();
+        return pageIds.length > 0 && pageIds.every(id => this.selectedIds.includes(id));
+    }
+}">
+    <div id="page-ids-container" data-ids="{{ json_encode($this->tickets->pluck('id')->map(fn($id) => (string)$id)->toArray()) }}" style="display: none;"></div>
     <!-- Premium Loading Overlay -->
     <div wire:loading.delay wire:target="search, filterStatus, filterType" class="loading-overlay" style="display: none;">
         <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; background: rgba(20, 18, 14, 0.95); padding: 28px 48px; border-radius: 16px; border: 1px solid rgba(212,175,55,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.6);">
@@ -50,13 +74,9 @@
             <div>
                 <select wire:model.live="filterType" class="form-input" style="cursor: pointer;">
                     <option value="">Todos os Tipos</option>
-                    <option value="promotional">Promocional</option>
-                    <option value="second_lot">2º Lote</option>
-                    <option value="gate">No Portão</option>
-                    <option value="vip_promotional">VIP 1º Lote</option>
-                    <option value="vip_second_lot">VIP 2º Lote</option>
-                    <option value="vip">VIP No Portão</option>
-                    <option value="free">Gratuito</option>
+                    @foreach($this->ticketTypes as $value => $label)
+                        <option value="{{ $value }}">{{ $label }}</option>
+                    @endforeach
                 </select>
             </div>
         </div>
@@ -83,11 +103,10 @@
     @endif
 
     {{-- Bulk Action Bar --}}
-    @if(count($selectedIds) > 0)
-    <div style="background: rgba(212,160,23,0.08); border: 1px solid rgba(212,160,23,0.25); border-radius: 10px; padding: 12px 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; animation: fadeInUp 0.2s ease;">
+    <div x-show="selectedIds.length > 0" x-cloak style="background: rgba(212,160,23,0.08); border: 1px solid rgba(212,160,23,0.25); border-radius: 10px; padding: 12px 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; animation: fadeInUp 0.2s ease;">
         <span style="color: var(--gold); font-weight: 600; font-size: 0.85rem;">
             <i data-lucide="check-square" class="w-4 h-4" style="display: inline; vertical-align: middle;"></i>
-            {{ count($selectedIds) }} bilhete(s) seleccionado(s)
+            <span x-text="selectedIds.length"></span> bilhete(s) seleccionado(s)
         </span>
         <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
             <select wire:model="bulkBatchId" class="form-input" style="padding: 4px 8px; font-size: 0.8rem; width: auto; background: var(--dark-surface); border-color: rgba(212,175,55,0.3); height: 34px; color: var(--text-primary); cursor: pointer;">
@@ -105,7 +124,7 @@
                 <option value="cancelled">Cancelado</option>
             </select>
 
-            <button type="button" wire:click="bulkEdit" onclick="confirm('Aplicar estas alterações em massa para os {{ count($selectedIds) }} bilhetes seleccionados?')" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+            <button type="button" x-on:click="if (confirm('Aplicar estas alterações em massa para os ' + selectedIds.length + ' bilhetes seleccionados?')) { $wire.bulkEdit(); }" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
                 <span wire:loading.remove wire:target="bulkEdit" style="display: inline-flex; align-items: center;">
                     <i data-lucide="save" class="w-4 h-4"></i>
                 </span>
@@ -118,26 +137,25 @@
             <a href="{{ $this->bulkDownloadUrl }}" target="_blank" class="btn-sm" style="background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none; height: 34px; display: inline-flex; align-items: center;">
                 <i data-lucide="download" class="w-4 h-4"></i> Baixar ZIP
             </a>
-            <button type="button" wire:click="bulkConfirm" onclick="confirm('Confirmar {{ count($selectedIds) }} bilhete(s) seleccionado(s)?') || event.stopImmediatePropagation()" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+            <button type="button" x-on:click="if (confirm('Confirmar ' + selectedIds.length + ' bilhete(s) seleccionado(s)?')) { $wire.bulkConfirm(); }" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
                 <span wire:loading.remove wire:target="bulkConfirm" style="display: inline-flex; align-items: center;">
                     <i data-lucide="check" class="w-4 h-4"></i>
                 </span>
                 <span wire:loading wire:target="bulkConfirm" class="spinner-sm" style="display: none;"></span>
                 Confirmar todos
             </button>
-            <button type="button" wire:click="bulkCancel" onclick="confirm('Cancelar {{ count($selectedIds) }} bilhete(s) seleccionado(s)?') || event.stopImmediatePropagation()" wire:loading.attr="disabled" class="btn-sm btn-cancel" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
+            <button type="button" x-on:click="if (confirm('Cancelar ' + selectedIds.length + ' bilhete(s) seleccionado(s)?')) { $wire.bulkCancel(); }" wire:loading.attr="disabled" class="btn-sm btn-cancel" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">
                 <span wire:loading.remove wire:target="bulkCancel" style="display: inline-flex; align-items: center;">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </span>
                 <span wire:loading wire:target="bulkCancel" class="spinner-sm" style="display: none;"></span>
                 Cancelar todos
             </button>
-            <button type="button" wire:click="$set('selectedIds', [])" class="btn-sm" style="color: var(--text-muted); height: 34px;">
+            <button type="button" x-on:click="selectedIds = []" class="btn-sm" style="color: var(--text-muted); height: 34px; display: inline-flex; align-items: center; gap: 8px;">
                 <i data-lucide="x-circle" class="w-4 h-4"></i> Limpar
             </button>
         </div>
     </div>
-    @endif
 
     {{-- TABLE VIEW --}}
     @if($viewMode === 'table')
@@ -147,7 +165,7 @@
                 <thead>
                     <tr>
                         <th style="width: 40px; cursor: default;">
-                            <input type="checkbox" wire:click="toggleSelectAll" {{ $selectAll ? 'checked' : '' }} style="accent-color: var(--gold); cursor: pointer;">
+                            <input type="checkbox" x-on:click="toggleAll()" :checked="isAllSelected()" style="accent-color: var(--gold); cursor: pointer;">
                         </th>
                         <th wire:click="sortBy('ticket_code')">
                             Código
@@ -180,9 +198,9 @@
                 </thead>
                 <tbody>
                     @forelse ($this->tickets as $ticket)
-                        <tr style="{{ in_array($ticket->id, $selectedIds) ? 'background: rgba(212,160,23,0.06);' : '' }}">
+                        <tr :style="selectedIds.includes('{{ $ticket->id }}') ? 'background: rgba(212,160,23,0.06);' : ''">
                             <td>
-                                <input type="checkbox" wire:model.live="selectedIds" value="{{ $ticket->id }}" style="accent-color: var(--gold); cursor: pointer;">
+                                <input type="checkbox" x-model="selectedIds" value="{{ $ticket->id }}" style="accent-color: var(--gold); cursor: pointer;">
                             </td>
                             <td>
                                 <span class="mono" style="color: var(--gold); font-weight: 600; font-size: 0.85rem;">{{ $ticket->ticket_code }}</span>
@@ -295,10 +313,10 @@
     @if($viewMode === 'grid')
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; margin-bottom: 20px;">
         @forelse ($this->tickets as $ticket)
-            <div style="border: 1px solid {{ in_array($ticket->id, $selectedIds) ? 'rgba(212,160,23,0.5)' : 'var(--dark-border)' }}; border-radius: 12px; padding: 20px; background: {{ in_array($ticket->id, $selectedIds) ? 'rgba(212,160,23,0.06)' : 'var(--dark-card)' }}; transition: all 0.2s;">
+            <div :style="selectedIds.includes('{{ $ticket->id }}') ? 'border: 1px solid rgba(212,160,23,0.5); border-radius: 12px; padding: 20px; background: rgba(212,160,23,0.06); transition: all 0.2s;' : 'border: 1px solid var(--dark-border); border-radius: 12px; padding: 20px; background: var(--dark-card); transition: all 0.2s;'">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                        <input type="checkbox" wire:model.live="selectedIds" value="{{ $ticket->id }}" style="accent-color: var(--gold); cursor: pointer;">
+                        <input type="checkbox" x-model="selectedIds" value="{{ $ticket->id }}" style="accent-color: var(--gold); cursor: pointer;">
                         <div>
                             <span class="mono" style="color: var(--gold); font-weight: 600; font-size: 0.95rem;">{{ $ticket->ticket_code }}</span>
                             <div style="color: var(--text-primary); font-weight: 500; font-size: 1.05rem; margin-top: 4px;">{{ $ticket->buyer_name }}</div>

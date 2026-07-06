@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Event;
 use App\Models\Ticket;
+use App\Models\TicketBatch;
 use App\Models\User;
 use Illuminate\Support\Str;
 
@@ -58,6 +59,7 @@ class TicketService
 
     /**
      * Confirm a pending ticket.
+     * Also increments the batch sold counter when payment is confirmed.
      */
     public function confirmTicket(Ticket $ticket): bool
     {
@@ -66,14 +68,20 @@ class TicketService
         }
 
         $ticket->update(['status' => 'confirmed']);
-        
+
+        // Increment batch sold counter now that the sale is real
+        if ($ticket->batch_id) {
+            TicketBatch::where('id', $ticket->batch_id)->increment('sold');
+        }
+
         \App\Jobs\SendTicketJob::dispatch($ticket);
-        
+
         return true;
     }
 
     /**
      * Cancel a ticket.
+     * If the ticket was confirmed, decrement the batch sold counter.
      */
     public function cancelTicket(Ticket $ticket): bool
     {
@@ -81,7 +89,14 @@ class TicketService
             return false;
         }
 
+        $wasConfirmed = $ticket->isConfirmed();
         $ticket->update(['status' => 'cancelled']);
+
+        // If we're cancelling a confirmed ticket, reverse the sold counter
+        if ($wasConfirmed && $ticket->batch_id) {
+            TicketBatch::where('id', $ticket->batch_id)->decrement('sold');
+        }
+
         return true;
     }
 
@@ -152,21 +167,29 @@ class TicketService
     {
         $tickets = $event->tickets();
 
+        // Bilhetes emitidos (quick-sale pendentes) — receita potencial não confirmada
+        $pendingCount  = (clone $tickets)->where('status', 'pending')->count();
+        $pendingRevenue = (clone $tickets)->where('status', 'pending')->sum('price');
+
         return [
-            'total' => $tickets->count(),
-            'confirmed' => (clone $tickets)->where('status', 'confirmed')->count(),
-            'pending' => (clone $tickets)->where('status', 'pending')->count(),
-            'used' => (clone $tickets)->where('status', 'used')->count(),
-            'cancelled' => (clone $tickets)->where('status', 'cancelled')->count(),
-            'revenue' => (clone $tickets)->whereIn('status', ['confirmed', 'used'])->sum('price'),
+            'total'             => $tickets->count(),
+            'confirmed'         => (clone $tickets)->where('status', 'confirmed')->count(),
+            'pending'           => $pendingCount,
+            'used'              => (clone $tickets)->where('status', 'used')->count(),
+            'cancelled'         => (clone $tickets)->where('status', 'cancelled')->count(),
+            // Receita real: apenas bilhetes confirmados e usados
+            'revenue'           => (clone $tickets)->whereIn('status', ['confirmed', 'used'])->sum('price'),
+            // Receita potencial: bilhetes emitidos mas ainda não vendidos/confirmados
+            'potential_revenue'  => $pendingRevenue,
             'by_type' => [
-                'promotional' => (clone $tickets)->where('ticket_type', 'promotional')->whereIn('status', ['confirmed', 'used'])->count(),
-                'second_lot' => (clone $tickets)->where('ticket_type', 'second_lot')->whereIn('status', ['confirmed', 'used'])->count(),
-                'gate' => (clone $tickets)->where('ticket_type', 'gate')->whereIn('status', ['confirmed', 'used'])->count(),
+                'promotional'    => (clone $tickets)->where('ticket_type', 'promotional')->whereIn('status', ['confirmed', 'used'])->count(),
+                'second_lot'     => (clone $tickets)->where('ticket_type', 'second_lot')->whereIn('status', ['confirmed', 'used'])->count(),
+                'first_lot'      => (clone $tickets)->where('ticket_type', 'first_lot')->whereIn('status', ['confirmed', 'used'])->count(),
+                'gate'           => (clone $tickets)->where('ticket_type', 'gate')->whereIn('status', ['confirmed', 'used'])->count(),
                 'vip_promotional' => (clone $tickets)->where('ticket_type', 'vip_promotional')->whereIn('status', ['confirmed', 'used'])->count(),
                 'vip_second_lot' => (clone $tickets)->where('ticket_type', 'vip_second_lot')->whereIn('status', ['confirmed', 'used'])->count(),
-                'vip' => (clone $tickets)->where('ticket_type', 'vip')->whereIn('status', ['confirmed', 'used'])->count(),
-                'free' => (clone $tickets)->where('ticket_type', 'free')->whereIn('status', ['confirmed', 'used'])->count(),
+                'vip'            => (clone $tickets)->where('ticket_type', 'vip')->whereIn('status', ['confirmed', 'used'])->count(),
+                'free'           => (clone $tickets)->where('ticket_type', 'free')->whereIn('status', ['confirmed', 'used'])->count(),
             ],
         ];
     }

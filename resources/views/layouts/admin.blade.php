@@ -418,6 +418,10 @@
             <a href="{{ url('/admin/quick-sale') }}" class="{{ request()->is('admin/quick-sale') ? 'active' : '' }}">
                 <span class="nav-icon"><i data-lucide="shopping-cart" class="w-4 h-4"></i></span> Venda Rápida
             </a>
+            <a href="{{ url('/admin/vender') }}" class="{{ request()->is('admin/vender') ? 'active' : '' }}" style="{{ request()->is('admin/vender') ? '' : 'color: #34D399;' }}">
+                <span class="nav-icon"><i data-lucide="scan-line" class="w-4 h-4" style="color: #34D399;"></i></span>
+                <span style="color: #34D399;">Confirmar Venda</span>
+            </a>
             <a href="{{ url('/admin/manual') }}" class="{{ request()->is('admin/manual') ? 'active' : '' }}">
                 <span class="nav-icon"><i data-lucide="pen-line" class="w-4 h-4"></i></span> Venda Manual
             </a>
