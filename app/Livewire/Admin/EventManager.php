@@ -1,0 +1,214 @@
+<?php
+
+namespace App\Livewire\Admin;
+
+use App\Models\Event;
+use App\Services\AuditService;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+
+class EventManager extends Component
+{
+    use WithFileUploads;
+
+    public ?int $editingId = null;
+    public bool $isCreating = false;
+
+    // Fields
+    public string $name = '';
+    public string $slug = '';
+    public string $category = 'gospel';
+    public string $province = 'Zambézia';
+    public string $venue = '';
+    public string $venue_address = '';
+    public string $maps_url = '';
+    public string $organizer_name = 'Alpha Produções & Faith';
+    public string $ticket_theme = 'gold';
+    public string $primary_color = '#D4A017';
+    public string $secondary_color = '#0D0B07';
+    public string $starts_at = '';
+    public string $ends_at = '';
+    public string $gates_open_at = '';
+    public string $description = '';
+    public int $max_capacity = 0;
+    public bool $featured = false;
+    public string $status = 'published';
+    public bool $is_active = true;
+
+    // Contact & SEO
+    public string $contact_phone = '';
+    public string $contact_email = '';
+    public string $event_website = '';
+    public string $event_facebook = '';
+    public string $event_instagram = '';
+    public string $meta_title = '';
+    public string $meta_description = '';
+
+    // Uploads
+    public $cover_image_file;
+    public $logo_image_file;
+    public $banner_image_file;
+
+    protected function rules(): array
+    {
+        return [
+            'name'           => 'required|string|min:3|max:150',
+            'category'       => 'required|string',
+            'province'       => 'required|string',
+            'venue'          => 'required|string|max:150',
+            'organizer_name' => 'required|string|max:150',
+            'starts_at'      => 'required|date',
+            'status'         => 'required|string|in:draft,published,cancelled,ended,sold_out',
+            'ticket_theme'   => 'required|string',
+            'contact_phone'  => 'nullable|string|max:40',
+            'cover_image_file'  => 'nullable|image|max:4096',
+            'logo_image_file'   => 'nullable|image|max:2048',
+            'banner_image_file' => 'nullable|image|max:4096',
+        ];
+    }
+
+    public function create(): void
+    {
+        $this->resetForm();
+        $this->isCreating = true;
+    }
+
+    public function edit(int $id): void
+    {
+        $event = Event::findOrFail($id);
+        $this->editingId       = $event->id;
+        $this->isCreating      = false;
+        $this->name            = $event->name;
+        $this->slug            = $event->slug ?? '';
+        $this->category        = $event->category ?? 'gospel';
+        $this->province        = $event->province ?? 'Zambézia';
+        $this->venue           = $event->venue ?? '';
+        $this->venue_address   = $event->venue_address ?? '';
+        $this->maps_url        = $event->maps_url ?? '';
+        $this->organizer_name  = $event->organizer_name ?? 'Alpha Produções & Faith';
+        $this->ticket_theme    = $event->ticket_theme ?? 'gold';
+        $this->primary_color   = $event->primary_color ?? '#D4A017';
+        $this->secondary_color = $event->secondary_color ?? '#0D0B07';
+        $this->starts_at       = $event->starts_at?->format('Y-m-d\TH:i') ?? '';
+        $this->ends_at         = $event->ends_at?->format('Y-m-d\TH:i') ?? '';
+        $this->gates_open_at   = $event->gates_open_at?->format('Y-m-d\TH:i') ?? '';
+        $this->description     = $event->description ?? '';
+        $this->max_capacity    = $event->max_capacity ?? 0;
+        $this->featured        = $event->featured ?? false;
+        $this->status          = $event->status ?? 'published';
+        $this->is_active       = $event->is_active ?? true;
+        $this->contact_phone   = $event->contact_phone ?? '';
+        $this->contact_email   = $event->contact_email ?? '';
+        $this->event_website   = $event->event_website ?? '';
+        $this->event_facebook  = $event->event_facebook ?? '';
+        $this->event_instagram = $event->event_instagram ?? '';
+        $this->meta_title      = $event->meta_title ?? '';
+        $this->meta_description= $event->meta_description ?? '';
+    }
+
+    public function save(): void
+    {
+        $this->validate();
+
+        $data = [
+            'name'            => $this->name,
+            'category'        => $this->category,
+            'province'        => $this->province,
+            'venue'           => $this->venue,
+            'city'            => $this->province,
+            'venue_address'   => $this->venue_address ?: null,
+            'maps_url'        => $this->maps_url ?: null,
+            'organizer_name'  => $this->organizer_name,
+            'ticket_theme'    => $this->ticket_theme,
+            'primary_color'   => $this->primary_color ?: '#D4A017',
+            'secondary_color' => $this->secondary_color ?: '#0D0B07',
+            'starts_at'       => $this->starts_at ?: null,
+            'date'            => $this->starts_at ?: now(),
+            'ends_at'         => $this->ends_at ?: null,
+            'gates_open_at'   => $this->gates_open_at ?: null,
+            'description'     => $this->description ?: null,
+            'max_capacity'    => $this->max_capacity,
+            'capacity'        => $this->max_capacity,
+            'featured'        => $this->featured,
+            'status'          => $this->status,
+            'is_active'       => $this->status === 'published',
+            'contact_phone'   => $this->contact_phone ?: null,
+            'contact_email'   => $this->contact_email ?: null,
+            'event_website'   => $this->event_website ?: null,
+            'event_facebook'  => $this->event_facebook ?: null,
+            'event_instagram' => $this->event_instagram ?: null,
+            'meta_title'      => $this->meta_title ?: null,
+            'meta_description'=> $this->meta_description ?: null,
+        ];
+
+        if ($this->cover_image_file) {
+            $data['cover_image'] = $this->cover_image_file->store('events/covers', 'public');
+        }
+        if ($this->logo_image_file) {
+            $data['logo_image'] = $this->logo_image_file->store('events/logos', 'public');
+        }
+        if ($this->banner_image_file) {
+            $data['banner_image'] = $this->banner_image_file->store('events/banners', 'public');
+        }
+
+        if ($this->editingId) {
+            $event = Event::findOrFail($this->editingId);
+            $event->update($data);
+            AuditService::log('updated_event', $event);
+            $this->dispatch('notify', type: 'success', message: 'Evento actualizado com sucesso.');
+        } else {
+            $event = Event::create($data);
+            AuditService::log('created_event', $event);
+            $this->dispatch('notify', type: 'success', message: 'Novo evento criado com sucesso.');
+        }
+
+        $this->resetForm();
+    }
+
+    public function toggleStatus(int $id): void
+    {
+        $event = Event::findOrFail($id);
+        $newStatus = $event->status === 'published' ? 'draft' : 'published';
+        $event->update([
+            'status' => $newStatus,
+            'is_active' => $newStatus === 'published'
+        ]);
+        AuditService::log('toggled_event_status', $event);
+        $this->dispatch('notify', type: 'success', message: 'Estado do evento alterado.');
+    }
+
+    public function toggleFeatured(int $id): void
+    {
+        $event = Event::findOrFail($id);
+        $event->update(['featured' => !$event->featured]);
+        $this->dispatch('notify', type: 'success', message: 'Destaque do evento alterado.');
+    }
+
+    public function resetForm(): void
+    {
+        $this->reset([
+            'editingId', 'isCreating', 'name', 'slug', 'category', 'province',
+            'venue', 'venue_address', 'maps_url', 'organizer_name', 'ticket_theme',
+            'primary_color', 'secondary_color', 'starts_at', 'ends_at', 'gates_open_at',
+            'description', 'max_capacity', 'featured', 'status', 'is_active',
+            'contact_phone', 'contact_email', 'event_website', 'event_facebook',
+            'event_instagram', 'meta_title', 'meta_description',
+            'cover_image_file', 'logo_image_file', 'banner_image_file',
+        ]);
+        $this->category = 'gospel';
+        $this->province = 'Zambézia';
+        $this->ticket_theme = 'gold';
+        $this->status = 'published';
+    }
+
+    public function render()
+    {
+        return view('livewire.admin.event-manager', [
+            'events' => Event::orderByDesc('featured')->orderByDesc('created_at')->get(),
+            'categories' => Event::CATEGORIES,
+            'provinces' => Event::PROVINCES,
+            'themes' => Event::THEMES,
+            'statuses' => Event::STATUS,
+        ])->layout('layouts.admin', ['title' => 'Gestão de Eventos']);
+    }
+}

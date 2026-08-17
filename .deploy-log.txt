@@ -266,3 +266,47 @@
 
 [2026-07-06 15:52:40] Deploy: 1 ok, 0 erros
   public/setup.php
+
+[2026-07-06 16:22:30] Deploy: 5 ok, 0 erros
+  app/Livewire/TicketList.php
+  app/Models/Ticket.php
+  app/Services/TicketService.php
+  database/migrations/2026_07_06_140409_add_deleted_at_to_tickets_table.php
+  resources/views/livewire/ticket-list.blade.php
+
+[2026-07-06 16:42:19] Deploy: 6 ok, 0 erros
+  routes/web.php
+  app/Http/Controllers/Api/ValidationController.php
+  app/Livewire/Admin/AuditLogs.php
+  app/Services/TicketService.php
+  resources/views/livewire/admin/audit-logs.blade.php
+  resources/views/validator/scanner.blade.php
+
+[2026-07-06 16:45:04] Deploy: 1 ok, 0 erros
+  app/Livewire/Admin/AuditLogs.php
+
+[2026-07-06 17:13:58] Deploy: 4 ok, 0 erros
+  app/Livewire/Admin/AuditLogs.php
+  app/Models/AuditLog.php
+  app/Services/TicketService.php
+  resources/views/livewire/admin/audit-logs.blade.php
+
+[2026-07-06 17:40:04] Deploy: 11 ok, 0 erros
+  routes/web.php
+  app/Http/Controllers/Api/ValidationController.php
+  app/Livewire/Admin/NotificationCenter.php
+  app/Models/SystemNotification.php
+  app/Models/Ticket.php
+  app/Services/SmsService.php
+  app/Services/TicketService.php
+  database/migrations/2026_07_06_153232_create_system_notifications_table.php
+  resources/views/layouts/admin.blade.php
+  resources/views/livewire/admin/notification-center.blade.php
+  resources/views/validator/scanner.blade.php
+
+[2026-07-06 17:52:54] Deploy: 2 ok, 0 erros
+  app/Livewire/Admin/QuickSale.php
+  resources/views/livewire/admin/quick-sale.blade.php
+
+[2026-07-06 18:00:07] Deploy: 1 ok, 0 erros
+  resources/views/livewire/ticket-list.blade.php

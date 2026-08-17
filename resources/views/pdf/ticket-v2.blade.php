@@ -353,16 +353,20 @@
 <body>
 
     @php
-        $date = \Carbon\Carbon::parse($ticket->event->date ?? '2026-07-11 18:00:00');
+        $event = $ticket->event;
+        $colors = $event?->theme_colors ?? ['primary' => '#C9A227', 'bg' => '#0E0C15'];
+        $primaryColor = $colors['primary'] ?? '#C9A227';
+        $bgColor = $colors['bg'] ?? '#0E0C15';
+        $date = \Carbon\Carbon::parse($event?->starts_at ?? $event?->date ?? '2026-07-11 18:00:00');
         $monthAbbr = mb_strtoupper(mb_substr($date->translatedFormat('F'), 0, 3));
-        $doorsOpen = \App\Models\SiteSetting::getValue('event_doors_open', '16:00');
-        $showTime = \App\Models\SiteSetting::getValue('event_show_time', '18:00');
+        $doorsOpen = $event?->gates_open_at ? $event->gates_open_at->format('H:i') : \App\Models\SiteSetting::getValue('event_doors_open', '16:00');
+        $showTime = $event?->starts_at ? $event->starts_at->format('H:i') : \App\Models\SiteSetting::getValue('event_show_time', '18:00');
     @endphp
 
-    <div class="ticket-wrapper">
+    <div class="ticket-wrapper" style="background: {{ $bgColor }};">
         <img src="{{ public_path('images/ticket-bg-premium.png') }}" class="bg-layer">
         
-        <div class="tm-accent-bar"></div>
+        <div class="tm-accent-bar" style="background: {{ $primaryColor }};"></div>
         <div class="punch-top"></div>
         <div class="punch-bottom"></div>
 
@@ -376,8 +380,8 @@
                         <table class="tm-top">
                             <tr>
                                 <td>
-                                    <div class="tm-brand">
-                                        {{ $ticket->event->organizer ?? 'Alpha Produções Apresenta:' }}
+                                    <div class="tm-brand" style="color: {{ $primaryColor }};">
+                                        {{ $ticket->event->organizer_name ?? $ticket->event->organizer ?? 'Alpha Produções Apresenta:' }}
                                     </div>
                                     <div class="tm-event-name">
                                         {{ Str::limit($ticket->event->name ?? 'Concerto Renúncia', 30) }}

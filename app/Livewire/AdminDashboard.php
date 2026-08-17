@@ -14,14 +14,20 @@ class AdminDashboard extends Component
 
     public function mount(): void
     {
-        $event = Event::where('is_active', true)->first();
+        $event = Event::first();
         $this->eventId = $event?->id;
+    }
+
+    #[Computed]
+    public function events()
+    {
+        return Event::orderByDesc('is_active')->orderBy('name')->get();
     }
 
     #[Computed]
     public function event(): ?Event
     {
-        return $this->eventId ? Event::find($this->eventId) : null;
+        return $this->eventId ? Event::find($this->eventId) : Event::first();
     }
 
     #[Computed]
@@ -31,7 +37,7 @@ class AdminDashboard extends Component
             return [
                 'total' => 0, 'confirmed' => 0, 'pending' => 0,
                 'used' => 0, 'cancelled' => 0, 'revenue' => 0,
-                'by_type' => [],
+                'potential_revenue' => 0, 'by_type' => [],
             ];
         }
 
@@ -41,7 +47,7 @@ class AdminDashboard extends Component
     #[Computed]
     public function salesByDay(): array
     {
-        if (!$this->event) return [];
+        if (!$this->eventId) return [];
 
         return Ticket::where('event_id', $this->eventId)
             ->whereIn('status', ['confirmed', 'used'])
@@ -61,8 +67,12 @@ class AdminDashboard extends Component
     #[Computed]
     public function recentTickets(): \Illuminate\Database\Eloquent\Collection
     {
-        return Ticket::where('event_id', $this->eventId)
-            ->orderBy('created_at', 'desc')
+        $query = Ticket::query();
+        if ($this->eventId) {
+            $query->where('event_id', $this->eventId);
+        }
+
+        return $query->orderBy('created_at', 'desc')
             ->limit(10)
             ->get();
     }

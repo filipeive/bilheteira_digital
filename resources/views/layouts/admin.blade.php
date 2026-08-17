@@ -402,7 +402,7 @@
     <aside class="admin-sidebar" id="sidebar">
         <div class="sidebar-logo">
             <img src="{{ asset('alpha-logo-gold.png') }}" alt="Alpha Produções">
-            <h2>RENÚNCIA</h2>
+            <h2 style="font-size: 1.3rem;">ALPHA BILHETEIRA</h2>
             <p style="color: var(--text-muted); font-size: 0.75rem;">Painel Administrativo</p>
         </div>
 
@@ -410,6 +410,9 @@
             <div class="sidebar-section-label">Principal</div>
             <a href="{{ url('/admin') }}" class="{{ request()->is('admin') && !request()->is('admin/*') ? 'active' : '' }}">
                 <span class="nav-icon"><i data-lucide="layout-dashboard" class="w-4 h-4"></i></span> Dashboard
+            </a>
+            <a href="{{ url('/admin/events') }}" class="{{ request()->is('admin/events*') ? 'active' : '' }}">
+                <span class="nav-icon"><i data-lucide="calendar" class="w-4 h-4"></i></span> Eventos
             </a>
             <a href="{{ url('/admin/tickets') }}" class="{{ request()->is('admin/tickets') ? 'active' : '' }}">
                 <span class="nav-icon"><i data-lucide="ticket" class="w-4 h-4"></i></span> Bilhetes
@@ -474,6 +477,8 @@
             </button>
 
             <div style="display: flex; align-items: center; gap: 16px;">
+                @livewire('admin.notification-center')
+
                 <div class="hidden md:block" style="text-align: right;">
                     <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">{{ auth()->user()->name ?? 'Admin' }}</p>
                     <p style="font-size: 0.7rem; color: var(--text-muted);">{{ \App\Models\User::ROLES[auth()->user()->role] ?? ucfirst(auth()->user()->role ?? 'Admin') }}</p>

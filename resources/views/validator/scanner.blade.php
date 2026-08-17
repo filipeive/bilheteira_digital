@@ -168,6 +168,7 @@
 
         .result-overlay.valid { background: rgba(16, 185, 129, 0.95); }
         .result-overlay.already_used { background: rgba(245, 158, 11, 0.95); }
+        .result-overlay.deleted { background: rgba(220, 38, 38, 0.95); }
         .result-overlay.invalid,
         .result-overlay.cancelled,
         .result-overlay.not_confirmed { background: rgba(239, 68, 68, 0.95); }
@@ -316,14 +317,22 @@
 
         <!-- Result Overlay -->
         <div class="result-overlay" id="resultOverlay">
-            <div class="result-content">
+            <div class="result-content" style="max-width: 420px; width: 90%;">
                 <div class="result-icon" id="resultIcon"></div>
                 <div class="result-title" id="resultTitle"></div>
                 <div class="result-message" id="resultMessage"></div>
-                <div class="result-detail" id="resultDetail" style="display:none;">
+                <div class="result-detail" id="resultDetail" style="display:none; margin-bottom: 20px;">
                     <p id="resultName"></p>
                     <p id="resultType"></p>
                     <p id="resultCode"></p>
+                </div>
+                <div id="resultActionContainer" style="display: none; flex-direction: column; gap: 10px;">
+                    <button class="scan-btn" id="resultActionBtn" style="background: var(--gold); color: var(--dark-bg); font-family: 'Bebas Neue', cursive; font-size: 1.3rem; width: 100%; border: none; padding: 12px; border-radius: 8px; cursor: pointer;">
+                        Restaurar e Validar
+                    </button>
+                    <button class="scan-btn secondary" onclick="closeResultOverlay()" style="background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3); font-family: 'Bebas Neue', cursive; font-size: 1.2rem; width: 100%; padding: 10px; border-radius: 8px; cursor: pointer;">
+                        Fechar
+                    </button>
                 </div>
             </div>
         </div>
@@ -459,6 +468,20 @@
             }
         });
 
+        let hideTimeout = null;
+
+        function closeResultOverlay() {
+            if (hideTimeout) clearTimeout(hideTimeout);
+            document.getElementById('resultOverlay').classList.remove('show');
+            document.getElementById('ticketInput').focus();
+            
+            // Resume scanner if it was running
+            if (html5QrCode && isCameraRunning && isProcessingScan) {
+                isProcessingScan = false;
+                html5QrCode.resume();
+            }
+        }
+
         // Show result overlay
         function showResult(data) {
             const overlay = document.getElementById('resultOverlay');
@@ -466,9 +489,16 @@
             const title = document.getElementById('resultTitle');
             const message = document.getElementById('resultMessage');
             const detail = document.getElementById('resultDetail');
+            const actionContainer = document.getElementById('resultActionContainer');
+            const actionBtn = document.getElementById('resultActionBtn');
+
+            if (hideTimeout) clearTimeout(hideTimeout);
 
             // Remove previous classes
             overlay.className = 'result-overlay show ' + data.status;
+
+            // Default hidden
+            actionContainer.style.display = 'none';
 
             switch (data.status) {
                 case 'valid':
@@ -485,9 +515,36 @@
                     break;
                 case 'not_confirmed':
                     icon.innerHTML = '<i data-lucide="alert-triangle"></i>';
-                    title.textContent = 'NÃO CONFIRMADO';
+                    title.textContent = 'PENDENTE';
                     playTone(330, 300);
                     vibrate([300]);
+
+                    // Show Request Review button
+                    actionContainer.style.display = 'flex';
+                    actionBtn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 8px; justify-content: center;"><i data-lucide="help-circle"></i> SOLICITAR REVISÃO</span>';
+                    actionBtn.onclick = () => requestAdminReview(data.ticket.code);
+                    break;
+                case 'cancelled':
+                    icon.innerHTML = '<i data-lucide="ban"></i>';
+                    title.textContent = 'CANCELADO';
+                    playTone(220, 400);
+                    vibrate([200, 100, 200]);
+
+                    // Show Request Review button
+                    actionContainer.style.display = 'flex';
+                    actionBtn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 8px; justify-content: center;"><i data-lucide="help-circle"></i> SOLICITAR REVISÃO</span>';
+                    actionBtn.onclick = () => requestAdminReview(data.ticket.code);
+                    break;
+                case 'deleted':
+                    icon.innerHTML = '<i data-lucide="trash-2"></i>';
+                    title.textContent = 'ELIMINADO';
+                    playTone(220, 400);
+                    vibrate([200, 100, 200]);
+                    
+                    // Show restore button
+                    actionContainer.style.display = 'flex';
+                    actionBtn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 8px; justify-content: center;"><i data-lucide="rotate-ccw"></i> RESTAURAR E VALIDAR</span>';
+                    actionBtn.onclick = () => restoreAndValidateTicket(data.ticket.code);
                     break;
                 default:
                     icon.innerHTML = '<i data-lucide="x-circle"></i>';
@@ -510,11 +567,91 @@
 
             lucide.createIcons();
 
-            // Auto-hide after 3 seconds
-            setTimeout(() => {
-                overlay.classList.remove('show');
-                document.getElementById('ticketInput').focus();
-            }, 3000);
+            // Auto-hide after 3 seconds EXCEPT if it has action buttons
+            if (data.status !== 'deleted' && data.status !== 'cancelled' && data.status !== 'not_confirmed') {
+                hideTimeout = setTimeout(() => {
+                    closeResultOverlay();
+                }, 3000);
+            }
+        }
+
+        async function restoreAndValidateTicket(code) {
+            const actionBtn = document.getElementById('resultActionBtn');
+            actionBtn.disabled = true;
+            actionBtn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 8px; justify-content: center;"><i data-lucide="loader-circle" class="w-5 h-5"></i> A RESTAURAR...</span>';
+            lucide.createIcons();
+
+            try {
+                const res = await fetch('{{ route('validator.restore') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ ticket_code: code }),
+                });
+
+                const data = await res.json();
+                actionBtn.disabled = false;
+                
+                // Show result of the restoration/validation
+                showResult(data);
+                addToHistory(code, data.status);
+
+                if (data.status === 'valid') {
+                    entryCount++;
+                    document.getElementById('entryCount').textContent = entryCount;
+                }
+            } catch (err) {
+                showResult({
+                    status: 'invalid',
+                    message: 'Erro de rede ao restaurar o bilhete.',
+                    ticket: null,
+                });
+            }
+        }
+
+        async function requestAdminReview(code) {
+            const actionBtn = document.getElementById('resultActionBtn');
+            actionBtn.disabled = true;
+            actionBtn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 8px; justify-content: center;"><i data-lucide="loader-circle" class="w-5 h-5"></i> A SOLICITAR...</span>';
+            lucide.createIcons();
+
+            try {
+                const res = await fetch('{{ route('validator.request_review') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ ticket_code: code }),
+                });
+
+                const data = await res.json();
+                actionBtn.disabled = false;
+                
+                if (data.status === 'success') {
+                    document.getElementById('resultTitle').textContent = 'SOLICITADO';
+                    document.getElementById('resultMessage').textContent = data.message;
+                    document.getElementById('resultIcon').innerHTML = '<i data-lucide="check-circle" style="color: white; width: 92px; height: 92px;"></i>';
+                    document.getElementById('resultActionContainer').style.display = 'none';
+                    lucide.createIcons();
+                    hideTimeout = setTimeout(() => {
+                        closeResultOverlay();
+                    }, 3500);
+                } else {
+                    alert(data.message || 'Erro ao solicitar revisão.');
+                }
+            } catch (err) {
+                alert('Erro de conexão ao solicitar revisão.');
+                actionBtn.disabled = false;
+                actionBtn.innerHTML = '<span style="display: inline-flex; align-items: center; gap: 8px; justify-content: center;"><i data-lucide="help-circle"></i> SOLICITAR REVISÃO</span>';
+                lucide.createIcons();
+            }
         }
 
         // History
@@ -524,6 +661,7 @@
                 'already_used': { icon: 'ban', color: '#F59E0B' },
                 'invalid': { icon: 'x-circle', color: '#EF4444' },
                 'cancelled': { icon: 'ban', color: '#EF4444' },
+                'deleted': { icon: 'trash-2', color: '#EF4444' },
                 'not_confirmed': { icon: 'alert-triangle', color: '#F59E0B' },
             };
 

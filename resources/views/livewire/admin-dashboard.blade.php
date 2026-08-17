@@ -3,10 +3,15 @@
         <div>
             <span class="badge badge-gold"><i data-lucide="layout-dashboard" class="w-4 h-4" style="margin-right: 6px;"></i> Operação</span>
             <h1 style="font-size: 2.8rem; color: var(--gold); margin-top: 8px;">DASHBOARD</h1>
-            <p style="color: var(--text-secondary);">Visão geral do Concerto Renúncia</p>
+            <p style="color: var(--text-secondary);">Visão geral do evento: <strong>{{ $this->event?->name ?? 'Todos os Eventos' }}</strong></p>
         </div>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <a href="{{ route('admin.site') }}" class="btn-outline"><i data-lucide="settings" class="w-4 h-4"></i> Gerir site</a>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+            <select wire:model.live="eventId" class="form-select" style="min-width: 220px; font-weight: 600; color: var(--gold); border-color: var(--gold);">
+                @foreach($this->events as $ev)
+                    <option value="{{ $ev->id }}">{{ $ev->name }} ({{ $ev->province ?? 'Zambézia' }})</option>
+                @endforeach
+            </select>
+            <a href="{{ route('admin.events.index') }}" class="btn-outline"><i data-lucide="calendar" class="w-4 h-4"></i> Gerir Eventos</a>
             <a href="{{ route('tickets.lookup.form') }}" target="_blank" class="btn-outline"><i data-lucide="search" class="w-4 h-4"></i> Consultar</a>
         </div>
     </div>

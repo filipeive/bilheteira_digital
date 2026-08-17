@@ -28,7 +28,7 @@ class QuickSale extends Component
     {
         return [
             'batchId'        => 'required|exists:ticket_batches,id',
-            'quantity'       => 'required|integer|min:1|max:20',
+            'quantity'       => 'required|integer|min:1|max:200',
             'payment_method' => 'required|in:mpesa,emola,cash,bank_transfer,other,free',
             'buyer_name'     => $this->isQuickMode ? 'nullable' : 'required|min:3',
             'buyer_phone'    => 'nullable|string',

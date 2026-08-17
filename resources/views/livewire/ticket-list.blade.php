@@ -159,7 +159,7 @@
                     Restaurar seleccionados
                 </button>
             @else
-                <a href="{{ $this->bulkDownloadUrl }}" target="_blank" class="btn-sm" style="background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none; height: 34px; display: inline-flex; align-items: center;">
+                <a :href="'{{ url('/admin/tickets/bulk/download') }}?ids=' + selectedIds.join(',')" target="_blank" class="btn-sm" style="background: rgba(212,175,55,0.14); color: var(--gold); border-color: rgba(212,175,55,0.3); text-decoration: none; height: 34px; display: inline-flex; align-items: center;">
                     <i data-lucide="download" class="w-4 h-4"></i> Baixar ZIP
                 </a>
                 <button type="button" x-on:click="swalConfirm('Confirmar Bilhetes', 'Confirmar os ' + selectedIds.length + ' bilhete(s) seleccionado(s)?', () => $wire.bulkConfirm())" wire:loading.attr="disabled" class="btn-sm btn-confirm" style="height: 34px; display: inline-flex; align-items: center; gap: 8px;">

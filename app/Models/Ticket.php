@@ -121,6 +121,17 @@ class Ticket extends Model
             'scanned_by' => $user->id,
         ]);
 
+        try {
+            \App\Models\SystemNotification::add(
+                title: 'Bilhete Validado',
+                message: "O bilhete {$this->ticket_code} ({$this->buyer_name}) foi validado por {$user->name}.",
+                type: 'success',
+                link: '/admin/tickets'
+            );
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning("Failed to create scan system notification: " . $e->getMessage());
+        }
+
         return true;
     }
 

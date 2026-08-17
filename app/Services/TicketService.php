@@ -74,6 +74,17 @@ class TicketService
             TicketBatch::where('id', $ticket->batch_id)->increment('sold');
         }
 
+        try {
+            \App\Models\SystemNotification::add(
+                title: 'Bilhete Confirmado',
+                message: "O bilhete {$ticket->ticket_code} para {$ticket->buyer_name} foi confirmado.",
+                type: 'info',
+                link: '/admin/tickets'
+            );
+        } catch (\Exception $e) {
+            // Ignore
+        }
+
         \App\Jobs\SendTicketJob::dispatch($ticket);
 
         return true;
@@ -110,6 +121,22 @@ class TicketService
         $ticket = Ticket::withTrashed()->where('ticket_code', $ticketCode)->first();
 
         if (!$ticket) {
+            \App\Services\AuditService::log(
+                action: 'ticket_scan_failed',
+                model: null,
+                oldValues: ['scanned_code' => $ticketCode],
+                newValues: ['message' => 'Código de bilhete não encontrado na base de dados.', 'scanned_by' => $scanner->id]
+            );
+            try {
+                \App\Models\SystemNotification::add(
+                    title: 'Falha de Leitura (Não Encontrado)',
+                    message: "O código desconhecido '{$ticketCode}' foi digitalizado por {$scanner->name}.",
+                    type: 'danger',
+                    link: '/admin/audit'
+                );
+            } catch (\Exception $e) {
+                // Ignore
+            }
             return [
                 'status' => 'invalid',
                 'message' => 'Bilhete não encontrado.',
@@ -119,7 +146,7 @@ class TicketService
 
         if ($ticket->trashed()) {
             return [
-                'status' => 'cancelled',
+                'status' => 'deleted',
                 'message' => 'Este bilhete foi eliminado/cancelado.',
                 'ticket' => $ticket,
             ];

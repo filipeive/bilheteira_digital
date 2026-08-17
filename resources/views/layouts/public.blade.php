@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Concerto Renúncia — Abel Last & Nair Nany. 11 Julho 2026, Pavilhão do Benfica, Quelimane. Compre o seu bilhete agora!">
-    <meta name="keywords" content="Concerto Renúncia, Abel Last, Nair Nany, Quelimane, bilhetes, música gospel, Moçambique">
-    <meta name="author" content="Alpha Produções">
+    <meta name="description" content="@yield('meta_description', 'Alpha Bilheteira — Compre bilhetes para eventos gospel, concertos e conferências em Moçambique.')">
+    <meta name="keywords" content="bilhetes, eventos gospel, Moçambique, concertos, conferências, Alpha Bilheteira">
+    <meta name="author" content="Alpha Bilheteira">
+    <meta property="og:image" content="@yield('og_image', asset('alpha-logo-gold.png'))">
 
-    <title>{{ $title ?? 'Concerto Renúncia — Bilhetes' }}</title>
+    <title>@yield('title', 'Alpha Bilheteira — Eventos Gospel em Moçambique')</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('alpha-logo-gold.png') }}">
 
@@ -391,64 +392,67 @@
 <body>
     <header class="site-nav">
         <div class="container site-nav-inner">
-            <a href="{{ route('home') }}" class="site-nav-logo" aria-label="Alpha Produções">
-                <img src="{{ asset('alpha-logo-gold.png') }}" alt="Alpha Produções">
+            <a href="{{ route('home') }}" class="site-nav-logo" aria-label="Alpha Bilheteira">
+                <img src="{{ asset('alpha-logo-gold.png') }}" alt="Alpha Bilheteira">
             </a>
             <nav class="site-nav-links" aria-label="Navegação principal">
-                <a href="{{ route('home') }}#bilhetes" class="site-nav-link"><i data-lucide="ticket" class="w-4 h-4"></i> Bilhetes</a>
-                <a href="{{ route('tickets.lookup.form') }}" class="site-nav-link"><i data-lucide="search" class="w-4 h-4"></i> Consultar</a>
+                <a href="{{ route('events.index') }}" class="site-nav-link"><i data-lucide="calendar" class="w-4 h-4"></i> Eventos</a>
+                <a href="{{ route('tickets.mine') }}" class="site-nav-link"><i data-lucide="ticket" class="w-4 h-4"></i> Meus Bilhetes</a>
+                <a href="{{ route('tickets.verify.form') }}" class="site-nav-link"><i data-lucide="shield-check" class="w-4 h-4"></i> Verificar</a>
                 <a href="{{ route('about') }}" class="site-nav-link"><i data-lucide="info" class="w-4 h-4"></i> Sobre</a>
-                <a href="tel:+258875411644" class="site-nav-link"><i data-lucide="phone" class="w-4 h-4"></i> 87 541 1644</a>
                 @auth
                     <a href="{{ route('admin.dashboard') }}" class="site-nav-login"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span>Gerir</span></a>
                 @else
                     <a href="{{ route('login') }}" class="site-nav-login"><i data-lucide="log-in" class="w-4 h-4"></i> <span>Login</span></a>
                 @endauth
-                <a href="{{ route('home') }}#bilhetes" class="site-nav-cta"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Comprar</a>
+                <a href="{{ route('events.index') }}" class="site-nav-cta"><i data-lucide="shopping-cart" class="w-4 h-4"></i> Bilhetes</a>
             </nav>
         </div>
     </header>
-    <a href="{{ route('home') }}#bilhetes" class="site-nav-cta mobile-buy-cta"><i data-lucide="ticket" class="w-4 h-4"></i> Comprar</a>
+    <a href="{{ route('events.index') }}" class="site-nav-cta mobile-buy-cta"><i data-lucide="ticket" class="w-4 h-4"></i> Bilhetes</a>
 
-    {{ $slot }}
+    @if(isset($slot) && $slot->isNotEmpty())
+        {{ $slot }}
+    @else
+        @yield('content')
+    @endif
 
-    <footer class="site-footer" style="background: var(--dark-surface); border-top: 1px solid var(--dark-border); padding: 40px 0;">
+    <footer class="site-footer" style="background: var(--dark-surface); border-top: 1px solid var(--dark-border); padding: 40px 0; margin-top: 60px;">
         <div class="container" style="display: flex; flex-wrap: wrap; gap: 40px; justify-content: space-between; margin-bottom: 20px;">
             <div class="footer-logo-col" style="max-width: 300px;">
                 <div class="footer-logo" style="margin-bottom: 16px;">
-                    <img src="{{ asset('alpha-logo-gold.png') }}" alt="Alpha Produções" style="max-width: 200px;">
+                    <img src="{{ asset('alpha-logo-gold.png') }}" alt="Alpha Bilheteira" style="max-width: 200px;">
                 </div>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">A produtora de eventos de referência na Zambézia, Moçambique.</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">A plataforma de bilheteira digital gospel em Moçambique.</p>
                 <div class="footer-social" style="display: flex; gap: 16px;">
                     <a href="https://instagram.com/alphaproducoes" aria-label="Instagram" style="color: var(--gold);"><i data-lucide="instagram" class="w-5 h-5"></i></a>
                     <a href="https://facebook.com/alphaproducoes" aria-label="Facebook" style="color: var(--gold);"><i data-lucide="facebook" class="w-5 h-5"></i></a>
-                    <a href="https://tiktok.com/@alphaproducoes" aria-label="TikTok" style="color: var(--gold);"><i data-lucide="music-2" class="w-5 h-5"></i></a>
                     <a href="https://wa.me/258875411644" aria-label="WhatsApp" style="color: var(--gold);"><i data-lucide="message-circle" class="w-5 h-5"></i></a>
                 </div>
             </div>
             <div class="footer-links-col" style="display: flex; flex-direction: column; gap: 8px;">
-                <h4 style="color: var(--text-primary); margin-bottom: 8px;">Evento</h4>
-                <a href="{{ route('home') }}#bilhetes" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Comprar Bilhetes</a>
-                <a href="{{ route('about') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Sobre o Evento</a>
+                <h4 style="color: var(--text-primary); margin-bottom: 8px;">Plataforma</h4>
+                <a href="{{ route('events.index') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Eventos Gospel</a>
+                <a href="{{ route('tickets.mine') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Os Meus Bilhetes</a>
+                <a href="{{ route('tickets.verify.form') }}" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">Verificar Autenticidade</a>
             </div>
             <div class="footer-links-col" style="display: flex; flex-direction: column; gap: 8px;">
                 <h4 style="color: var(--text-primary); margin-bottom: 8px;">Suporte</h4>
                 <a href="tel:+258875411644" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">87 541 1644</a>
-                <a href="tel:+258848871940" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">84 887 1940</a>
-                <a href="https://wa.me/258875411644" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">WhatsApp</a>
+                <a href="https://wa.me/258875411644" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">WhatsApp Suporte</a>
             </div>
             <div class="footer-links-col" style="max-width: 250px;">
-                <h4 style="color: var(--text-primary); margin-bottom: 8px;">Local de Venda Presencial</h4>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">LU & YOSHI CAFÉ LUFAMINA<br>Próximo ao Banco de Moçambique<br>Quelimane</p>
+                <h4 style="color: var(--text-primary); margin-bottom: 8px;">Promotores</h4>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Publica o teu evento e vende bilhetes online com M-Pesa e e-Mola em Moçambique.</p>
             </div>
         </div>
         <div class="footer-bottom" style="text-align: center; border-top: 1px solid rgba(212, 175, 55, 0.1); padding-top: 20px; color: var(--text-muted); font-size: 0.8rem;">
-            <span>© 2026 Alpha Produções & Faith. Todos os direitos reservados.</span>
-            <span style="display: block; margin-top: 4px;">Desenvolvido com <i data-lucide="heart" style="width: 12px; height: 12px; display: inline-block;"></i> em Quelimane</span>
+            <span>© {{ date('Y') }} Alpha Bilheteira. Todos os direitos reservados.</span>
         </div>
     </footer>
 
     @livewireScripts
+    @stack('scripts')
     <script>
         lucide.createIcons();
         document.addEventListener('livewire:navigated', () => lucide.createIcons());

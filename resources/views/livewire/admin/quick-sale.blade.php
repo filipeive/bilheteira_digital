@@ -8,7 +8,7 @@
                 <i data-lucide="check" class="w-8 h-8" style="color: #34D399;"></i>
             </div>
             <h2 style="font-size: 1.5rem; color: #34D399; margin-bottom: 16px;">BILHETES GERADOS</h2>
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px;">
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; max-height: 280px; overflow-y: auto; padding-right: 4px;">
                 @foreach($createdTickets as $t)
                 <div style="background: var(--dark-bg); border: 1px solid var(--dark-border); border-radius: 8px; padding: 12px; display: flex; justify-content: space-between; align-items: center;">
                     <span class="mono" style="color: var(--gold); font-size: 0.9rem;">{{ $t['code'] }}</span>
@@ -40,7 +40,7 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
                     <div>
                         <label class="form-label">Quantidade</label>
-                        <input type="number" wire:model="quantity" class="form-input" min="1" max="20">
+                        <input type="number" wire:model="quantity" class="form-input" min="1" max="200">
                         @error('quantity') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
                     <div>

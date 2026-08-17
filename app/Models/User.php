@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -28,6 +29,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'default_event_id',
         'phone',
         'avatar',
         'is_active',
@@ -102,6 +104,11 @@ class User extends Authenticatable
     }
 
     // ── Relations ────────────────────────────────────────────
+
+    public function defaultEvent(): BelongsTo
+    {
+        return $this->belongsTo(Event::class, 'default_event_id');
+    }
 
     public function scannedTickets(): HasMany
     {

@@ -4,6 +4,23 @@ Este documento regista cronologicamente as melhorias e novas funcionalidades imp
 
 ---
 
+## 📅 Agosto de 2026
+
+### 10. Upgrade para Plataforma Multi-Evento (Alpha Bilheteira)
+- **Branch:** Criada a branch `feature/multi-event` para acolher todo o desenvolvimento multi-evento sem afetar o código de produção.
+- **Enriquecimento da Tabela `events`:** Criadas migrations aditivas para adicionar campos contextuais como `slug`, `category`, `province`, `venue_address`, `maps_url`, `cover_image`, `banner_image`, `logo_image`, `primary_color`, `secondary_color`, `ticket_theme`, `organizer_name`, `starts_at`, `ends_at`, `gates_open_at`, `description`, `max_capacity`, `featured`, `status`, `meta_title`, `meta_description`, redes sociais e contactos.
+- **Model `Event`:** Atualizado com constantes de categorias, províncias, temas visuais do bilhete, status, accessors dinâmicos de tema/logo/cover/URLs, e auto-geração de slug.
+- **Rotas e Controllers Públicos:**
+  - `EventCatalogController`: Catálogo público de eventos com filtros por categoria/província e pesquisa.
+  - `CustomerTicketController`: Verificação pública de bilhetes por código e funcionalidade "Os Meus Bilhetes" por telemóvel/email.
+  - Redirect 301 preservado: `/alpha/bilhetes` -> `/eventos/concerto-renuncia/bilhetes`.
+- **Painel Administrativo Multi-Evento:**
+  - `EventManager`: Livewire component para criação, edição e gestão completa de eventos.
+  - Atualização do `AdminDashboard` com seletor de evento.
+- **Identidade Visual & PDF Contextual:** O PDF do bilhete passa a utilizar as cores do tema e logo associados ao evento.
+
+---
+
 ## 📅 Junho de 2026
 
 ### 1. Integração Final do Gestor de Notificações e Emails

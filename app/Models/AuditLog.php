@@ -27,6 +27,19 @@ class AuditLog extends Model
         $old = $this->old_values ?: [];
         $new = $this->new_values ?: [];
 
+        if ($this->action === 'ticket_scan_failed') {
+            $code = $old['scanned_code'] ?? '—';
+            $msg = $new['message'] ?? 'Código de bilhete não encontrado na base de dados.';
+            return ["<span style='color: var(--gold); font-weight: bold;'>FALHA DE LEITURA:</span> O código <strong>{$code}</strong> foi digitalizado mas <strong>não existe</strong>. ({$msg})"];
+        }
+
+        if ($this->action === 'ticket_restored') {
+            $code = $old['ticket_code'] ?? '—';
+            $context = $new['context'] ?? 'admin';
+            $contextLabel = $context === 'scanner' ? 'Scanner (Portaria)' : 'Painel de Administração';
+            return ["O bilhete <strong>{$code}</strong> foi <strong>RESTAURADO e ativado</strong> a partir do {$contextLabel}."];
+        }
+
         if ($this->action === 'ticket_deleted') {
             $code = $old['ticket_code'] ?? '—';
             $name = $old['buyer_name'] ?? '—';
@@ -101,6 +114,9 @@ class AuditLog extends Model
             if ($this->action === 'ticket_created') {
                 $code = $new['ticket_code'] ?? '—';
                 $name = $new['buyer_name'] ?? '—';
+                if (isset($new['regenerated_from_fail_log'])) {
+                    return ["Bilhete <strong>{$code}</strong> <strong style='color: #10B981;'>REGENERADO e confirmado</strong> a partir de uma falha de leitura (Log #{$new['regenerated_from_fail_log']})."];
+                }
                 return ["Bilhete <strong>{$code}</strong> criado para {$name}."];
             }
             if ($this->action === 'ticket_validated') {
