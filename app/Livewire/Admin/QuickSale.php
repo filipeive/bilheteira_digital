@@ -9,10 +9,12 @@ use App\Services\TicketService;
 use App\Services\QrCodeService;
 use App\Services\AuditService;
 use App\Jobs\SendTicketJob;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class QuickSale extends Component
 {
+    public ?int  $eventId        = null;
     public int    $batchId        = 0;
     public int    $quantity       = 1;
     public string $payment_method = 'cash';
@@ -23,6 +25,17 @@ class QuickSale extends Component
     public bool   $isQuickMode    = true;
     public array  $createdTickets = [];
     public bool   $showSuccess    = false;
+
+    public function mount(): void
+    {
+        $this->eventId = Event::where('is_active', true)->first()?->id ?? Event::first()?->id;
+    }
+
+    #[Computed]
+    public function events()
+    {
+        return Event::orderByDesc('is_active')->orderBy('name')->get();
+    }
 
     protected function rules(): array
     {
@@ -127,10 +140,11 @@ class QuickSale extends Component
 
     public function render()
     {
-        $batches = TicketBatch::where('is_active', true)
-            ->whereHas('event', fn($q) => $q->where('is_active', true))
-            ->orderBy('sort_order')
-            ->get();
+        $batchQuery = TicketBatch::where('is_active', true)->orderBy('sort_order');
+        if ($this->eventId) {
+            $batchQuery->where('event_id', $this->eventId);
+        }
+        $batches = $batchQuery->get();
 
         return view('livewire.admin.quick-sale', compact('batches'))
             ->layout('layouts.admin', ['title' => 'Venda Rápida']);

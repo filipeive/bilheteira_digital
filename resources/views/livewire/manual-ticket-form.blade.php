@@ -1,7 +1,14 @@
 <div class="w-full" style="margin: 0 auto; max-width: 800px;">
-    <div style="margin-bottom: 24px;">
-        <h1 style="font-size: 2.5rem; color: var(--gold);">VENDA MANUAL</h1>
-        <p style="color: var(--text-muted);">Registar bilhetes presenciais ou cortesias</p>
+    <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h1 style="font-size: 2.5rem; color: var(--gold);">VENDA MANUAL</h1>
+            <p style="color: var(--text-muted);">Registar bilhetes presenciais ou cortesias</p>
+        </div>
+        <select wire:model.live="eventId" class="form-input" style="cursor: pointer; min-width: 220px; font-weight: 600; color: var(--gold); border-color: rgba(212,175,55,0.3);">
+            @foreach($this->events as $ev)
+                <option value="{{ $ev->id }}">{{ $ev->name }}</option>
+            @endforeach
+        </select>
     </div>
 
     @if ($showSuccess)

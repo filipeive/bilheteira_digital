@@ -40,6 +40,12 @@
             <p style="color: var(--text-muted);">Gestão de todos os bilhetes</p>
         </div>
         <div style="display: flex; gap: 8px; align-items: center;">
+            {{-- Event Selector --}}
+            <select wire:model.live="eventId" class="form-input" style="cursor: pointer; min-width: 200px; font-weight: 600; color: var(--gold); border-color: rgba(212,175,55,0.3);">
+                @foreach($this->events as $ev)
+                    <option value="{{ $ev->id }}">{{ $ev->name }}</option>
+                @endforeach
+            </select>
             {{-- View Mode Toggle --}}
             <div style="display: flex; background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 8px; overflow: hidden;">
                 <button wire:click="$set('viewMode', 'table')" style="padding: 8px 12px; border: none; cursor: pointer; display: flex; align-items: center; {{ $viewMode === 'table' ? 'background: var(--gold); color: #0D0B07;' : 'background: transparent; color: var(--text-muted);' }}" title="Vista em Lista">

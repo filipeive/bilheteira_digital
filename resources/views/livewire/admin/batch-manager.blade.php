@@ -1,5 +1,12 @@
 <div>
-    <h1 style="font-size: 2rem; color: var(--gold); margin-bottom: 24px;">GESTÃO DE LOTES</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+        <h1 style="font-size: 2rem; color: var(--gold);">GESTÃO DE LOTES</h1>
+        <select wire:model.live="eventId" class="form-input" style="cursor: pointer; min-width: 220px; font-weight: 600; color: var(--gold); border-color: rgba(212,175,55,0.3);">
+            @foreach($this->events as $ev)
+                <option value="{{ $ev->id }}">{{ $ev->name }}</option>
+            @endforeach
+        </select>
+    </div>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;" class="batch-grid">
         {{-- Form --}}

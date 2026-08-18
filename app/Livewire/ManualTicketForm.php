@@ -5,10 +5,13 @@ namespace App\Livewire;
 use App\Models\Event;
 use App\Models\Ticket;
 use App\Services\TicketService;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class ManualTicketForm extends Component
 {
+    public ?int $eventId = null;
+
     public string $buyer_name = '';
     public string $buyer_phone = '';
     public string $buyer_email = '';
@@ -22,6 +25,17 @@ class ManualTicketForm extends Component
     public bool $showSuccess = false;
     public string $lastTicketCode = '';
     public array $lastTicketIds = [];
+
+    public function mount(): void
+    {
+        $this->eventId = Event::where('is_active', true)->first()?->id ?? Event::first()?->id;
+    }
+
+    #[Computed]
+    public function events()
+    {
+        return Event::orderByDesc('is_active')->orderBy('name')->get();
+    }
 
     protected function rules(): array
     {
@@ -40,7 +54,12 @@ class ManualTicketForm extends Component
         $this->validate();
         $this->isSubmitting = true;
 
-        $event = Event::where('is_active', true)->first();
+        $event = $this->eventId ? Event::find($this->eventId) : Event::where('is_active', true)->first();
+        if (!$event) {
+            $this->dispatch('notify', type: 'error', message: 'Nenhum evento seleccionado.');
+            $this->isSubmitting = false;
+            return;
+        }
         $ticketService = app(TicketService::class);
 
         $phone = $this->normalizePhone($this->buyer_phone);

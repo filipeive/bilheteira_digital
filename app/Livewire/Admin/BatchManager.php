@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\TicketBatch;
 use App\Models\Event;
 use App\Services\AuditService;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class BatchManager extends Component
@@ -34,8 +35,13 @@ class BatchManager extends Component
 
     public function mount(): void
     {
-        $event = Event::where('is_active', true)->first();
-        $this->eventId = $event?->id ?? 0;
+        $this->eventId = Event::where('is_active', true)->first()?->id ?? Event::first()?->id ?? 0;
+    }
+
+    #[Computed]
+    public function events()
+    {
+        return Event::orderByDesc('is_active')->orderBy('name')->get();
     }
 
     public function save(): void

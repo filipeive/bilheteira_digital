@@ -31,7 +31,7 @@
                 <div class="form-group">
                     <label class="form-label">Nome do Evento *</label>
                     <input type="text" wire:model="name" class="form-input" placeholder="Ex: Concerto Renúncia 2026">
-                    @error('name') <span class="form-error">{{ $message }}</span> @errorEnd
+                    @error('name') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
 
                 {{-- Categoria --}}
@@ -42,7 +42,7 @@
                             <option value="{{ $key }}">{{ $label }}</option>
                         @endforeach
                     </select>
-                    @error('category') <span class="form-error">{{ $message }}</span> @errorEnd
+                    @error('category') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
 
                 {{-- Província --}}
@@ -53,14 +53,14 @@
                             <option value="{{ $key }}">{{ $label }}</option>
                         @endforeach
                     </select>
-                    @error('province') <span class="form-error">{{ $message }}</span> @errorEnd
+                    @error('province') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
 
                 {{-- Venue --}}
                 <div class="form-group">
                     <label class="form-label">Local / Venue *</label>
                     <input type="text" wire:model="venue" class="form-input" placeholder="Ex: Pavilhão do Benfica">
-                    @error('venue') <span class="form-error">{{ $message }}</span> @errorEnd
+                    @error('venue') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
 
                 {{-- Endereço Completo --}}
@@ -79,14 +79,14 @@
                 <div class="form-group">
                     <label class="form-label">Nome do Promotor / Organizador *</label>
                     <input type="text" wire:model="organizer_name" class="form-input" placeholder="Ex: Alpha Produções & Faith">
-                    @error('organizer_name') <span class="form-error">{{ $message }}</span> @errorEnd
+                    @error('organizer_name') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
 
                 {{-- Data de Início --}}
                 <div class="form-group">
                     <label class="form-label">Data e Hora de Início *</label>
                     <input type="datetime-local" wire:model="starts_at" class="form-input">
-                    @error('starts_at') <span class="form-error">{{ $message }}</span> @errorEnd
+                    @error('starts_at') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
 
                 {{-- Data de Fim --}}
@@ -154,12 +154,12 @@
                 <div>
                     <label class="form-label">Imagem de Capa (Cover)</label>
                     <input type="file" wire:model="cover_image_file" class="form-input">
-                    @error('cover_image_file') <span class="form-error">{{ $message }}</span> @errorEnd
+                    @error('cover_image_file') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
                 <div>
                     <label class="form-label">Logótipo do Evento</label>
                     <input type="file" wire:model="logo_image_file" class="form-input">
-                    @error('logo_image_file') <span class="form-error">{{ $message }}</span> @errorEnd
+                    @error('logo_image_file') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
             </div>
 

@@ -30,11 +30,40 @@ class TicketList extends Component
     #[Url]
     public int $perPage = 20;
 
+    #[Url]
+    public ?int $eventId = null;
+
     public string $sortBy = 'created_at';
     public string $sortDirection = 'desc';
     public string $viewMode = 'table';
     public array $selectedIds = [];
     public bool $selectAll = false;
+
+    public function mount(): void
+    {
+        if (!$this->eventId) {
+            $this->eventId = Event::where('is_active', true)->first()?->id ?? Event::first()?->id;
+        }
+    }
+
+    #[Computed]
+    public function events()
+    {
+        return Event::orderByDesc('is_active')->orderBy('name')->get();
+    }
+
+    #[Computed]
+    public function selectedEvent(): ?Event
+    {
+        return $this->eventId ? Event::find($this->eventId) : null;
+    }
+
+    public function updatedEventId(): void
+    {
+        $this->selectedIds = [];
+        $this->selectAll = false;
+        $this->resetPage();
+    }
 
     // Bulk editing options
     public ?string $bulkBatchId = null;
@@ -290,7 +319,7 @@ class TicketList extends Component
 
     public function migrateExpiredBatch(): void
     {
-        $event = Event::where('is_active', true)->first();
+        $event = $this->eventId ? Event::find($this->eventId) : Event::where('is_active', true)->first();
         if (!$event) {
             $this->dispatch('notify', type: 'error', message: 'Nenhum evento ativo encontrado.');
             return;
@@ -363,9 +392,8 @@ class TicketList extends Component
     #[Computed]
     public function batches()
     {
-        $event = Event::where('is_active', true)->first();
-        if (!$event) return collect();
-        return TicketBatch::where('event_id', $event->id)->orderBy('sort_order')->get();
+        if (!$this->eventId) return collect();
+        return TicketBatch::where('event_id', $this->eventId)->orderBy('sort_order')->get();
     }
 
     public function getBulkDownloadUrlProperty(): string
@@ -601,16 +629,14 @@ class TicketList extends Component
     #[Computed]
     public function tickets()
     {
-        $event = Event::where('is_active', true)->first();
-
-        if (!$event) {
+        if (!$this->eventId) {
             return Ticket::query()->paginate(20);
         }
 
         if ($this->filterStatus === 'deleted') {
-            $query = Ticket::onlyTrashed()->with('scanner')->where('event_id', $event->id);
+            $query = Ticket::onlyTrashed()->with('scanner')->where('event_id', $this->eventId);
         } else {
-            $query = Ticket::with('scanner')->where('event_id', $event->id);
+            $query = Ticket::with('scanner')->where('event_id', $this->eventId);
         }
 
         if ($this->search) {
