@@ -12,9 +12,23 @@
         'pdf_show_artists'         => '1',
         'pdf_terms_text'           => 'Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.',
     ]);
-    if (!empty($pdfSettings['pdf_primary_color'])) {
-        $primaryColor = $pdfSettings['pdf_primary_color'];
-    }
+
+    // Prioritize event's own primary color if available
+    $primaryColor = !empty($ticket->event->primary_color) && $ticket->event->primary_color !== '#D4A017'
+        ? $ticket->event->primary_color
+        : (!empty($pdfSettings['pdf_primary_color']) ? $pdfSettings['pdf_primary_color'] : '#C9A227');
+
+    // Prioritize event's own brand text
+    $brandText = !empty($ticket->event->pdf_brand_text)
+        ? $ticket->event->pdf_brand_text
+        : (!empty($pdfSettings['pdf_brand_text'])
+            ? $pdfSettings['pdf_brand_text']
+            : ($ticket->event->organizer_name ?? 'ALPHA PRODUÇÕES APRESENTA:'));
+
+    // Prioritize event's own terms
+    $termsText = !empty($ticket->event->pdf_terms_text)
+        ? $ticket->event->pdf_terms_text
+        : ($pdfSettings['pdf_terms_text'] ?? 'Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.');
 @endphp
 
     <style>
@@ -395,27 +409,49 @@
                             <tr>
                                 <td>
                                     <div class="tm-brand" style="color: {{ $primaryColor }};">
-                                        {{ !empty($pdfSettings['pdf_brand_text']) ? $pdfSettings['pdf_brand_text'] : ($ticket->event->organizer_name ?? $ticket->event->organizer ?? 'Alpha Produções Apresenta:') }}
+                                        {{ $brandText }}
                                     </div>
                                     <div class="tm-event-name" style="font-size: {{ $pdfSettings['pdf_event_name_font_size'] ?? '20px' }};">
                                         {{ Str::limit($ticket->event->name ?? 'Evento Gospel', 32) }}
                                     </div>
                                     
-                                    {{-- Artistas --}}
+                                    {{-- Artistas / Oradores do Evento --}}
                                     @if(($pdfSettings['pdf_show_artists'] ?? '1') === '1')
+                                    @php
+                                        $hasPhoto1 = !empty($ticket->event->artist_photo_1) && file_exists(public_path($ticket->event->artist_photo_1));
+                                        $hasPhoto2 = !empty($ticket->event->artist_photo_2) && file_exists(public_path($ticket->event->artist_photo_2));
+                                        $isRenuncia = str_contains(strtolower($ticket->event->slug ?? $ticket->event->name ?? ''), 'renuncia');
+                                    @endphp
+
+                                    @if(!empty($ticket->event->artists) || $hasPhoto1 || $hasPhoto2 || $isRenuncia)
                                     <table class="tm-artists-table">
                                         <tr>
-                                            <td style="padding-right: 8px !important;">
-                                                <img src="{{ public_path('artists/abel-2.png') }}" class="tm-artist-img">
-                                            </td>
-                                            <td style="padding-right: 16px !important;">
-                                                <img src="{{ public_path('artists/nair-2.jpg') }}" class="tm-artist-img">
-                                            </td>
+                                            @if($hasPhoto1)
+                                                <td style="padding-right: 8px !important;">
+                                                    <img src="{{ public_path($ticket->event->artist_photo_1) }}" class="tm-artist-img">
+                                                </td>
+                                            @elseif($isRenuncia)
+                                                <td style="padding-right: 8px !important;">
+                                                    <img src="{{ public_path('artists/abel-2.png') }}" class="tm-artist-img">
+                                                </td>
+                                            @endif
+
+                                            @if($hasPhoto2)
+                                                <td style="padding-right: 16px !important;">
+                                                    <img src="{{ public_path($ticket->event->artist_photo_2) }}" class="tm-artist-img">
+                                                </td>
+                                            @elseif($isRenuncia)
+                                                <td style="padding-right: 16px !important;">
+                                                    <img src="{{ public_path('artists/nair-2.jpg') }}" class="tm-artist-img">
+                                                </td>
+                                            @endif
+
                                             <td class="tm-artists-text">
-                                                {{ $ticket->event->artists ?? 'Abel Last · Nair Nany' }}
+                                                {{ $ticket->event->artists ?? ($isRenuncia ? 'Abel Last · Nair Nany' : '') }}
                                             </td>
                                         </tr>
                                     </table>
+                                    @endif
                                     @endif
                                 </td>
                                 <td style="width: 100px; text-align: right; vertical-align: top; transform: translateY(-15px) translateX(30px); margin-left: 10px;">
@@ -461,7 +497,7 @@
                                    <div class="tm-terms-divider"></div>
                                    <div class="tm-terms-label">Termos &amp; Condições</div>
                                    <div class="tm-terms-text">
-                                       {{ $pdfSettings['pdf_terms_text'] ?? 'Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.' }}
+                                       {{ $termsText }}
                                    </div>
                                </td>
                            </tr>

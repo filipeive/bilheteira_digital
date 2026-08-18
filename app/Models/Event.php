@@ -48,6 +48,11 @@ class Event extends Model
         'event_instagram',
         'contact_phone',
         'contact_email',
+        'artists',
+        'artist_photo_1',
+        'artist_photo_2',
+        'pdf_brand_text',
+        'pdf_terms_text',
     ];
 
     protected function casts(): array

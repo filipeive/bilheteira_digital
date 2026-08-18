@@ -30,7 +30,7 @@
         
         {{-- Tab 1: Plataforma & Portal --}}
         @if($activeTab === 'platform')
-        <form wire:submit.prevent="savePlatform" style="max-width: 820px;">
+        <form wire:submit.prevent="savePlatform" style="max-width: 100%;">
             <h3 style="color: var(--gold); font-size: 1.3rem; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                 <i data-lucide="layout-template" class="w-5 h-5"></i> CONFIGURAÇÕES DA PLATAFORMA (HOMEPAGE)
             </h3>
@@ -139,7 +139,7 @@
 
         {{-- Tab 3: Evento Selecionado --}}
         @if($activeTab === 'event')
-        <form wire:submit.prevent="saveEvent" style="max-width: 820px;">
+        <form wire:submit.prevent="saveEvent" style="max-width: 100%;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
                 <h3 style="color: var(--gold); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 8px;">
                     <i data-lucide="calendar" class="w-5 h-5"></i> DETALHES DO EVENTO
@@ -185,7 +185,96 @@
 
                 <div style="grid-column: 1 / -1;">
                     <label class="form-label">Descrição Resumida</label>
-                    <textarea wire:model="event_description" class="form-input" rows="4"></textarea>
+                    <textarea wire:model="event_description" class="form-input" rows="3"></textarea>
+                </div>
+
+                {{-- Personalização de PDF por Evento --}}
+                <div style="grid-column: 1 / -1; margin-top: 12px; border-top: 1px dashed var(--dark-border); padding-top: 16px;">
+                    <h4 style="color: var(--gold); font-size: 1.05rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="file-text" class="w-4 h-4"></i> PERSONALIZAÇÃO DO BILHETE PDF DESTE EVENTO
+                    </h4>
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                    <label class="form-label">Artistas / Oradores do Evento (Impresso no Bilhete)</label>
+                    <input type="text" wire:model="event_artists" class="form-input" placeholder="Ex: Dra. Ana Paula · Pra. Sarah Silva">
+                    <p style="color: var(--text-muted); font-size: 0.78rem; margin-top: 4px;">Estes nomes serão impressos exclusivamente no bilhete deste evento.</p>
+                </div>
+
+                {{-- Upload Fotos dos Artistas do Evento --}}
+                <div style="grid-column: 1 / -1; background: rgba(0,0,0,0.3); border: 1px solid var(--dark-border); border-radius: 10px; padding: 16px;">
+                    <label class="form-label" style="margin-bottom: 12px; font-weight: 700; color: var(--gold);">FOTOS DOS ARTISTAS / ORADORES DO EVENTO (IMPRESSAS NO BILHETE PDF)</label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                        
+                        {{-- Foto Artista 1 --}}
+                        <div>
+                            <label class="form-label">Foto do Artista / Orador 1</label>
+                            <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px;">
+                                @if($upload_artist_photo_1)
+                                    <img src="{{ $upload_artist_photo_1->temporaryUrl() }}" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold);">
+                                @elseif($current_artist_photo_1)
+                                    <img src="{{ asset($current_artist_photo_1) }}" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold);">
+                                @else
+                                    <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px dashed var(--dark-border); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                                        <i data-lucide="user" class="w-6 h-6"></i>
+                                    </div>
+                                @endif
+
+                                <div style="flex: 1;">
+                                    <input type="file" wire:model="upload_artist_photo_1" accept="image/*" class="form-input" style="padding: 6px 10px; font-size: 0.8rem;">
+                                    @if($current_artist_photo_1 || $upload_artist_photo_1)
+                                        <button type="button" wire:click="removeArtistPhoto(1)" style="background: none; border: none; color: #EF4444; font-size: 0.78rem; cursor: pointer; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remover Foto 1
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Foto Artista 2 --}}
+                        <div>
+                            <label class="form-label">Foto do Artista / Orador 2</label>
+                            <div style="display: flex; align-items: center; gap: 12px; margin-top: 6px;">
+                                @if($upload_artist_photo_2)
+                                    <img src="{{ $upload_artist_photo_2->temporaryUrl() }}" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold);">
+                                @elseif($current_artist_photo_2)
+                                    <img src="{{ asset($current_artist_photo_2) }}" style="width: 54px; height: 54px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold);">
+                                @else
+                                    <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px dashed var(--dark-border); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                                        <i data-lucide="user" class="w-6 h-6"></i>
+                                    </div>
+                                @endif
+
+                                <div style="flex: 1;">
+                                    <input type="file" wire:model="upload_artist_photo_2" accept="image/*" class="form-input" style="padding: 6px 10px; font-size: 0.8rem;">
+                                    @if($current_artist_photo_2 || $upload_artist_photo_2)
+                                        <button type="button" wire:click="removeArtistPhoto(2)" style="background: none; border: none; color: #EF4444; font-size: 0.78rem; cursor: pointer; margin-top: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Remover Foto 2
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label">Rótulo / Marca no Topo do PDF deste Evento</label>
+                    <input type="text" wire:model="event_pdf_brand_text" class="form-input" placeholder="Ex: MINISTÉRIO MULHERES DE FÉ APRESENTA:">
+                </div>
+
+                <div>
+                    <label class="form-label">Cor Primária do Destaque no PDF deste Evento</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="color" wire:model.live="event_primary_color" class="form-input" style="width: 50px; height: 42px; padding: 2px; cursor: pointer;">
+                        <input type="text" wire:model="event_primary_color" class="form-input" placeholder="#D4A017" style="flex: 1;">
+                    </div>
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                    <label class="form-label">Termos &amp; Condições do Bilhete deste Evento</label>
+                    <textarea wire:model="event_pdf_terms_text" class="form-input" rows="2" placeholder="Termos específicos impressos no rodapé do bilhete deste evento..."></textarea>
                 </div>
             </div>
 
@@ -205,7 +294,7 @@
 
         {{-- Tab 4: Redes Sociais & Suporte --}}
         @if($activeTab === 'social')
-        <form wire:submit.prevent="saveSocial" style="max-width: 820px;">
+        <form wire:submit.prevent="saveSocial" style="max-width: 100%;">
             <h3 style="color: var(--gold); font-size: 1.3rem; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                 <i data-lucide="phone-call" class="w-5 h-5"></i> SUPORTE E REDES SOCIAIS
             </h3>
