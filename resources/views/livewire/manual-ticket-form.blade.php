@@ -1,4 +1,4 @@
-<div class="w-full" style="margin: 0 auto; max-width: 800px;">
+<div class="w-full" style="margin: 0 auto; max-width: 100%;">
     <div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
         <div>
             <h1 style="font-size: 2.5rem; color: var(--gold);">VENDA MANUAL</h1>

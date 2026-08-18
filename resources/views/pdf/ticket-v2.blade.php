@@ -2,7 +2,21 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <title>Bilhete — {{ $ticket->event->name ?? 'Concerto Renúncia' }}</title>
+    <title>Bilhete — {{ $ticket->event->name ?? 'Alpha Bilheteira' }}</title>
+
+@php
+    $pdfSettings = \App\Models\SiteSetting::values([
+        'pdf_event_name_font_size' => '20px',
+        'pdf_brand_text'           => '',
+        'pdf_primary_color'        => '',
+        'pdf_show_artists'         => '1',
+        'pdf_terms_text'           => 'Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.',
+    ]);
+    if (!empty($pdfSettings['pdf_primary_color'])) {
+        $primaryColor = $pdfSettings['pdf_primary_color'];
+    }
+@endphp
+
     <style>
         /* ─── DOMPDF Page Setup ─── */
         @page {
@@ -138,7 +152,7 @@
         }
 
         .tm-event-name {
-            font-size: 32px;
+            font-size: 16px;
             font-weight: bold;
             color: #FFFFFF;
             text-transform: uppercase;
@@ -381,13 +395,14 @@
                             <tr>
                                 <td>
                                     <div class="tm-brand" style="color: {{ $primaryColor }};">
-                                        {{ $ticket->event->organizer_name ?? $ticket->event->organizer ?? 'Alpha Produções Apresenta:' }}
+                                        {{ !empty($pdfSettings['pdf_brand_text']) ? $pdfSettings['pdf_brand_text'] : ($ticket->event->organizer_name ?? $ticket->event->organizer ?? 'Alpha Produções Apresenta:') }}
                                     </div>
-                                    <div class="tm-event-name">
-                                        {{ Str::limit($ticket->event->name ?? 'Concerto Renúncia', 30) }}
+                                    <div class="tm-event-name" style="font-size: {{ $pdfSettings['pdf_event_name_font_size'] ?? '20px' }};">
+                                        {{ Str::limit($ticket->event->name ?? 'Evento Gospel', 32) }}
                                     </div>
                                     
-                                    {{-- Artistas com Fotos em Círculos --}}
+                                    {{-- Artistas --}}
+                                    @if(($pdfSettings['pdf_show_artists'] ?? '1') === '1')
                                     <table class="tm-artists-table">
                                         <tr>
                                             <td style="padding-right: 8px !important;">
@@ -397,12 +412,13 @@
                                                 <img src="{{ public_path('artists/nair-2.jpg') }}" class="tm-artist-img">
                                             </td>
                                             <td class="tm-artists-text">
-                                                {{ $ticket->event->artists ?? 'Abel Laste · Nair Nany' }}
+                                                {{ $ticket->event->artists ?? 'Abel Last · Nair Nany' }}
                                             </td>
                                         </tr>
                                     </table>
+                                    @endif
                                 </td>
-                                <td style="width: 100px; text-align: right; vertical-align: middle; transform: translateY(-20px) translateX(12px);">
+                                <td style="width: 100px; text-align: right; vertical-align: top; transform: translateY(-15px) translateX(30px); margin-left: 10px;">
                                     <div class="tm-date-badge">
                                         <div class="tm-date-day">{{ $date->format('d') }}</div>
                                         <div class="tm-date-rest">
@@ -445,7 +461,7 @@
                                    <div class="tm-terms-divider"></div>
                                    <div class="tm-terms-label">Termos &amp; Condições</div>
                                    <div class="tm-terms-text">
-                                       Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.
+                                       {{ $pdfSettings['pdf_terms_text'] ?? 'Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.' }}
                                    </div>
                                </td>
                            </tr>

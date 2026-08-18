@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Event;
 use App\Models\SiteSetting;
+use App\Models\Ticket;
 use App\Services\AuditService;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -29,6 +30,13 @@ class SiteSettings extends Component
     public string $social_instagram = '';
     public string $social_tiktok    = '';
     public string $social_youtube   = '';
+
+    // Configurações do PDF do Bilhete
+    public string $pdf_event_name_font_size = '20px';
+    public string $pdf_brand_text           = '';
+    public string $pdf_primary_color        = '#C9A227';
+    public bool   $pdf_show_artists         = true;
+    public string $pdf_terms_text           = 'Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.';
 
     // Seleção de Evento
     public ?int $selectedEventId = null;
@@ -60,6 +68,12 @@ class SiteSettings extends Component
         $this->social_tiktok    = $all['social_tiktok'] ?? '';
         $this->social_youtube   = $all['social_youtube'] ?? '';
 
+        $this->pdf_event_name_font_size = $all['pdf_event_name_font_size'] ?? '20px';
+        $this->pdf_brand_text           = $all['pdf_brand_text'] ?? '';
+        $this->pdf_primary_color        = $all['pdf_primary_color'] ?? '#C9A227';
+        $this->pdf_show_artists         = isset($all['pdf_show_artists']) ? (bool) $all['pdf_show_artists'] : true;
+        $this->pdf_terms_text           = $all['pdf_terms_text'] ?? 'Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.';
+
         // Selecionar primeiro evento ativo por padrão
         $firstEvent = Event::where('is_active', true)->first() ?? Event::first();
         if ($firstEvent) {
@@ -71,6 +85,18 @@ class SiteSettings extends Component
     public function events()
     {
         return Event::orderByDesc('is_active')->orderBy('name')->get();
+    }
+
+    #[Computed]
+    public function sampleTicket()
+    {
+        return Ticket::first() ?? new Ticket([
+            'id' => 'sample-ticket',
+            'ticket_code' => 'SAMPLE-001',
+            'buyer_name' => 'Exemplo Cliente',
+            'ticket_type' => 'promotional',
+            'price' => 500,
+        ]);
     }
 
     public function updatedSelectedEventId($value): void
@@ -105,6 +131,18 @@ class SiteSettings extends Component
 
         AuditService::log('updated_site_settings', null, [], ['group' => 'platform']);
         $this->dispatch('notify', type: 'success', message: 'Configurações da plataforma guardadas com sucesso.');
+    }
+
+    public function savePdf(): void
+    {
+        SiteSetting::set('pdf_event_name_font_size', $this->pdf_event_name_font_size);
+        SiteSetting::set('pdf_brand_text', $this->pdf_brand_text);
+        SiteSetting::set('pdf_primary_color', $this->pdf_primary_color);
+        SiteSetting::set('pdf_show_artists', $this->pdf_show_artists ? '1' : '0');
+        SiteSetting::set('pdf_terms_text', $this->pdf_terms_text);
+
+        AuditService::log('updated_site_settings', null, [], ['group' => 'pdf']);
+        $this->dispatch('notify', type: 'success', message: 'Configurações de PDF do bilhete guardadas com sucesso.');
     }
 
     public function saveEvent(): void

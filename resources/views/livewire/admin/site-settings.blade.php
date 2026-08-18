@@ -3,7 +3,7 @@
         <div>
             <span class="badge badge-gold"><i data-lucide="settings" class="w-4 h-4" style="margin-right: 6px;"></i> Plataforma & Eventos</span>
             <h1 style="font-size: 2.5rem; color: var(--gold); margin-top: 6px;">CONFIGURAÇÕES DO SITE</h1>
-            <p style="color: var(--text-secondary);">Gira as configurações globais da plataforma e personalize dados dos eventos.</p>
+            <p style="color: var(--text-secondary);">Gira as configurações globais da plataforma, personalize o PDF dos bilhetes e dados dos eventos.</p>
         </div>
         <a href="{{ route('admin.events.index') }}" class="btn-gold">
             <i data-lucide="calendar" class="w-4 h-4"></i> Gestor Completo de Eventos
@@ -14,6 +14,9 @@
     <div style="display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;">
         <button wire:click="$set('activeTab', 'platform')" class="btn-sm" style="{{ $activeTab === 'platform' ? 'background: rgba(212,175,55,0.2); color: var(--gold); border: 1px solid var(--gold);' : 'background: var(--dark-card); color: var(--text-secondary); border: 1px solid var(--dark-border);' }} padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer;">
             <i data-lucide="globe" class="w-4 h-4"></i> Plataforma & Portal
+        </button>
+        <button wire:click="$set('activeTab', 'pdf')" class="btn-sm" style="{{ $activeTab === 'pdf' ? 'background: rgba(212,175,55,0.2); color: var(--gold); border: 1px solid var(--gold);' : 'background: var(--dark-card); color: var(--text-secondary); border: 1px solid var(--dark-border);' }} padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+            <i data-lucide="file-text" class="w-4 h-4"></i> Layout & PDF do Bilhete
         </button>
         <button wire:click="$set('activeTab', 'event')" class="btn-sm" style="{{ $activeTab === 'event' ? 'background: rgba(212,175,55,0.2); color: var(--gold); border: 1px solid var(--gold);' : 'background: var(--dark-card); color: var(--text-secondary); border: 1px solid var(--dark-border);' }} padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer;">
             <i data-lucide="ticket" class="w-4 h-4"></i> Evento Selecionado
@@ -27,7 +30,7 @@
         
         {{-- Tab 1: Plataforma & Portal --}}
         @if($activeTab === 'platform')
-        <form wire:submit.prevent="savePlatform">
+        <form wire:submit.prevent="savePlatform" style="max-width: 820px;">
             <h3 style="color: var(--gold); font-size: 1.3rem; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                 <i data-lucide="layout-template" class="w-5 h-5"></i> CONFIGURAÇÕES DA PLATAFORMA (HOMEPAGE)
             </h3>
@@ -65,9 +68,78 @@
         </form>
         @endif
 
-        {{-- Tab 2: Evento Selecionado --}}
+        {{-- Tab 2: Layout & PDF do Bilhete --}}
+        @if($activeTab === 'pdf')
+        <form wire:submit.prevent="savePdf">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h3 style="color: var(--gold); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="file-text" class="w-5 h-5"></i> CONFIGURAÇÃO DO PDF DO BILHETE
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Ajuste o tamanho da fonte, marca, cores e termos impressos nos bilhetes PDF.</p>
+                </div>
+                @if($this->sampleTicket?->id)
+                <a href="{{ route('admin.tickets.preview', $this->sampleTicket) }}" target="_blank" class="btn-gold" style="font-size: 0.9rem; padding: 10px 18px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                    <i data-lucide="eye" class="w-4 h-4"></i> Abrir Pré-visualização PDF ao Vivo
+                </a>
+                @endif
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+                <div>
+                    <label class="form-label">Tamanho da Fonte do Título do Evento (CSS)</label>
+                    <select wire:model="pdf_event_name_font_size" class="form-select">
+                        <option value="14px">14px (Muito Pequeno)</option>
+                        <option value="16px">16px (Pequeno)</option>
+                        <option value="18px">18px (Médio Pequeno)</option>
+                        <option value="20px">20px (Normal / Recomendado)</option>
+                        <option value="22px">22px (Médio Grande)</option>
+                        <option value="24px">24px (Grande)</option>
+                        <option value="28px">28px (Muito Grande)</option>
+                        <option value="32px">32px (Gigante)</option>
+                    </select>
+                    <p style="color: var(--text-muted); font-size: 0.78rem; margin-top: 4px;">Ajusta o tamanho de letra do nome do evento no PDF.</p>
+                </div>
+
+                <div>
+                    <label class="form-label">Rótulo / Marca no Topo do PDF</label>
+                    <input type="text" wire:model="pdf_brand_text" class="form-input" placeholder="Deixe em branco para usar o organizador do evento">
+                    <p style="color: var(--text-muted); font-size: 0.78rem; margin-top: 4px;">Ex: ALPHA PRODUÇÕES APRESENTA:</p>
+                </div>
+
+                <div>
+                    <label class="form-label">Cor Primária do Destaque (Hexadecimal)</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="color" wire:model.live="pdf_primary_color" class="form-input" style="width: 50px; height: 42px; padding: 2px; cursor: pointer;">
+                        <input type="text" wire:model="pdf_primary_color" class="form-input" placeholder="#C9A227" style="flex: 1;">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label">Exibir Fotos dos Artistas no PDF</label>
+                    <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" wire:model="pdf_show_artists" id="pdf_show_artists" style="width: 20px; height: 20px; cursor: pointer;">
+                        <label for="pdf_show_artists" style="cursor: pointer; color: var(--text-primary); font-size: 0.9rem;">Exibir fotos e nomes dos artistas no bilhete</label>
+                    </div>
+                </div>
+
+                <div style="grid-column: 1 / -1;">
+                    <label class="form-label">Termos &amp; Condições do Bilhete</label>
+                    <textarea wire:model="pdf_terms_text" class="form-input" rows="3" placeholder="Termos legais impressos no rodapé do bilhete..."></textarea>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                <button type="submit" class="btn-gold" style="padding: 12px 28px;">
+                    <i data-lucide="save" class="w-4 h-4"></i> Guardar Configurações de PDF
+                </button>
+            </div>
+        </form>
+        @endif
+
+        {{-- Tab 3: Evento Selecionado --}}
         @if($activeTab === 'event')
-        <form wire:submit.prevent="saveEvent">
+        <form wire:submit.prevent="saveEvent" style="max-width: 820px;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
                 <h3 style="color: var(--gold); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 8px;">
                     <i data-lucide="calendar" class="w-5 h-5"></i> DETALHES DO EVENTO
@@ -131,9 +203,9 @@
         </form>
         @endif
 
-        {{-- Tab 3: Redes Sociais & Suporte --}}
+        {{-- Tab 4: Redes Sociais & Suporte --}}
         @if($activeTab === 'social')
-        <form wire:submit.prevent="saveSocial">
+        <form wire:submit.prevent="saveSocial" style="max-width: 820px;">
             <h3 style="color: var(--gold); font-size: 1.3rem; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                 <i data-lucide="phone-call" class="w-5 h-5"></i> SUPORTE E REDES SOCIAIS
             </h3>
