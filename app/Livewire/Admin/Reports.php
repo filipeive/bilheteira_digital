@@ -8,12 +8,21 @@ use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
+use Livewire\Attributes\Computed;
+
 class Reports extends Component
 {
+    public ?int   $eventId     = null;
     public string $dateFrom    = '';
     public string $dateTo      = '';
     public string $filterBatch = '';
     public string $activeTab   = 'daily';
+
+    #[Computed]
+    public function events()
+    {
+        return Event::orderByDesc('is_active')->orderBy('name')->get();
+    }
 
     public function mount(): void
     {
@@ -27,7 +36,7 @@ class Reports extends Component
         $q = Ticket::whereBetween('created_at', [
             Carbon::parse($this->dateFrom)->startOfDay(),
             Carbon::parse($this->dateTo)->endOfDay(),
-        ]);
+        ])->when($this->eventId, fn($query) => $query->where('event_id', $this->eventId));
 
         return [
             'total_tickets'    => (clone $q)->count(),
@@ -48,6 +57,7 @@ class Reports extends Component
                 Carbon::parse($this->dateFrom)->startOfDay(),
                 Carbon::parse($this->dateTo)->endOfDay(),
             ])
+            ->when($this->eventId, fn($query) => $query->where('event_id', $this->eventId))
             ->whereIn('status', ['confirmed', 'used'])
             ->groupBy('date')
             ->orderBy('date')
@@ -68,6 +78,7 @@ class Reports extends Component
                 Carbon::parse($this->dateFrom)->startOfDay(),
                 Carbon::parse($this->dateTo)->endOfDay(),
             ])
+            ->when($this->eventId, fn($query) => $query->where('event_id', $this->eventId))
             ->whereIn('status', ['confirmed', 'used'])
             ->groupBy('ticket_type')
             ->orderByDesc('total')
@@ -83,6 +94,7 @@ class Reports extends Component
                 Carbon::parse($this->dateFrom)->startOfDay(),
                 Carbon::parse($this->dateTo)->endOfDay(),
             ])
+            ->when($this->eventId, fn($query) => $query->where('event_id', $this->eventId))
             ->whereIn('status', ['confirmed', 'used'])
             ->groupBy('payment_method')
             ->orderByDesc('total')
@@ -98,6 +110,7 @@ class Reports extends Component
                 Carbon::parse($this->dateFrom)->startOfDay(),
                 Carbon::parse($this->dateTo)->endOfDay(),
             ])
+            ->when($this->eventId, fn($query) => $query->where('event_id', $this->eventId))
             ->whereIn('status', ['confirmed', 'used'])
             ->groupBy('ticket_mode')
             ->get()

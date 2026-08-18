@@ -32,8 +32,9 @@ class TicketService
             'notes' => $data['notes'] ?? null,
         ]);
 
+        $event = Event::find($data['event_id']);
         $ticket->id = (string) Str::uuid();
-        $ticket->ticket_code = Ticket::generateCode();
+        $ticket->ticket_code = Ticket::generateCode($event);
         $ticket->qr_payload = $this->qrCodeService->generateSignedPayload($ticket);
 
         $ticket->save();

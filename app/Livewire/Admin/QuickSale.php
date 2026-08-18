@@ -85,7 +85,7 @@ class QuickSale extends Component
         $startNumber = $latestQuickSale + 1;
 
         for ($i = 0; $i < $this->quantity; $i++) {
-            $ticketCode = Ticket::generateCode();
+            $ticketCode = Ticket::generateCode($batch->event);
             $ticket = Ticket::create([
                 'ticket_code'    => $ticketCode,
                 'event_id'       => $batch->event_id,

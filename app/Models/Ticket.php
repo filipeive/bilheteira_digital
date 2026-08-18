@@ -135,10 +135,37 @@ class Ticket extends Model
         return true;
     }
 
-    public static function generateCode(): string
+    public static function getEventPrefix(?Event $event = null): string
     {
+        if (!$event || empty($event->name)) {
+            return 'EVT';
+        }
+
+        $name = trim($event->name);
+        $words = preg_split('/\s+/', $name);
+        $words = array_values(array_filter($words, fn($w) => !in_array(strtolower($w), ['de', 'do', 'da', 'dos', 'das', '&', 'e'])));
+
+        if (count($words) >= 3) {
+            $prefix = mb_substr($words[0], 0, 1) . mb_substr($words[1], 0, 1) . mb_substr($words[2], 0, 1);
+        } elseif (count($words) === 2) {
+            $prefix = mb_substr($words[0], 0, 2) . mb_substr($words[1], 0, 1);
+        } else {
+            $prefix = mb_substr($name, 0, 3);
+        }
+
+        $prefix = strtoupper(preg_replace('/[^a-zA-Z]/', '', $prefix));
+        if (strlen($prefix) < 2) {
+            $prefix = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $name) . 'EVT', 0, 3));
+        }
+
+        return Str::limit($prefix, 3, '');
+    }
+
+    public static function generateCode(?Event $event = null): string
+    {
+        $prefix = static::getEventPrefix($event);
         do {
-            $code = 'REN-' . strtoupper(Str::random(6));
+            $code = $prefix . '-' . strtoupper(Str::random(6));
         } while (static::where('ticket_code', $code)->exists());
 
         return $code;

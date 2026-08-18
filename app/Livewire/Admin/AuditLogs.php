@@ -10,11 +10,19 @@ class AuditLogs extends Component
 {
     use WithPagination;
 
+    public ?int $eventId = null;
     public string $search = '';
     public string $filterAction = '';
 
     public function updatingSearch(): void { $this->resetPage(); }
     public function updatingFilterAction(): void { $this->resetPage(); }
+    public function updatingEventId(): void { $this->resetPage(); }
+
+    #[\Livewire\Attributes\Computed]
+    public function events()
+    {
+        return \App\Models\Event::orderByDesc('is_active')->orderBy('name')->get();
+    }
 
     /**
      * Restore a soft-deleted ticket from the audit log record.
@@ -72,8 +80,9 @@ class AuditLogs extends Component
             return;
         }
 
-        // Find active or first event
-        $event = \App\Models\Event::where('is_active', true)->first() ?: \App\Models\Event::first();
+        // Find event
+        $eventId = $log->old_values['event_id'] ?? $this->eventId;
+        $event = $eventId ? \App\Models\Event::find($eventId) : (\App\Models\Event::where('is_active', true)->first() ?: \App\Models\Event::first());
         if (!$event) {
             $this->dispatch('notify', type: 'error', message: 'Nenhum evento encontrado para associar o bilhete.');
             return;
@@ -87,7 +96,7 @@ class AuditLogs extends Component
             'buyer_phone' => 'N/A',
             'ticket_type' => 'gate',
             'price' => 0,
-            'status' => 'confirmed', // confirmed and ready
+            'status' => 'confirmed',
             'notes' => 'Gerado a partir do log de falha de leitura #' . $logId,
         ]);
 
@@ -104,7 +113,7 @@ class AuditLogs extends Component
             newValues: ['regenerated_from_fail_log' => $logId, 'code' => $code]
         );
 
-        $this->dispatch('notify', type: 'success', message: "Bilhete {$code} regenerado e confirmado com sucesso!");
+        $this->dispatch('notify', type: 'success', message: "Bilhete {$code} regenerado para o evento {$event->name} com sucesso!");
     }
 
     public function render()

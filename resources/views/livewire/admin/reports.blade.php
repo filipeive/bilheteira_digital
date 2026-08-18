@@ -4,6 +4,12 @@
             <h1 style="font-size: 2.5rem; color: var(--gold);">RELATÓRIOS</h1>
             <p style="color: var(--text-muted);">Análise de vendas e receitas</p>
         </div>
+        <select wire:model.live="eventId" class="form-input" style="cursor: pointer; min-width: 220px; font-weight: 600; color: var(--gold); border-color: rgba(212,175,55,0.3);">
+            <option value="">Todos os Eventos</option>
+            @foreach($this->events as $ev)
+                <option value="{{ $ev->id }}">{{ $ev->name }}</option>
+            @endforeach
+        </select>
     </div>
 
     {{-- FILTROS --}}

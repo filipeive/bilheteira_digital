@@ -30,7 +30,7 @@
         </div>
     @else
         {{-- Sale form --}}
-        <div style="background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 12px; padding: 24px; max-width: 500px;">
+        <div style="background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 12px; padding: 24px; max-width: 100%;">
             <form wire:submit="sale">
                 {{-- Batch selection --}}
                 <div style="margin-bottom: 16px;">
