@@ -158,15 +158,21 @@
             A partir de <strong>{{ number_format($minPrice, 0, ',', '.') }} MT</strong>
           </div>
           @endif
-<!-- seo o evento foi realizado entao o botao comprar bilhete fica desabilitado, seo o evento esta esgotado entao o botao comprar bilhete fica desabilitado -->
-          <a href="{{ route('events.sale', $event->slug ?? $event->id) }}"
-             class="event-card-btn {{ $event->status === 'sold_out' ? 'disabled' : '' }}">
-            @if($event->status === 'sold_out')
-              Esgotado
-            @else
-              <i data-lucide="ticket" class="w-4 h-4"></i> Comprar Bilhete
-            @endif
-          </a>
+          <!-- Se o evento já foi realizado o botão comprar bilhete fica desabilitado e aparece "Realizado" -->
+          @if($event->isPast())
+            <button disabled class="event-card-btn disabled" style="background: var(--dark-border); color: var(--text-muted); cursor: not-allowed; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+              <i data-lucide="calendar-check" class="w-4 h-4"></i> Realizado
+            </button>
+          @else
+            <a href="{{ route('events.sale', $event->slug ?? $event->id) }}"
+               class="event-card-btn {{ $event->status === 'sold_out' ? 'disabled' : '' }}">
+              @if($event->status === 'sold_out')
+                Esgotado
+              @else
+                <i data-lucide="ticket" class="w-4 h-4"></i> Comprar Bilhete
+              @endif
+            </a>
+          @endif
         </div>
 
       </article>
