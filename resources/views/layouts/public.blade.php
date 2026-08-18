@@ -446,8 +446,12 @@
                 <p style="color: var(--text-muted); font-size: 0.9rem;">Publica o teu evento e vende bilhetes online com M-Pesa e e-Mola em Moçambique.</p>
             </div>
         </div>
-        <div class="footer-bottom" style="text-align: center; border-top: 1px solid rgba(212, 175, 55, 0.1); padding-top: 20px; color: var(--text-muted); font-size: 0.8rem;">
+        <div class="footer-bottom" style="text-align: center; border-top: 1px solid rgba(212, 175, 55, 0.1); padding-top: 20px; color: var(--text-muted); font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 8px;">
             <span>© {{ date('Y') }} Alpha Bilheteira. Todos os direitos reservados.</span>
+            <div style="font-size: 0.8rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.2); padding: 5px 16px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                <i data-lucide="code" class="w-3.5 h-3.5" style="color: var(--gold);"></i>
+                <span>Desenvolvido por <a href="http://146.235.224.99/" target="_blank" rel="noopener" style="color: var(--gold); text-decoration: none; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#F5E6A3'; this.style.textDecoration='underline'" onmouseout="this.style.color='var(--gold)'; this.style.textDecoration='none'">Filipe Domingos dos Santos</a></span>
+            </div>
         </div>
     </footer>
 

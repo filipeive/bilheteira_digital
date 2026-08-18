@@ -509,6 +509,14 @@
         <!-- CONTEÚDO DA PÁGINA (Livewire) -->
         <main class="admin-main">
             {{ $slot }}
+
+            <footer style="margin-top: 40px; padding: 20px 0; border-top: 1px solid rgba(212, 175, 55, 0.1); text-align: center; color: var(--text-muted); font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 8px;">
+                <div>© {{ date('Y') }} Alpha Bilheteira — Sistema Multi-Evento Digital</div>
+                <div style="font-size: 0.78rem; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.03); border: 1px solid rgba(212,175,55,0.2); padding: 4px 14px; border-radius: 20px;">
+                    <i data-lucide="code-2" class="w-3.5 h-3.5" style="color: var(--gold);"></i>
+                    <span>Desenvolvido por <a href="http://146.235.224.99/" target="_blank" rel="noopener" style="color: var(--gold); text-decoration: none; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#F5E6A3'; this.style.textDecoration='underline'" onmouseout="this.style.color='var(--gold)'; this.style.textDecoration='none'">Filipe Domingos dos Santos</a></span>
+                </div>
+            </footer>
         </main>
     </div>
 

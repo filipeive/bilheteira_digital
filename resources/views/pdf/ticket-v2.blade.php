@@ -498,6 +498,10 @@
                             Apresente este código na entrada.<br>
                             Bilhete único e intransferível.
                         </div>
+
+                        <div style="margin-top: 4px; font-size: 6px; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 0.5px;">
+                            DEV: FILIPE SANTOS · 146.235.224.99
+                        </div>
                     </div>
                 </td>
             </tr>
