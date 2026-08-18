@@ -11,6 +11,7 @@
         'pdf_primary_color'        => '',
         'pdf_show_artists'         => '1',
         'pdf_terms_text'           => 'Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.',
+        'pdf_bg_image'             => '',
     ]);
 
     // Prioritize event's own primary color if available
@@ -29,6 +30,20 @@
     $termsText = !empty($ticket->event->pdf_terms_text)
         ? $ticket->event->pdf_terms_text
         : ($pdfSettings['pdf_terms_text'] ?? 'Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.');
+
+    // Resolve Dynamic Background Image (Event specific -> Global SiteSetting -> Default Premium Vector)
+    $bgImagePath = public_path('images/ticket-bg-premium.png');
+    $customBg = $ticket->event->ticket_bg_image ?? ($pdfSettings['pdf_bg_image'] ?? null);
+    if (!empty($customBg)) {
+        $cleanBgPath = ltrim(str_replace(['storage/', 'public/'], '', $customBg), '/');
+        if (file_exists(public_path($customBg))) {
+            $bgImagePath = public_path($customBg);
+        } elseif (file_exists(public_path('storage/' . $cleanBgPath))) {
+            $bgImagePath = public_path('storage/' . $cleanBgPath);
+        } elseif (file_exists(storage_path('app/public/' . $cleanBgPath))) {
+            $bgImagePath = storage_path('app/public/' . $cleanBgPath);
+        }
+    }
 @endphp
 
     <style>
@@ -40,7 +55,7 @@
 
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            background: url('{{ public_path("images/ticket-bg-premium.png") }}');
+            background: url('{{ $bgImagePath }}');
             margin: 0px;
             padding: 0px;
             color: #ffffff;

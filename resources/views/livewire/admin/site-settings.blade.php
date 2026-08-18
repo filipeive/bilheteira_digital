@@ -123,6 +123,33 @@
                     </div>
                 </div>
 
+                {{-- Upload Imagem de Fundo Global do Bilhete PDF --}}
+                <div style="grid-column: 1 / -1; background: rgba(0,0,0,0.3); border: 1px solid var(--dark-border); border-radius: 10px; padding: 16px;">
+                    <label class="form-label" style="margin-bottom: 8px; font-weight: 700; color: var(--gold);">IMAGEM DE FUNDO GLOBAL DO BILHETE PDF</label>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 12px;">Se não for carregada uma imagem específica para o evento, esta imagem será usada como fundo de todos os bilhetes PDF (720x250px recomendado).</p>
+                    
+                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                        @if($upload_pdf_bg_image)
+                            <img src="{{ $upload_pdf_bg_image->temporaryUrl() }}" style="width: 220px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid var(--gold);">
+                        @elseif($current_pdf_bg_image)
+                            <img src="{{ asset($current_pdf_bg_image) }}" style="width: 220px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid var(--gold);">
+                        @else
+                            <div style="width: 220px; height: 75px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px dashed var(--dark-border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.8rem;">
+                                <i data-lucide="image" class="w-5 h-5" style="margin-right: 6px;"></i> Fundo Vetorial Padrão
+                            </div>
+                        @endif
+
+                        <div style="flex: 1; min-width: 240px;">
+                            <input type="file" wire:model="upload_pdf_bg_image" accept="image/*" class="form-input" style="padding: 8px 12px; font-size: 0.85rem;">
+                            @if($current_pdf_bg_image || $upload_pdf_bg_image)
+                                <button type="button" wire:click="removePdfBgImage" style="background: none; border: none; color: #EF4444; font-size: 0.8rem; cursor: pointer; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i> Remover Fundo Global Personalizado
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
                 <div style="grid-column: 1 / -1;">
                     <label class="form-label">Termos &amp; Condições do Bilhete</label>
                     <textarea wire:model="pdf_terms_text" class="form-input" rows="3" placeholder="Termos legais impressos no rodapé do bilhete..."></textarea>
@@ -256,6 +283,33 @@
                             </div>
                         </div>
 
+                    </div>
+                </div>
+
+                {{-- Upload Imagem de Fundo do Bilhete do Evento --}}
+                <div style="grid-column: 1 / -1; background: rgba(0,0,0,0.3); border: 1px solid var(--dark-border); border-radius: 10px; padding: 16px;">
+                    <label class="form-label" style="margin-bottom: 8px; font-weight: 700; color: var(--gold);">IMAGEM DE FUNDO EXCLUSIVA DO BILHETE DESTE EVENTO (PDF)</label>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-bottom: 12px;">Carregue uma imagem/banner de fundo personalizada exclusivamente para os bilhetes deste evento (720x250px recomendado).</p>
+                    
+                    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+                        @if($upload_event_ticket_bg_image)
+                            <img src="{{ $upload_event_ticket_bg_image->temporaryUrl() }}" style="width: 220px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid var(--gold);">
+                        @elseif($current_event_ticket_bg_image)
+                            <img src="{{ asset($current_event_ticket_bg_image) }}" style="width: 220px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid var(--gold);">
+                        @else
+                            <div style="width: 220px; height: 75px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px dashed var(--dark-border); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.8rem;">
+                                <i data-lucide="image" class="w-5 h-5" style="margin-right: 6px;"></i> Sem fundo exclusivo (Usando Fundo Global/Padrão)
+                            </div>
+                        @endif
+
+                        <div style="flex: 1; min-width: 240px;">
+                            <input type="file" wire:model="upload_event_ticket_bg_image" accept="image/*" class="form-input" style="padding: 8px 12px; font-size: 0.85rem;">
+                            @if($current_event_ticket_bg_image || $upload_event_ticket_bg_image)
+                                <button type="button" wire:click="removeEventTicketBgImage" style="background: none; border: none; color: #EF4444; font-size: 0.8rem; cursor: pointer; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i> Remover Fundo Exclusivo do Evento
+                                </button>
+                            @endif
+                        </div>
                     </div>
                 </div>
 

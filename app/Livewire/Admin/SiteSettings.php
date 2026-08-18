@@ -31,12 +31,16 @@ class SiteSettings extends Component
     public string $social_tiktok    = '';
     public string $social_youtube   = '';
 
-    // Configurações do PDF do Bilhete
+    // Configurações Globais do PDF do Bilhete
     public string $pdf_event_name_font_size = '20px';
     public string $pdf_brand_text           = '';
     public string $pdf_primary_color        = '#C9A227';
     public bool   $pdf_show_artists         = true;
     public string $pdf_terms_text           = 'Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.';
+    
+    // Upload de Imagem de Fundo Global do PDF
+    public $upload_pdf_bg_image;
+    public string $current_pdf_bg_image = '';
 
     // Seleção de Evento
     public ?int $selectedEventId = null;
@@ -52,11 +56,13 @@ class SiteSettings extends Component
     public string $event_primary_color  = '#D4A017';
     public string $event_pdf_terms_text = '';
 
-    // Uploads de Fotos dos Artistas
+    // Uploads de Fotos dos Artistas e Fundo do Evento
     public $upload_artist_photo_1;
     public $upload_artist_photo_2;
-    public string $current_artist_photo_1 = '';
-    public string $current_artist_photo_2 = '';
+    public $upload_event_ticket_bg_image;
+    public string $current_artist_photo_1      = '';
+    public string $current_artist_photo_2      = '';
+    public string $current_event_ticket_bg_image = '';
 
     public string $activeTab = 'platform';
 
@@ -83,6 +89,7 @@ class SiteSettings extends Component
         $this->pdf_primary_color        = $all['pdf_primary_color'] ?? '#C9A227';
         $this->pdf_show_artists         = isset($all['pdf_show_artists']) ? (bool) $all['pdf_show_artists'] : true;
         $this->pdf_terms_text           = $all['pdf_terms_text'] ?? 'Uma vez adquiridos, os bilhetes não podem ser trocados ou reembolsados, a menos que haja cancelamento ou adiamento do evento.';
+        $this->current_pdf_bg_image     = $all['pdf_bg_image'] ?? '';
 
         // Selecionar primeiro evento ativo por padrão
         $firstEvent = Event::where('is_active', true)->first() ?? Event::first();
@@ -125,23 +132,25 @@ class SiteSettings extends Component
         $event = Event::find($eventId);
         if (!$event) return;
 
-        $this->selectedEventId       = $event->id;
-        $this->event_name            = $event->name;
-        $this->event_starts_at       = $event->starts_at?->format('Y-m-d\TH:i') ?? $event->date?->format('Y-m-d\TH:i') ?? '';
-        $this->event_venue           = $event->venue ?? '';
-        $this->event_city            = $event->city ?? '';
-        $this->event_province        = $event->province ?? '';
-        $this->event_description     = $event->description ?? '';
-        $this->event_organizer       = $event->organizer_name ?? '';
-        $this->event_artists         = $event->artists ?? '';
-        $this->event_pdf_brand_text  = $event->pdf_brand_text ?? '';
-        $this->event_primary_color   = $event->primary_color ?? '#D4A017';
-        $this->event_pdf_terms_text  = $event->pdf_terms_text ?? '';
+        $this->selectedEventId              = $event->id;
+        $this->event_name                   = $event->name;
+        $this->event_starts_at              = $event->starts_at?->format('Y-m-d\TH:i') ?? $event->date?->format('Y-m-d\TH:i') ?? '';
+        $this->event_venue                  = $event->venue ?? '';
+        $this->event_city                   = $event->city ?? '';
+        $this->event_province               = $event->province ?? '';
+        $this->event_description            = $event->description ?? '';
+        $this->event_organizer              = $event->organizer_name ?? '';
+        $this->event_artists                = $event->artists ?? '';
+        $this->event_pdf_brand_text         = $event->pdf_brand_text ?? '';
+        $this->event_primary_color          = $event->primary_color ?? '#D4A017';
+        $this->event_pdf_terms_text         = $event->pdf_terms_text ?? '';
 
-        $this->current_artist_photo_1 = $event->artist_photo_1 ?? '';
-        $this->current_artist_photo_2 = $event->artist_photo_2 ?? '';
-        $this->upload_artist_photo_1  = null;
-        $this->upload_artist_photo_2  = null;
+        $this->current_artist_photo_1      = $event->artist_photo_1 ?? '';
+        $this->current_artist_photo_2      = $event->artist_photo_2 ?? '';
+        $this->current_event_ticket_bg_image = $event->ticket_bg_image ?? '';
+        $this->upload_artist_photo_1       = null;
+        $this->upload_artist_photo_2       = null;
+        $this->upload_event_ticket_bg_image = null;
     }
 
     public function removeArtistPhoto(int $photoNum): void
@@ -164,6 +173,28 @@ class SiteSettings extends Component
         }
     }
 
+    public function removeEventTicketBgImage(): void
+    {
+        if (!$this->selectedEventId) return;
+
+        $event = Event::find($this->selectedEventId);
+        if ($event) {
+            $event->ticket_bg_image = null;
+            $event->save();
+            $this->current_event_ticket_bg_image = '';
+            $this->upload_event_ticket_bg_image = null;
+            $this->dispatch('notify', type: 'success', message: "Fundo do bilhete do evento removido com sucesso.");
+        }
+    }
+
+    public function removePdfBgImage(): void
+    {
+        SiteSetting::set('pdf_bg_image', '');
+        $this->current_pdf_bg_image = '';
+        $this->upload_pdf_bg_image = null;
+        $this->dispatch('notify', type: 'success', message: "Fundo global do bilhete PDF removido.");
+    }
+
     public function savePlatform(): void
     {
         SiteSetting::set('portal_name', $this->portal_name);
@@ -178,6 +209,13 @@ class SiteSettings extends Component
 
     public function savePdf(): void
     {
+        if ($this->upload_pdf_bg_image) {
+            $filename = 'global_ticket_bg_' . time() . '.' . $this->upload_pdf_bg_image->getClientOriginalExtension();
+            $this->upload_pdf_bg_image->storeAs('images', $filename, 'public');
+            SiteSetting::set('pdf_bg_image', 'storage/images/' . $filename);
+            $this->current_pdf_bg_image = 'storage/images/' . $filename;
+        }
+
         SiteSetting::set('pdf_event_name_font_size', $this->pdf_event_name_font_size);
         SiteSetting::set('pdf_brand_text', $this->pdf_brand_text);
         SiteSetting::set('pdf_primary_color', $this->pdf_primary_color);
@@ -213,23 +251,32 @@ class SiteSettings extends Component
                 $this->current_artist_photo_2 = $event->artist_photo_2;
             }
 
+            // Upload Fundo do Bilhete do Evento
+            if ($this->upload_event_ticket_bg_image) {
+                $filenameBg = 'ticket_bg_ev' . $event->id . '_' . time() . '.' . $this->upload_event_ticket_bg_image->getClientOriginalExtension();
+                $this->upload_event_ticket_bg_image->storeAs('images', $filenameBg, 'public');
+                $event->ticket_bg_image = 'storage/images/' . $filenameBg;
+                $this->current_event_ticket_bg_image = $event->ticket_bg_image;
+            }
+
             $event->update([
-                'name'           => $this->event_name,
-                'starts_at'      => $this->event_starts_at ?: null,
-                'date'           => $this->event_starts_at ?: null,
-                'venue'          => $this->event_venue,
-                'city'           => $this->event_city,
-                'province'       => $this->event_province,
-                'description'    => $this->event_description,
-                'organizer_name' => $this->event_organizer,
-                'artists'        => $this->event_artists,
-                'pdf_brand_text' => $this->event_pdf_brand_text,
-                'primary_color'  => $this->event_primary_color,
-                'pdf_terms_text' => $this->event_pdf_terms_text,
+                'name'            => $this->event_name,
+                'starts_at'       => $this->event_starts_at ?: null,
+                'date'            => $this->event_starts_at ?: null,
+                'venue'           => $this->event_venue,
+                'city'            => $this->event_city,
+                'province'        => $this->event_province,
+                'description'     => $this->event_description,
+                'organizer_name'  => $this->event_organizer,
+                'artists'         => $this->event_artists,
+                'pdf_brand_text'  => $this->event_pdf_brand_text,
+                'primary_color'   => $this->event_primary_color,
+                'pdf_terms_text'  => $this->event_pdf_terms_text,
+                'ticket_bg_image' => $event->ticket_bg_image,
             ]);
 
             AuditService::log('updated_event_settings', $event);
-            $this->dispatch('notify', type: 'success', message: "Configurações e fotos do evento '{$event->name}' guardadas com sucesso.");
+            $this->dispatch('notify', type: 'success', message: "Configurações, fotos e fundo do evento '{$event->name}' guardados com sucesso.");
         }
     }
 

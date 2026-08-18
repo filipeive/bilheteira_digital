@@ -53,6 +53,7 @@ class Event extends Model
         'artist_photo_2',
         'pdf_brand_text',
         'pdf_terms_text',
+        'ticket_bg_image',
     ];
 
     protected function casts(): array

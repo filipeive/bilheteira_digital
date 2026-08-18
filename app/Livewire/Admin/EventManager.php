@@ -104,6 +104,9 @@ class EventManager extends Component
         $this->event_instagram = $event->event_instagram ?? '';
         $this->meta_title      = $event->meta_title ?? '';
         $this->meta_description= $event->meta_description ?? '';
+        $this->artists         = $event->artists ?? '';
+        $this->pdf_brand_text  = $event->pdf_brand_text ?? '';
+        $this->pdf_terms_text  = $event->pdf_terms_text ?? '';
     }
 
     public function save(): void
@@ -139,6 +142,9 @@ class EventManager extends Component
             'event_instagram' => $this->event_instagram ?: null,
             'meta_title'      => $this->meta_title ?: null,
             'meta_description'=> $this->meta_description ?: null,
+            'artists'         => $this->artists ?: null,
+            'pdf_brand_text'  => $this->pdf_brand_text ?: null,
+            'pdf_terms_text'  => $this->pdf_terms_text ?: null,
         ];
 
         if ($this->cover_image_file) {
@@ -149,6 +155,21 @@ class EventManager extends Component
         }
         if ($this->banner_image_file) {
             $data['banner_image'] = $this->banner_image_file->store('events/banners', 'public');
+        }
+        if ($this->upload_ticket_bg_image) {
+            $filenameBg = 'ticket_bg_ev' . ($this->editingId ?? time()) . '_' . time() . '.' . $this->upload_ticket_bg_image->getClientOriginalExtension();
+            $this->upload_ticket_bg_image->storeAs('images', $filenameBg, 'public');
+            $data['ticket_bg_image'] = 'storage/images/' . $filenameBg;
+        }
+        if ($this->upload_artist_photo_1) {
+            $filename1 = 'artist_1_ev' . ($this->editingId ?? time()) . '_' . time() . '.' . $this->upload_artist_photo_1->getClientOriginalExtension();
+            $this->upload_artist_photo_1->storeAs('artists', $filename1, 'public');
+            $data['artist_photo_1'] = 'storage/artists/' . $filename1;
+        }
+        if ($this->upload_artist_photo_2) {
+            $filename2 = 'artist_2_ev' . ($this->editingId ?? time()) . '_' . time() . '.' . $this->upload_artist_photo_2->getClientOriginalExtension();
+            $this->upload_artist_photo_2->storeAs('artists', $filename2, 'public');
+            $data['artist_photo_2'] = 'storage/artists/' . $filename2;
         }
 
         if ($this->editingId) {
