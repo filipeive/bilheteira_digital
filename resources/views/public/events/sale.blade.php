@@ -88,7 +88,6 @@
           </span>
         </div>
       </div>
-      @endif
     @endforeach
   </div>
 
