@@ -6,20 +6,28 @@
 
 {{-- HERO DA PLATAFORMA --}}
 <section class="platform-hero">
-  <div class="platform-hero-bg"></div>
+  <div class="platform-hero-bg" @if(!empty($settings['hero_image'])) style="background-image: url('{{ asset(ltrim($settings['hero_image'], '/')) }}'); background-size: cover; background-position: center; opacity: 0.25;" @endif></div>
   <div class="platform-hero-content">
-    <div class="platform-badge">Zambézia · Moçambique</div>
+
+    @if(!empty($settings['announcement_text']))
+      <div style="background: rgba(212,160,23,0.12); border: 1px solid rgba(212,160,23,0.3); border-radius: 20px; padding: 6px 18px; color: var(--gold); font-size: 0.82rem; font-weight: 600; margin-bottom: 16px; display: inline-flex; align-items: center; gap: 8px;">
+        <i data-lucide="sparkles" class="w-4 h-4"></i> {{ $settings['announcement_text'] }}
+      </div>
+    @else
+      <div class="platform-badge">{{ $settings['hero_label'] ?? 'Moçambique' }}</div>
+    @endif
+
     <h1 class="platform-title">
-      EVENTOS <span>GOSPEL</span><br>EM MOÇAMBIQUE
+      {!! !empty($settings['hero_title']) ? e($settings['hero_title']) : 'EVENTOS <span>GOSPEL</span><br>EM MOÇAMBIQUE' !!}
     </h1>
     <p class="platform-sub">
-      Compre bilhetes para concertos, conferências, encontros e eventos evangelísticos.
+      {{ $settings['hero_subtitle'] ?? 'Compre bilhetes oficiais para concertos, conferências e eventos cristãos em Moçambique com M-Pesa e e-Mola.' }}
     </p>
 
     {{-- PESQUISA --}}
     <form method="GET" action="{{ route('events.index') }}" class="platform-search">
       <input type="text" name="search" value="{{ request('search') }}"
-             placeholder="Pesquisar evento, artista, local..."
+             placeholder="Pesquisar evento, artista, local ou província..."
              class="search-input">
       <button type="submit" class="search-btn">
         <i data-lucide="search" class="w-5 h-5"></i>
@@ -114,7 +122,10 @@
           <span class="event-card-category">
             {{ \App\Models\Event::CATEGORIES[$event->category] ?? $event->category }}
           </span>
-          @if($event->status === 'sold_out')
+          <!-- Se passou a data entao deve vir realizado -->
+          @if($event->starts_at?->isPast())
+            <span class="event-card-badge sold-out">Realizado</span>           
+          @elseif($event->status === 'sold_out')
             <span class="event-card-badge sold-out">Esgotado</span>
           @elseif($event->isUpcoming() && $event->starts_at?->diffInDays() <= 7)
             <span class="event-card-badge soon">Em breve</span>
@@ -147,7 +158,7 @@
             A partir de <strong>{{ number_format($minPrice, 0, ',', '.') }} MT</strong>
           </div>
           @endif
-
+<!--
           <a href="{{ route('events.sale', $event->slug ?? $event->id) }}"
              class="event-card-btn {{ $event->status === 'sold_out' ? 'disabled' : '' }}">
             @if($event->status === 'sold_out')

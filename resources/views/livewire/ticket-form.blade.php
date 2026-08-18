@@ -3,7 +3,7 @@
     ticketType: $wire.entangle('ticket_type'),
     quantity: $wire.entangle('quantity'),
     prices: {
-        @foreach ($event->getTicketTypePrices() as $key => $type)
+        @foreach ($event->getPublicTicketTypePrices() as $key => $type)
             '{{ $key }}': {{ $type['price'] ?? 0 }},
         @endforeach
     },
@@ -93,10 +93,8 @@
                     <div class="form-group">
                         <label class="form-label" for="ticket_type">Tipo de Bilhete *</label>
                         <select id="ticket_type" x-model="ticketType" class="form-select">
-                            @foreach ($event->getTicketTypePrices() as $key => $type)
-                                @if ($key !== 'free')
-                                    <option value="{{ $key }}">{{ $type['name'] ?? '' }} — {{ number_format($type['price'] ?? 0, 0, ',', '.') }} MT</option>
-                                @endif
+                            @foreach ($event->getPublicTicketTypePrices() as $key => $type)
+                                <option value="{{ $key }}">{{ $type['name'] ?? '' }} — {{ number_format($type['price'] ?? 0, 0, ',', '.') }} MT</option>
                             @endforeach
                         </select>
                         @error('ticket_type') <p class="form-error">{{ $message }}</p> @enderror

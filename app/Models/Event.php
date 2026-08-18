@@ -162,7 +162,7 @@ class Event extends Model
     public function isUpcoming(): bool
     {
         $date = $this->starts_at ?? $this->date;
-        return $date && $date->isFuture();
+        return $date && $date->isFuture() && !in_array($this->status, ['ended', 'cancelled']);
     }
 
     public function isOngoing(): bool
@@ -172,9 +172,40 @@ class Event extends Model
         return now()->between($start, $this->ends_at);
     }
 
+    public function isPast(): bool
+    {
+        if (in_array($this->status, ['ended', 'cancelled'])) {
+            return true;
+        }
+
+        $date = $this->ends_at ?? $this->starts_at ?? $this->date;
+        return $date ? $date->isPast() : false;
+    }
+
+    public function canBuyTickets(): bool
+    {
+        if ($this->status !== 'published') {
+            return false;
+        }
+
+        return !$this->isPast();
+    }
+
     public function getTicketTypePrices(): array
     {
         return $this->ticket_types ?? [];
+    }
+
+    public function getPublicTicketTypePrices(): array
+    {
+        $types = $this->getTicketTypePrices();
+        return array_filter($types, function($type, $key) {
+            $name = strtolower($type['name'] ?? $key);
+            return $key !== 'free'
+                && $name !== 'cortesia'
+                && !str_contains($name, 'cortesia')
+                && ($type['price'] ?? 0) > 0;
+        }, ARRAY_FILTER_USE_BOTH);
     }
 
     public function getTotalRevenue(): int

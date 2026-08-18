@@ -57,8 +57,7 @@
 
   {{-- Ticket Type Cards Grid --}}
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 40px;">
-    @foreach ($event->getTicketTypePrices() as $key => $type)
-      @if ($key !== 'free')
+    @foreach ($event->getPublicTicketTypePrices() as $key => $type)
       <div x-data @click="$dispatch('open-ticket-modal', { type: '{{ $key }}' })" class="glass-card" style="cursor: pointer; text-align: center; position: relative; overflow: hidden; transition: all 0.3s ease; border: 1px solid var(--dark-border);" onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='{{ $type['color'] ?? 'var(--gold)' }}'" onmouseout="this.style.transform='translateY(0)'; this.style.borderColor='var(--dark-border)'">
         {{-- Glow bar --}}
         <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: {{ $type['color'] ?? 'var(--gold)' }};"></div>

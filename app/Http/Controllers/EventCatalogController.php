@@ -29,7 +29,9 @@ class EventCatalogController extends Controller
                            ->orderBy('starts_at')
                            ->first();
 
-        return view('public.events.index', compact('events', 'categories', 'provinces', 'featured'));
+        $settings = \App\Models\SiteSetting::pluck('value', 'key')->toArray();
+
+        return view('public.events.index', compact('events', 'categories', 'provinces', 'featured', 'settings'));
     }
 
     /**
@@ -44,6 +46,8 @@ class EventCatalogController extends Controller
 
         $batches = $event->batches()
                          ->where('is_active', true)
+                         ->whereNotIn('ticket_type', ['free', 'cortesia'])
+                         ->where('price', '>', 0)
                          ->orderBy('sort_order')
                          ->get();
 
@@ -65,8 +69,13 @@ class EventCatalogController extends Controller
     {
         $event = Event::where('slug', $slug)
                       ->orWhere('id', $slug)
-                      ->where('status', 'published')
+                      ->where('status', '!=', 'draft')
                       ->firstOrFail();
+
+        if (!$event->canBuyTickets()) {
+            return redirect()->route('events.show', $event->slug ?? $event->id)
+                ->with('warning', 'As vendas para este evento estão encerradas ou o evento já foi realizado.');
+        }
 
         return view('public.events.sale', compact('event'));
     }

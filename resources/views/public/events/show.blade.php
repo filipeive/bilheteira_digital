@@ -6,6 +6,15 @@
 
 @section('content')
 
+@if (session('warning'))
+<div class="container" style="padding-top: 90px; margin-bottom: -70px; position: relative; z-index: 10;">
+  <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.3); color: #FBBF24; padding: 14px 20px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+    <i data-lucide="alert-circle" class="w-5 h-5"></i>
+    <span>{{ session('warning') }}</span>
+  </div>
+</div>
+@endif
+
 {{-- HERO DO EVENTO --}}
 <section class="event-hero"
   @if($event->cover_url) style="background-image: url('{{ $event->cover_url }}')" @endif>
@@ -19,6 +28,9 @@
 
     <span class="event-category-badge">
       {{ \App\Models\Event::CATEGORIES[$event->category] ?? $event->category }}
+      @if($event->isPast())
+        &nbsp;·&nbsp; REALIZADO
+      @endif
     </span>
 
     <h1 class="event-name">{{ $event->name }}</h1>
@@ -42,17 +54,30 @@
       </div>
     </div>
 
-    {{-- Countdown --}}
-    @if($event->isUpcoming())
+    {{-- Countdown ou Estado --}}
+    @if($event->canBuyTickets() && $event->isUpcoming())
     <div class="event-countdown" id="event-countdown"
          data-target="{{ ($event->starts_at ?? $event->date)?->toIso8601String() }}">
     </div>
+    @elseif($event->isPast())
+    <div style="margin-bottom: 24px;">
+      <span style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; border-radius: 20px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #FCA5A5; font-weight: 700; text-transform: uppercase; font-size: 0.85rem;">
+        <i data-lucide="check-circle-2" class="w-4 h-4"></i> Evento Realizado em {{ ($event->starts_at ?? $event->date)?->format('d/m/Y') }}
+      </span>
+    </div>
     @endif
 
-    <a href="{{ route('events.sale', $event->slug ?? $event->id) }}" class="btn-buy-hero">
-      <i data-lucide="ticket" class="w-5 h-5"></i>
-      COMPRAR BILHETE
-    </a>
+    @if($event->canBuyTickets())
+      <a href="{{ route('events.sale', $event->slug ?? $event->id) }}" class="btn-buy-hero">
+        <i data-lucide="ticket" class="w-5 h-5"></i>
+        COMPRAR BILHETE
+      </a>
+    @else
+      <button type="button" disabled class="btn-buy-hero" style="opacity: 0.75; cursor: not-allowed; background: var(--dark-border); color: var(--text-muted); box-shadow: none;">
+        <i data-lucide="lock" class="w-5 h-5"></i>
+        VENDAS ENCERRADAS
+      </button>
+    @endif
 
   </div>
 </section>
@@ -73,7 +98,13 @@
   {{-- TIPOS DE BILHETE --}}
   <section class="event-tickets-preview glass-card">
     <h2>Bilhetes Disponíveis</h2>
-    @if($batches->isEmpty())
+    @if($event->isPast())
+      <div style="text-align: center; padding: 24px 0; color: var(--text-muted);">
+        <i data-lucide="calendar-check" class="w-10 h-10" style="margin: 0 auto 12px; color: var(--text-muted); opacity: 0.6;"></i>
+        <p style="font-size: 1.1rem; font-weight: 600;">Vendas encerradas para este evento.</p>
+        <p style="font-size: 0.85rem; margin-top: 4px;">O evento já foi realizado. Não é possível adquirir novos bilhetes.</p>
+      </div>
+    @elseif($batches->isEmpty())
       <p style="color: var(--text-muted);">Consulte as opções de bilhetes na página de compra.</p>
     @else
       <div class="tickets-preview-grid">
@@ -99,13 +130,15 @@
         </div>
         @endforeach
       </div>
+      @if($event->canBuyTickets())
+      <div style="margin-top: 24px; text-align: center;">
+        <a href="{{ route('events.sale', $event->slug ?? $event->id) }}" class="btn-gold btn-buy-main">
+          <i data-lucide="ticket" class="w-5 h-5"></i>
+          COMPRAR BILHETE AGORA
+        </a>
+      </div>
+      @endif
     @endif
-    <div style="margin-top: 24px; text-align: center;">
-      <a href="{{ route('events.sale', $event->slug ?? $event->id) }}" class="btn-gold btn-buy-main">
-        <i data-lucide="ticket" class="w-5 h-5"></i>
-        COMPRAR BILHETE AGORA
-      </a>
-    </div>
   </section>
 
   {{-- MAPA --}}

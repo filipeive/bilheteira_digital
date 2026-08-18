@@ -36,12 +36,18 @@ class AdminController extends Controller
     public function updateSiteContent(Request $request)
     {
         $validated = $request->validate([
+            'portal_name' => ['nullable', 'string', 'max:100'],
             'hero_label' => ['nullable', 'string', 'max:120'],
             'hero_title' => ['required', 'string', 'max:120'],
-            'hero_artists' => ['required', 'string', 'max:160'],
+            'hero_subtitle' => ['nullable', 'string', 'max:300'],
+            'hero_artists' => ['nullable', 'string', 'max:160'],
             'hero_support' => ['nullable', 'string', 'max:240'],
+            'announcement_text' => ['nullable', 'string', 'max:240'],
             'support_phone' => ['nullable', 'string', 'max:40'],
             'support_whatsapp' => ['nullable', 'string', 'max:40'],
+            'social_facebook' => ['nullable', 'string', 'max:200'],
+            'social_instagram' => ['nullable', 'string', 'max:200'],
+            'social_tiktok' => ['nullable', 'string', 'max:200'],
             'hero_image' => ['nullable', 'image', 'max:4096', 'mimes:jpeg,png,jpg,gif,webp'],
             'event_name' => ['nullable', 'string', 'max:100'],
             'event_date' => ['nullable', 'date'],
@@ -66,7 +72,12 @@ class AdminController extends Controller
             'event_date.date' => 'A data deve estar no formato válido.',
         ]);
 
-        foreach (['hero_label', 'hero_title', 'hero_artists', 'hero_support', 'support_phone', 'support_whatsapp', 'event_doors_open', 'event_show_time', 'event_end_time', 'about_description'] as $key) {
+        foreach ([
+            'portal_name', 'hero_label', 'hero_title', 'hero_subtitle', 'hero_artists', 'hero_support',
+            'announcement_text', 'support_phone', 'support_whatsapp', 'social_facebook',
+            'social_instagram', 'social_tiktok', 'event_doors_open', 'event_show_time',
+            'event_end_time', 'about_description'
+        ] as $key) {
             SiteSetting::putValue($key, $validated[$key] ?? null);
         }
 
@@ -272,17 +283,23 @@ class AdminController extends Controller
     private function siteDefaults(): array
     {
         return [
-            'hero_label' => 'Alpha Produções & Faith apresentam',
-            'hero_title' => 'Concerto Renúncia',
+            'portal_name' => 'Alpha Bilheteira',
+            'hero_label' => 'A plataforma de bilheteira digital gospel em Moçambique',
+            'hero_title' => 'COMPRE O SEU BILHETE ONLINE',
+            'hero_subtitle' => 'Garanta já o seu bilhete oficial para os melhores concertos, festivais e conferências gospel com segurança total via M-Pesa e e-Mola.',
             'hero_artists' => 'Abel Last & Nair Nany',
             'hero_support' => 'Minister Asafe Jamal · Echoes of the Spirit · Muana Careva · Adélia Balice',
+            'announcement_text' => '🎉 Concerto Renúncia 2026 em Quelimane — Bilhetes Promocionais com lugares limitados!',
             'support_phone' => '87 541 1644',
             'support_whatsapp' => '258875411644',
+            'social_facebook' => 'https://facebook.com/alphaproducoes',
+            'social_instagram' => 'https://instagram.com/alphaproducoes',
+            'social_tiktok' => 'https://tiktok.com/@alphaproducoes',
             'hero_image' => '',
             'event_doors_open' => '16:00',
             'event_show_time' => '18:00',
             'event_end_time' => '23:00',
-            'about_description' => 'Um momento de adoração, louvor e entrega total. O Concerto Renúncia não é apenas um evento musical, mas um encontro de almas dispostas a renunciar o mundo e abraçar a fé.',
+            'about_description' => 'A Alpha Bilheteira é a principal plataforma de gestão e venda de bilhetes digitais para eventos cristãos em Moçambique, proporcionando rapidez, segurança e autenticidade via QR Code.',
             'other_artists' => '[]',
         ];
     }
