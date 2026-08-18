@@ -158,8 +158,7 @@
             A partir de <strong>{{ number_format($minPrice, 0, ',', '.') }} MT</strong>
           </div>
           @endif
-          <!-- se o evento foi realizado entao o botao comprar bilhete fica desabilitado, seo o evento esta esgotado entao o botao comprar bilhete fica desabilitado -->
-          @if(!$event->starts_at?->isPast() && $event->status !== 'sold_out')
+<!-- seo o evento foi realizado entao o botao comprar bilhete fica desabilitado, seo o evento esta esgotado entao o botao comprar bilhete fica desabilitado -->
           <a href="{{ route('events.sale', $event->slug ?? $event->id) }}"
              class="event-card-btn {{ $event->status === 'sold_out' ? 'disabled' : '' }}">
             @if($event->status === 'sold_out')
