@@ -21,8 +21,9 @@ class TicketMail extends Mailable
 
     public function envelope(): Envelope
     {
+        $eventName = $this->tickets[0]->event->name ?? 'Alpha Bilheteira';
         return new Envelope(
-            subject: count($this->tickets) > 1 ? 'Os seus bilhetes: Concerto Renúncia' : 'O seu bilhete: Concerto Renúncia',
+            subject: count($this->tickets) > 1 ? "Os seus bilhetes: {$eventName}" : "O seu bilhete: {$eventName}",
         );
     }
 

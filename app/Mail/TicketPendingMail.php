@@ -19,8 +19,9 @@ class TicketPendingMail extends Mailable
 
     public function envelope(): Envelope
     {
+        $eventName = $this->tickets[0]->event->name ?? 'Alpha Bilheteira';
         return new Envelope(
-            subject: count($this->tickets) > 1 ? 'A aguardar confirmação dos bilhetes: Concerto Renúncia' : 'A aguardar confirmação: Concerto Renúncia',
+            subject: count($this->tickets) > 1 ? "A aguardar confirmação dos bilhetes: {$eventName}" : "A aguardar confirmação: {$eventName}",
         );
     }
 

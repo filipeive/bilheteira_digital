@@ -20,7 +20,7 @@
             <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
                 <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
                     @if(count($lastTicketIds) === 1)
-                        <a href="https://wa.me/?text={{ urlencode('Aqui está o bilhete para o Concerto Renúncia: ' . URL::signedRoute('tickets.download', $lastTicketIds[0])) }}" target="_blank" class="btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #25D366; border-color: rgba(37, 211, 102, 0.3);">
+                        <a href="https://wa.me/?text={{ urlencode('Aqui está o seu bilhete: ' . URL::signedRoute('tickets.download', $lastTicketIds[0])) }}" target="_blank" class="btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px; color: #25D366; border-color: rgba(37, 211, 102, 0.3);">
                             <i data-lucide="message-circle" class="w-4 h-4"></i> WHATSAPP
                         </a>
                         <a href="{{ route('admin.tickets.download.png', $lastTicketIds[0]) }}" target="_blank" class="btn-outline" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">

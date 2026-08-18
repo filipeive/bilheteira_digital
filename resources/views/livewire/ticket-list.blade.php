@@ -305,7 +305,7 @@
                                                     Restaurar
                                                 </button>
                                             @else
-                                                <a href="https://wa.me/{{ str_replace('+', '', $ticket->buyer_phone) }}?text={{ urlencode('Aqui está o seu bilhete para o Concerto Renúncia: ' . URL::signedRoute('tickets.download', $ticket)) }}" target="_blank" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; border-radius: 6px; transition: all 0.2s;">
+                                                <a href="https://wa.me/{{ str_replace('+', '', $ticket->buyer_phone) }}?text={{ urlencode('Aqui está o seu bilhete para ' . ($ticket->event->name ?? 'o evento') . ': ' . URL::signedRoute('tickets.download', $ticket)) }}" target="_blank" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; border-radius: 6px; transition: all 0.2s;">
                                                     <i data-lucide="message-circle" class="w-4 h-4" style="color: #25D366;"></i> WhatsApp
                                                 </a>
 
@@ -448,7 +448,7 @@
                             </button>
                             <div x-show="open" x-transition style="position: absolute; right: 0; bottom: 100%; margin-bottom: 6px; background: var(--dark-card); border: 1px solid var(--dark-border); border-radius: 8px; box-shadow: 0 -10px 30px rgba(0,0,0,0.6); z-index: 90; min-width: 190px; padding: 6px; display: flex; flex-direction: column; gap: 2px;" style="display: none;">
                                 
-                                <a href="https://wa.me/{{ str_replace('+', '', $ticket->buyer_phone) }}?text={{ urlencode('Aqui está o seu bilhete para o Concerto Renúncia: ' . URL::signedRoute('tickets.download', $ticket)) }}" target="_blank" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; border-radius: 6px; transition: all 0.2s;">
+                                <a href="https://wa.me/{{ str_replace('+', '', $ticket->buyer_phone) }}?text={{ urlencode('Aqui está o seu bilhete para ' . ($ticket->event->name ?? 'o evento') . ': ' . URL::signedRoute('tickets.download', $ticket)) }}" target="_blank" class="dropdown-item" style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: var(--text-secondary); font-size: 0.85rem; text-decoration: none; border-radius: 6px; transition: all 0.2s;">
                                     <i data-lucide="message-circle" class="w-4 h-4" style="color: #25D366;"></i> WhatsApp
                                 </a>
 

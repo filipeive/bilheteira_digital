@@ -52,13 +52,20 @@ class WhatsAppService
             return false;
         }
 
+        $eventName = $ticket->event->name ?? 'Evento';
+        $eventDate = ($ticket->event->starts_at ?? $ticket->event->date)?->format('d/m/Y H:i') ?? '';
+        $eventVenue = $ticket->event->venue ?? '';
+        if ($ticket->event->province || $ticket->event->city) {
+            $eventVenue .= ', ' . ($ticket->event->province ?? $ticket->event->city);
+        }
+
         $message = "🎫 *Bilhete Confirmado!*\n\n"
             . "Olá {$ticket->buyer_name}!\n"
-            . "O seu bilhete para o *Concerto Renúncia* está confirmado.\n\n"
+            . "O seu bilhete para *{$eventName}* está confirmado.\n\n"
             . "📋 Código: `{$ticket->ticket_code}`\n"
             . "🎟 Tipo: {$ticket->getTicketTypeLabel()}\n"
-            . "📅 11 Julho 2026 · 16:00\n"
-            . "📍 Pavilhão do Benfica, Quelimane\n\n"
+            . ($eventDate ? "📅 Data: {$eventDate}\n" : "")
+            . ($eventVenue ? "📍 Local: {$eventVenue}\n\n" : "\n")
             . "Guarde este código. Será necessário na entrada.\n"
             . "Obrigado pela sua compra! 🎶";
 

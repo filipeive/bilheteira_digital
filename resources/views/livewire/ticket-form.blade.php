@@ -40,7 +40,7 @@
                     <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px;">
                         @php
                             $codes = collect($createdTickets)->pluck('code')->implode(', ');
-                            $msg = count($createdTickets) > 1 ? "Os meus bilhetes para o Concerto Renúncia: $codes" : "O meu bilhete para o Concerto Renúncia: $codes";
+                            $msg = count($createdTickets) > 1 ? "Os meus bilhetes para {$event->name}: $codes" : "O meu bilhete para {$event->name}: $codes";
                         @endphp
                         <a href="https://wa.me/?text={{ urlencode($msg) }}" target="_blank" class="btn-outline" style="color: #25D366; border-color: rgba(37, 211, 102, 0.3);">
                             <i data-lucide="message-circle" class="w-4 h-4"></i> Partilhar no WhatsApp

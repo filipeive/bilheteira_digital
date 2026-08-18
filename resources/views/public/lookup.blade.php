@@ -1,4 +1,4 @@
-<x-public-layout title="Consultar Bilhetes — Concerto Renúncia">
+<x-public-layout title="Consultar Bilhetes — Alpha Bilheteira">
     <section style="min-height: 100vh; padding: 128px 0 72px; position: relative; overflow: hidden;">
         <div style="position: absolute; inset: 0; background: radial-gradient(circle at 18% 10%, rgba(212,175,55,0.18), transparent 28rem), radial-gradient(circle at 82% 12%, rgba(16,185,129,0.1), transparent 25rem);"></div>
         @if (!empty($siteSettings['hero_image']))
@@ -93,7 +93,7 @@
                                             @endif
                                         </div>
                                         <div style="display: flex; gap: 8px;">
-                                            <a href="https://wa.me/?text={{ urlencode('Aqui está o meu bilhete para o Concerto Renúncia: ' . URL::temporarySignedRoute('tickets.download', now()->addHours(12), $ticket)) }}" target="_blank" class="btn-outline" style="font-size: 0.82rem; padding: 9px 12px; color: #25D366; border-color: rgba(37, 211, 102, 0.3);" title="Partilhar no WhatsApp">
+                                            <a href="https://wa.me/?text={{ urlencode('Aqui está o meu bilhete para ' . ($ticket->event->name ?? 'o evento') . ': ' . URL::temporarySignedRoute('tickets.download', now()->addHours(12), $ticket)) }}" target="_blank" class="btn-outline" style="font-size: 0.82rem; padding: 9px 12px; color: #25D366; border-color: rgba(37, 211, 102, 0.3);" title="Partilhar no WhatsApp">
                                                 <i data-lucide="message-circle" class="w-4 h-4"></i> Enviar WhatsApp
                                             </a>
                                             <a href="{{ URL::temporarySignedRoute('tickets.download.png', now()->addHours(12), $ticket) }}" class="btn-outline" style="font-size: 0.82rem; padding: 9px 12px;" title="Baixar Imagem">
