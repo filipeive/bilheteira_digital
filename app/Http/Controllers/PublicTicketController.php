@@ -30,10 +30,15 @@ class PublicTicketController extends Controller
 
     public function about(): View
     {
-        $event = Event::where('is_active', true)->first();
+        $eventsCount = Event::where('status', 'published')->count();
+        $provincesCount = Event::where('status', 'published')
+            ->whereNotNull('province')
+            ->distinct('province')
+            ->count('province');
 
         return view('public.about', [
-            'event' => $event,
+            'eventsCount' => $eventsCount,
+            'provincesCount' => $provincesCount,
             'siteSettings' => $this->siteSettings(),
         ]);
     }

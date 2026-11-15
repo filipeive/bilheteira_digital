@@ -43,7 +43,8 @@ Route::post('/meus-bilhetes/buscar', [CustomerTicketController::class, 'searchTi
 
 // ─── Public Routes Preservadas (Compatibilidade) ───────────
 Route::get('/bilhetes', [PublicTicketController::class, 'index'])->name('bilhetes');
-Route::get('/sobre-o-evento', [PublicTicketController::class, 'about'])->name('about');
+Route::get('/sobre', [PublicTicketController::class, 'about'])->name('about');
+Route::redirect('/sobre-o-evento', '/sobre', 301);
 Route::get('/consultar', [PublicTicketController::class, 'lookupPage'])->name('tickets.lookup.form');
 Route::post('/consultar', [PublicTicketController::class, 'lookup'])->name('tickets.lookup');
 Route::get('/bilhetes/{ticket}/download', [PublicTicketController::class, 'download'])
