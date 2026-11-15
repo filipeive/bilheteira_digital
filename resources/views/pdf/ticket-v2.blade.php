@@ -55,13 +55,10 @@
 
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            background: url('{{ $bgImagePath }}');
+            background-color: #000000;
             margin: 0px;
             padding: 0px;
             color: #ffffff;
-            background-repeat: no-repeat;
-            background-size: cover 100%;
-            background-position: center;
         }
 
         /* ─── Wrapper do Bilhete ─── */
@@ -72,7 +69,8 @@
             top: 5px;
             left: 0;
             overflow: hidden;
-            background: #0E0C15;
+            background: #0E0C15 url('{{ $bgImagePath }}') no-repeat center center;
+            background-size: 720px 240px;
             border-radius: 16px;
         }
 
@@ -85,13 +83,14 @@
             height: 240px;
             z-index: 1;
             border-radius: 16px;
+            background: linear-gradient(135deg, rgba(14, 12, 21, 0.72) 0%, rgba(14, 12, 21, 0.55) 50%, rgba(14, 12, 21, 0.78) 100%);
         }
 
         .tm-accent-bar {
             position: absolute;
             top: 0; left: 0;
             width: 4px; height: 240px;
-            background: #C9A227;
+            background: {{ $primaryColor }};
             z-index: 2;
         }
 
@@ -101,7 +100,7 @@
             left: 541px;
             width: 24px;
             height: 24px;
-            background: #ffffff;
+            background: #000000;
             border-radius: 50%;
             z-index: 20;
         }
@@ -112,7 +111,7 @@
             left: 541px;
             width: 24px;
             height: 24px;
-            background: #ffffff;
+            background: #000000;
             border-radius: 50%;
             z-index: 20;
         }

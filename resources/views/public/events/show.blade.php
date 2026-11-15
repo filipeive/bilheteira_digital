@@ -182,13 +182,13 @@
       @endif
       @if($event->event_facebook)
       <a href="{{ $event->event_facebook }}" target="_blank" class="contact-item">
-        <i data-lucide="facebook" class="w-5 h-5"></i>
+        <svg class="w-5 h-5" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
         <span>Facebook</span>
       </a>
       @endif
       @if($event->event_instagram)
       <a href="{{ $event->event_instagram }}" target="_blank" class="contact-item">
-        <i data-lucide="instagram" class="w-5 h-5"></i>
+        <svg class="w-5 h-5" style="width: 20px; height: 20px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
         <span>Instagram</span>
       </a>
       @endif
