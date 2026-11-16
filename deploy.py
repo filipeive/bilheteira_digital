@@ -80,6 +80,7 @@ DEPLOY_GROUPS = {
     ],
     "models": [
         "app/Models/",
+        "app/Providers/",
         "app/Services/",
         "app/Policies/",
     ],

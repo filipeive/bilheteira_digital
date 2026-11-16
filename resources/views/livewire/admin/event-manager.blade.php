@@ -163,12 +163,20 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 24px;">
                 <div>
                     <label class="form-label">Imagem de Capa (Cover)</label>
-                    <input type="file" wire:model="cover_image_file" class="form-input">
+                    <input type="file" wire:model="cover_image_file" accept="image/*" class="form-input">
+                    <div wire:loading wire:target="cover_image_file" style="color: var(--gold); font-size: 0.8rem; margin-top: 6px;">A carregar capa...</div>
+                    @if($cover_image_file)
+                        <div style="color: #34D399; font-size: 0.8rem; margin-top: 6px;">✓ Capa carregada e pronta para guardar</div>
+                    @endif
                     @error('cover_image_file') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
                 <div>
                     <label class="form-label">Logótipo do Evento</label>
-                    <input type="file" wire:model="logo_image_file" class="form-input">
+                    <input type="file" wire:model="logo_image_file" accept="image/*" class="form-input">
+                    <div wire:loading wire:target="logo_image_file" style="color: var(--gold); font-size: 0.8rem; margin-top: 6px;">A carregar logótipo...</div>
+                    @if($logo_image_file)
+                        <div style="color: #34D399; font-size: 0.8rem; margin-top: 6px;">✓ Logótipo carregado e pronto para guardar</div>
+                    @endif
                     @error('logo_image_file') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
             </div>
@@ -187,8 +195,11 @@
 
             {{-- Botões --}}
             <div style="display: flex; gap: 16px;">
-                <button type="submit" class="btn-gold">
-                    <i data-lucide="check" class="w-5 h-5"></i> Guardar Evento
+                <button type="submit" class="btn-gold" wire:loading.attr="disabled" wire:target="cover_image_file,logo_image_file,save">
+                    <i data-lucide="check" class="w-5 h-5"></i>
+                    <span wire:loading.remove wire:target="cover_image_file,logo_image_file,save">Guardar Evento</span>
+                    <span wire:loading wire:target="cover_image_file,logo_image_file">Aguarde o upload...</span>
+                    <span wire:loading wire:target="save">A guardar...</span>
                 </button>
                 <button type="button" wire:click="resetForm" class="btn-outline">
                     Cancelar
