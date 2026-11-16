@@ -17,8 +17,9 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('admin.site.update') }}" enctype="multipart/form-data">
+    <form id="site-content-form" method="POST" action="{{ route('admin.site.update') }}" enctype="multipart/form-data">
         @csrf
+        <input type="hidden" name="payload_data" id="payload_data">
 
         <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 0.65fr); gap: 24px; align-items: start;">
             
@@ -162,4 +163,21 @@
 
         </div>
     </form>
+
+    <script>
+        document.getElementById('site-content-form')?.addEventListener('submit', function () {
+            const payload = {};
+            const fields = this.querySelectorAll('input[name], textarea[name], select[name]');
+            fields.forEach((el) => {
+                if (el.name === '_token' || el.name === 'payload_data' || el.type === 'file') return;
+                payload[el.name] = el.value;
+                el.disabled = true;
+            });
+            const json = JSON.stringify(payload);
+            const bytes = new TextEncoder().encode(json);
+            let bin = '';
+            bytes.forEach((b) => { bin += String.fromCharCode(b); });
+            document.getElementById('payload_data').value = btoa(bin);
+        });
+    </script>
 </x-admin-layout>

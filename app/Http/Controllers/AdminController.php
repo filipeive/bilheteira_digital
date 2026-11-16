@@ -35,6 +35,13 @@ class AdminController extends Controller
 
     public function updateSiteContent(Request $request)
     {
+        if ($request->filled('payload_data')) {
+            $decoded = json_decode(base64_decode((string) $request->input('payload_data')), true);
+            if (is_array($decoded)) {
+                $request->merge($decoded);
+            }
+        }
+
         $validated = $request->validate([
             'portal_name' => ['nullable', 'string', 'max:100'],
             'hero_label' => ['nullable', 'string', 'max:120'],
