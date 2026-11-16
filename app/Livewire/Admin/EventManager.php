@@ -29,6 +29,7 @@ class EventManager extends Component
     public string $starts_at = '';
     public string $ends_at = '';
     public string $gates_open_at = '';
+    public bool $tbd_date = false;
     public string $description = '';
     public int $max_capacity = 0;
     public bool $featured = false;
@@ -65,7 +66,7 @@ class EventManager extends Component
             'province'       => 'required|string',
             'venue'          => 'required|string|max:150',
             'organizer_name' => 'required|string|max:150',
-            'starts_at'      => 'required|date',
+            'starts_at'      => $this->tbd_date ? 'nullable|date' : 'required|date',
             'status'         => 'required|string|in:draft,published,cancelled,ended,sold_out',
             'ticket_theme'   => 'required|string',
             'contact_phone'  => 'nullable|string|max:40',
@@ -100,9 +101,10 @@ class EventManager extends Component
         $this->ticket_theme    = $event->ticket_theme ?? 'gold';
         $this->primary_color   = $event->primary_color ?? '#D4A017';
         $this->secondary_color = $event->secondary_color ?? '#0D0B07';
-        $this->starts_at       = $event->starts_at?->format('Y-m-d\TH:i') ?? '';
+        $this->starts_at       = $event->starts_at?->format('Y-m-d\TH:i') ?? $event->date?->format('Y-m-d\TH:i') ?? '';
         $this->ends_at         = $event->ends_at?->format('Y-m-d\TH:i') ?? '';
         $this->gates_open_at   = $event->gates_open_at?->format('Y-m-d\TH:i') ?? '';
+        $this->tbd_date        = $event->isTbd();
         $this->description     = $event->description ?? '';
         $this->max_capacity    = $event->max_capacity ?? 0;
         $this->featured        = $event->featured ?? false;
@@ -136,10 +138,10 @@ class EventManager extends Component
             'ticket_theme'    => $this->ticket_theme,
             'primary_color'   => $this->primary_color ?: '#D4A017',
             'secondary_color' => $this->secondary_color ?: '#0D0B07',
-            'starts_at'       => $this->starts_at ?: null,
-            'date'            => $this->starts_at ?: now(),
-            'ends_at'         => $this->ends_at ?: null,
-            'gates_open_at'   => $this->gates_open_at ?: null,
+            'starts_at'       => ($this->tbd_date || !$this->starts_at) ? null : $this->starts_at,
+            'date'            => ($this->tbd_date || !$this->starts_at) ? null : $this->starts_at,
+            'ends_at'         => ($this->tbd_date || !$this->ends_at) ? null : $this->ends_at,
+            'gates_open_at'   => ($this->tbd_date || !$this->gates_open_at) ? null : $this->gates_open_at,
             'description'     => $this->description ?: null,
             'max_capacity'    => $this->max_capacity,
             'capacity'        => $this->max_capacity,
@@ -221,7 +223,7 @@ class EventManager extends Component
         $this->reset([
             'editingId', 'isCreating', 'name', 'slug', 'category', 'province',
             'venue', 'venue_address', 'maps_url', 'organizer_name', 'ticket_theme',
-            'primary_color', 'secondary_color', 'starts_at', 'ends_at', 'gates_open_at',
+            'primary_color', 'secondary_color', 'starts_at', 'ends_at', 'gates_open_at', 'tbd_date',
             'description', 'max_capacity', 'featured', 'status', 'is_active',
             'contact_phone', 'contact_email', 'event_website', 'event_facebook',
             'event_instagram', 'meta_title', 'meta_description',

@@ -39,7 +39,7 @@
     <div class="event-info-pills">
       <div class="info-pill">
         <i data-lucide="calendar" class="w-4 h-4"></i>
-        {{ $event->starts_at?->format('l, d \d\e F \d\e Y') ?? $event->date?->format('l, d \d\e F \d\e Y') }}
+        {{ $event->starts_at?->format('l, d \d\e F \d\e Y') ?? $event->date?->format('l, d \d\e F \d\e Y') ?? 'Brevemente (Data a anunciar)' }}
       </div>
       @if($event->gates_open_at || $event->starts_at)
       <div class="info-pill">
@@ -55,7 +55,13 @@
     </div>
 
     {{-- Countdown ou Estado --}}
-    @if($event->canBuyTickets() && $event->isUpcoming())
+    @if($event->isTbd())
+    <div style="margin-bottom: 24px;">
+      <span style="display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px; border-radius: 20px; background: rgba(212, 160, 23, 0.15); border: 1px solid rgba(212, 160, 23, 0.35); color: var(--gold-light); font-weight: 700; text-transform: uppercase; font-size: 0.85rem;">
+        <i data-lucide="clock" class="w-4 h-4"></i> Brevemente — Data a anunciar
+      </span>
+    </div>
+    @elseif($event->canBuyTickets() && $event->isUpcoming())
     <div class="event-countdown" id="event-countdown"
          data-target="{{ ($event->starts_at ?? $event->date)?->toIso8601String() }}">
     </div>

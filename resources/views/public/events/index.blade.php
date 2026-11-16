@@ -71,27 +71,74 @@
 
 {{-- EVENTO EM DESTAQUE --}}
 @if($featured && !request()->anyFilled(['search', 'category', 'province']))
+@php
+  $featuredMinPrice = $featured->batches()->where('is_active', true)->where('price', '>', 0)->min('price');
+@endphp
 <section class="featured-section">
   <div class="featured-label">
     <i data-lucide="star" class="w-4 h-4"></i> Em Destaque
   </div>
-  <div class="featured-card" @if($featured->cover_url) style="background-image: url('{{ $featured->cover_url }}')" @endif>
-    <div class="featured-overlay">
+  <div class="featured-card">
+    @if($featured->cover_url)
+      <div class="featured-backdrop" style="background-image: url('{{ $featured->cover_url }}')"></div>
+    @endif
+    <div class="featured-scrim"></div>
+
+    <div class="featured-grid">
       <div class="featured-content">
-        <span class="featured-category">{{ \App\Models\Event::CATEGORIES[$featured->category] ?? $featured->category }}</span>
+        <div class="featured-badges">
+          <span class="featured-category">{{ \App\Models\Event::CATEGORIES[$featured->category] ?? $featured->category }}</span>
+          @if($featured->isTbd())
+            <span class="featured-status featured-status-soon"><i data-lucide="clock" class="w-3.5 h-3.5"></i> Brevemente</span>
+          @elseif($featured->isPast())
+            <span class="featured-status featured-status-past">Realizado</span>
+          @elseif($featured->status === 'sold_out')
+            <span class="featured-status featured-status-past">Esgotado</span>
+          @endif
+        </div>
+
         <h2 class="featured-name">{{ $featured->name }}</h2>
-        <p class="featured-meta">
-          <i data-lucide="calendar" class="w-4 h-4"></i>
-          {{ $featured->starts_at?->format('d \d\e F \d\e Y') ?? $featured->date?->format('d \d\e F \d\e Y') }}
-          &nbsp;·&nbsp;
-          <i data-lucide="map-pin" class="w-4 h-4"></i>
-          {{ $featured->venue }}, {{ $featured->province ?? 'Zambézia' }}
-        </p>
-        <a href="{{ route('events.show', $featured->slug ?? $featured->id) }}" class="featured-cta">
-          <i data-lucide="ticket" class="w-5 h-5"></i>
-          Ver Bilhetes
-        </a>
+        <p class="featured-organizer">{{ $featured->organizer_name ?? 'Alpha Produções & Faith' }}</p>
+
+        <div class="featured-meta">
+          <span class="featured-meta-item">
+            <i data-lucide="calendar" class="w-4 h-4"></i>
+            {{ $featured->starts_at?->format('d \d\e F \d\e Y') ?? $featured->date?->format('d \d\e F \d\e Y') ?? 'Brevemente (Data a anunciar)' }}
+          </span>
+          <span class="featured-meta-item">
+            <i data-lucide="map-pin" class="w-4 h-4"></i>
+            {{ $featured->venue }}, {{ $featured->province ?? 'Zambézia' }}
+          </span>
+          @if($featuredMinPrice !== null)
+          <span class="featured-meta-item featured-meta-price">
+            <i data-lucide="tag" class="w-4 h-4"></i>
+            Desde <strong>{{ number_format($featuredMinPrice, 0, ',', '.') }} MT</strong>
+          </span>
+          @endif
+        </div>
+
+        <div class="featured-actions">
+          <a href="{{ route('events.show', $featured->slug ?? $featured->id) }}" class="featured-cta">
+            <i data-lucide="ticket" class="w-5 h-5"></i>
+            {{ $featured->canBuyTickets() ? 'Ver Bilhetes' : 'Ver Detalhes' }}
+          </a>
+          @if($featured->canBuyTickets())
+          <a href="{{ route('events.sale', $featured->slug ?? $featured->id) }}" class="featured-cta-secondary">
+            Comprar Agora
+          </a>
+          @endif
+        </div>
       </div>
+
+      <a href="{{ route('events.show', $featured->slug ?? $featured->id) }}" class="featured-media" aria-label="{{ $featured->name }}">
+        @if($featured->cover_url)
+          <img src="{{ $featured->cover_url }}" alt="{{ $featured->name }}" class="featured-poster">
+        @else
+          <div class="featured-poster-placeholder">
+            <i data-lucide="music-2" class="w-12 h-12"></i>
+          </div>
+        @endif
+      </a>
     </div>
   </div>
 </section>
@@ -123,8 +170,10 @@
             {{ \App\Models\Event::CATEGORIES[$event->category] ?? $event->category }}
           </span>
           <!-- Se passou a data entao deve vir realizado -->
-          @if($event->starts_at?->isPast())
-            <span class="event-card-badge sold-out">Realizado</span>           
+          @if($event->isTbd())
+            <span class="event-card-badge soon">Brevemente</span>
+          @elseif($event->isPast())
+            <span class="event-card-badge sold-out">Realizado</span>
           @elseif($event->status === 'sold_out')
             <span class="event-card-badge sold-out">Esgotado</span>
           @elseif($event->isUpcoming() && $event->starts_at?->diffInDays() <= 7)
@@ -141,7 +190,7 @@
           <div class="event-card-meta">
             <span>
               <i data-lucide="calendar" class="w-3 h-3"></i>
-              {{ $event->starts_at?->format('d M Y') ?? ($event->date?->format('d M Y') ?? '—') }}
+              {{ $event->starts_at?->format('d M Y') ?? $event->date?->format('d M Y') ?? 'Brevemente' }}
             </span>
             <span>
               <i data-lucide="map-pin" class="w-3 h-3"></i>

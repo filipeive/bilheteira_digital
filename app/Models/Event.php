@@ -165,6 +165,11 @@ class Event extends Model
         return url('/eventos/' . ($this->slug ?? $this->id) . '/bilhetes');
     }
 
+    public function isTbd(): bool
+    {
+        return is_null($this->starts_at) && is_null($this->date);
+    }
+
     public function isUpcoming(): bool
     {
         $date = $this->starts_at ?? $this->date;

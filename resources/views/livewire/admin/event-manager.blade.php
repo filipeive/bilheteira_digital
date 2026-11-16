@@ -82,6 +82,15 @@
                     @error('organizer_name') <span class="form-error">{{ $message }}</span> @enderror
                 </div>
 
+                {{-- Sem data definida (Brevemente) --}}
+                <div class="form-group" style="grid-column: 1 / -1; background: rgba(212,160,23,0.06); border: 1px solid rgba(212,160,23,0.2); border-radius: 10px; padding: 12px 16px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 600; color: var(--gold-light); font-size: 0.9rem;">
+                        <input type="checkbox" wire:model.live="tbd_date" style="width: 18px; height: 18px; cursor: pointer;">
+                        Evento sem data definida (exibir como "Brevemente")
+                    </label>
+                </div>
+
+                @if(!$tbd_date)
                 {{-- Data de Início --}}
                 <div class="form-group">
                     <label class="form-label">Data e Hora de Início *</label>
@@ -100,6 +109,7 @@
                     <label class="form-label">Abertura de Portões</label>
                     <input type="datetime-local" wire:model="gates_open_at" class="form-input">
                 </div>
+                @endif
 
                 {{-- Capacidade --}}
                 <div class="form-group">
@@ -220,7 +230,11 @@
                             </td>
                             <td>{{ $event->province ?? 'Zambézia' }}</td>
                             <td>
-                                {{ $event->starts_at?->format('d/m/Y H:i') ?? $event->date?->format('d/m/Y H:i') ?? '—' }}
+                                @if($event->isTbd())
+                                    <span class="badge badge-yellow">Brevemente</span>
+                                @else
+                                    {{ $event->starts_at?->format('d/m/Y H:i') ?? $event->date?->format('d/m/Y H:i') ?? '—' }}
+                                @endif
                             </td>
                             <td>
                                 <button wire:click="toggleStatus({{ $event->id }})"

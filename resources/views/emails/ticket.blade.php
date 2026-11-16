@@ -28,7 +28,7 @@
                     </tr>
                     <tr>
                         <td style="padding: 8px 0; color: #6b7280;">Data:</td>
-                        <td style="padding: 8px 0; font-weight: bold;">{{ $tickets[0]->event->date->format('d/m/Y H:i') }}</td>
+                        <td style="padding: 8px 0; font-weight: bold;">{{ ($tickets[0]->event->starts_at ?? $tickets[0]->event->date)?->format('d/m/Y H:i') ?? 'Brevemente' }}</td>
                     </tr>
                     <tr>
                         <td style="padding: 8px 0; color: #6b7280;">Local:</td>

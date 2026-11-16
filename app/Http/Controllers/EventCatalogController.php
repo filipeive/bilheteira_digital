@@ -19,6 +19,7 @@ class EventCatalogController extends Controller
             ->when($request->province,  fn($q) => $q->where('province', $request->province))
             ->when($request->search,    fn($q) => $q->where('name', 'like', "%{$request->search}%"))
             ->orderByDesc('featured')
+            ->orderByRaw('starts_at IS NULL ASC')
             ->orderBy('starts_at')
             ->paginate(12);
 
@@ -26,6 +27,7 @@ class EventCatalogController extends Controller
         $provinces  = Event::PROVINCES;
         $featured   = Event::where('status', 'published')
                            ->where('featured', true)
+                           ->orderByRaw('starts_at IS NULL ASC')
                            ->orderBy('starts_at')
                            ->first();
 

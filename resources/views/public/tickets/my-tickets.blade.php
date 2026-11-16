@@ -43,7 +43,7 @@
               <strong style="font-size: 1.1rem; color: var(--text-primary); display: block;">{{ $ticket->event->name ?? 'Evento' }}</strong>
               <span style="font-size: 0.85rem; color: var(--text-secondary);">
                 <i data-lucide="calendar" class="w-3.5 h-3.5" style="display: inline; vertical-align: middle;"></i>
-                {{ $ticket->event->starts_at?->format('d M Y') ?? $ticket->event->date?->format('d M Y') }}
+                {{ $ticket->event->starts_at?->format('d M Y') ?? $ticket->event->date?->format('d M Y') ?? 'Brevemente' }}
                 &nbsp;·&nbsp; {{ $ticket->buyer_name }}
               </span>
             </div>

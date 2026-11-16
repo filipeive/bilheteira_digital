@@ -194,7 +194,7 @@
                         <tr>
                             <td style="padding-bottom: 10px; width: 50%;">
                                 <div style="color: #D4AF37; font-size: 13px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">DATA E HORA</div>
-                                <div style="font-size: 16px; font-weight: bold;">{{ \Carbon\Carbon::parse($ticket->event->date)->translatedFormat('d \d\e F Y, H\hi') }}</div>
+                                <div style="font-size: 16px; font-weight: bold;">{{ ($ticket->event->starts_at ?? $ticket->event->date) ? \Carbon\Carbon::parse($ticket->event->starts_at ?? $ticket->event->date)->translatedFormat('d \d\e F Y, H\hi') : 'Brevemente' }}</div>
                             </td>
                             <td style="padding-bottom: 10px; width: 50%;">
                                 <div style="color: #D4AF37; font-size: 13px; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px;">LOCAL</div>

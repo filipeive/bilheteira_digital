@@ -17,7 +17,7 @@
         <h1 class="sale-event-name" style="font-size: 1.8rem; color: var(--gold); margin: 0;">{{ $event->name }}</h1>
         <p class="sale-event-meta" style="color: var(--text-secondary); font-size: 0.85rem; margin: 4px 0 0 0;">
           <i data-lucide="calendar" class="w-3.5 h-3.5" style="display: inline; vertical-align: middle;"></i>
-          {{ $event->starts_at?->format('d M Y') ?? $event->date?->format('d M Y') }}
+          {{ $event->starts_at?->format('d M Y') ?? $event->date?->format('d M Y') ?? 'Brevemente' }}
           &nbsp;·&nbsp;
           <i data-lucide="map-pin" class="w-3.5 h-3.5" style="display: inline; vertical-align: middle;"></i>
           {{ $event->venue }}, {{ $event->province ?? $event->city }}
