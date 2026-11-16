@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0D0B07">
-    <title>Scanner — Concerto Renúncia</title>
+    <title>Scanner — Alpha Bilheteira</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('alpha-logo-gold.png') }}">
 
@@ -254,7 +254,7 @@
             <div class="login-container">
                 <div class="login-card">
                     <h2 style="font-size: 2rem; color: var(--gold); margin-bottom: 4px; display: inline-flex; align-items: center; gap: 10px;"><i data-lucide="scan-qr-code" class="w-8 h-8"></i> SCANNER</h2>
-                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">Concerto Renúncia</p>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 24px;">Alpha Bilheteira</p>
                     <form id="loginForm">
                         <input type="email" id="loginEmail" placeholder="Email" value="porteiro@alphaproducoes.mz" required>
                         <input type="password" id="loginPassword" placeholder="Password" value="password" required>

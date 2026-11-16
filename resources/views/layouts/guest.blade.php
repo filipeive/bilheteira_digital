@@ -87,7 +87,7 @@
                         <img src="{{ asset('alpha-logo-gold.png') }}" alt="Alpha Produções">
                     </a>
                     <h1>{{ $heading ?? 'Acesso ao Sistema' }}</h1>
-                    <p>{{ $subheading ?? 'Gestão segura dos bilhetes do Concerto Renúncia' }}</p>
+                    <p>{{ $subheading ?? 'Gestão segura da plataforma Alpha Bilheteira' }}</p>
                 </div>
 
                 <div class="auth-card-body">

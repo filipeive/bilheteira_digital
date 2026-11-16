@@ -8,7 +8,7 @@
     <meta name="author" content="Alpha Bilheteira">
     <meta property="og:image" content="@yield('og_image', asset('alpha-logo-gold.png'))">
 
-    <title>@yield('title', 'Alpha Bilheteira — Eventos Gospel em Moçambique')</title>
+    <title>@yield('title', $title ?? 'Alpha Bilheteira — Eventos Gospel em Moçambique')</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('alpha-logo-gold.png') }}">
 

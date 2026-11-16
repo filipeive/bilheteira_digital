@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0D0B07">
-    <title>Scanner de Vendas — Concerto Renúncia</title>
+    <title>Scanner de Vendas — Alpha Bilheteira</title>
     <link rel="icon" type="image/png" href="{{ asset('alpha-logo-gold.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode/html5-qrcode.min.js" type="text/javascript"></script>
