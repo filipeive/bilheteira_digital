@@ -44,10 +44,18 @@ class EventManager extends Component
     public string $meta_title = '';
     public string $meta_description = '';
 
+    // PDF / Ticket customization
+    public string $artists = '';
+    public string $pdf_brand_text = '';
+    public string $pdf_terms_text = '';
+
     // Uploads
     public $cover_image_file;
     public $logo_image_file;
     public $banner_image_file;
+    public $upload_ticket_bg_image;
+    public $upload_artist_photo_1;
+    public $upload_artist_photo_2;
 
     protected function rules(): array
     {
@@ -61,9 +69,12 @@ class EventManager extends Component
             'status'         => 'required|string|in:draft,published,cancelled,ended,sold_out',
             'ticket_theme'   => 'required|string',
             'contact_phone'  => 'nullable|string|max:40',
-            'cover_image_file'  => 'nullable|image|max:4096',
-            'logo_image_file'   => 'nullable|image|max:2048',
-            'banner_image_file' => 'nullable|image|max:4096',
+            'cover_image_file'       => 'nullable|image|max:4096',
+            'logo_image_file'        => 'nullable|image|max:2048',
+            'banner_image_file'      => 'nullable|image|max:4096',
+            'upload_ticket_bg_image' => 'nullable|image|max:4096',
+            'upload_artist_photo_1'  => 'nullable|image|max:2048',
+            'upload_artist_photo_2'  => 'nullable|image|max:2048',
         ];
     }
 
@@ -214,7 +225,9 @@ class EventManager extends Component
             'description', 'max_capacity', 'featured', 'status', 'is_active',
             'contact_phone', 'contact_email', 'event_website', 'event_facebook',
             'event_instagram', 'meta_title', 'meta_description',
+            'artists', 'pdf_brand_text', 'pdf_terms_text',
             'cover_image_file', 'logo_image_file', 'banner_image_file',
+            'upload_ticket_bg_image', 'upload_artist_photo_1', 'upload_artist_photo_2',
         ]);
         $this->category = 'gospel';
         $this->province = 'Zambézia';
